@@ -1,0 +1,192 @@
+# ==============================================================================
+#  py_modeller.yaml
+#  Source of truth for ALL environment variables used by PyModeller.
+#  This file is used to:
+#    - Generate .env.example  →  make env-generate
+#    - Validate .env at startup via core/env
+# ==============================================================================
+config:
+  - name: PYDANTIC_OUT
+    value: src/paper_hough/config_models.py
+  - name: PYDANTIC_FOLDER
+    value: src/paper_hough/models
+  - name: PEEWEE_OUT
+    value: src/paper_hough/models/db_models.py
+  - name: PEEWEE_FOLDER
+    value: src/paper_hough/models/db
+
+sections:
+
+  # ────────────────────────────────────────────────────────────────────────────
+  - name: General
+    description: Top-level application flags
+    type: settings
+    variables:
+      - name: LOCAL_DEV
+        description: Enable local development mode (disables some production guards)
+        type: bool
+        default: "true"
+        required: false
+        secret: false
+      - name: N_THREADS
+        description: Number of threads for processing
+        type: int
+        default: "1"
+        required: false
+      - name: output
+        description: Output folder to save bmp images
+        type: path
+        default: "."
+        required: false
+      - name: input
+        description: Input folder to read bin files
+        type: path
+        default: "."
+        required: false
+
+  # ────────────────────────────────────────────────────────────────────────────
+  - name: Processing
+    description: Configuration for hough algorithm
+    type: model
+    env_prefix: PROCESSING
+    variables:
+      - name: WINDOW_TIME
+        description: Time window size used for split the input matrix
+        type: int
+        default: "10"
+        required: false
+        secret: false
+
+      - name: WINDOW_SPACE
+        description: Space window size used for split the input matrix
+        type: int
+        default: "100"
+        required: false
+        secret: false
+
+  - name: Hough
+    description: Configuration for hough algorithm
+    type: model
+    env_prefix: HOUGH
+    variables:
+      - name: RHO
+        description: Distance resolution in pixels
+        type: float
+        default: "1"
+
+      - name: THETA
+        description: Angle resolution in radians
+        type: float
+        default: "0.0174533"  # pi/180
+
+      - name: THRESHOLD
+        description: Minimum number of votes
+        type: int
+        default: "100"
+
+  # ────────────────────────────────────────────────────────────────────────────
+  - name: Calculate Hough
+    description: Model use to send information a thread
+    type: model
+    include_general: false
+    variables:
+      - name: IDENTIFIER
+        description: Identifier
+        type: str
+        default: ""
+        required: false
+
+      - name: MATRIX
+        description: Matrix values to calculate hough
+        type: pnd.NpNDArrayUint8
+        required: true
+
+      - name: WATERFALL
+        description: Type of watefall sent to process
+        type: str
+        default: "energy"
+        required: false
+
+      - name: X_START
+        description: X start position in original matrix
+        type: int
+        required: true
+
+      - name: Y_START
+        description: Y start position in original matrix
+        type: int
+        required: true
+
+      - name: WIDTH
+        description: Width of the submatrix
+        type: int
+        required: true
+
+      - name: HEIGHT
+        description: Height of the submatrix
+        type: int
+        required: true
+
+  - name: Zone
+    description: Zone configuration
+    type: model
+    env_prefix: ZONE
+    include_general: false
+    variables:
+      - name: START
+        description: Start point to process
+        type: int
+        default: "0"
+        required: false
+        secret: false
+
+      - name: END
+        description: End point to process
+        type: int
+        default: "50"
+        required: false
+        secret: false
+
+      - name: hough
+        description: hough configuration
+        from_model: Hough
+        type: object
+        required: false
+
+  - name: Threshold
+    description: Threshold configuration
+    type: model
+    env_prefix: THRESHOLD
+    include_general: false
+    variables:
+      - name: WATERFALL
+        description: Waterfall name
+        type: str
+        default: ""
+        required: false
+        secret: false
+
+      - name: THRESHOLD
+        description: Threshold for the waterfall
+        type: float
+        default: "50.0"
+        required: false
+        secret: false
+
+      - name: ZONES
+        description: List of zones configs
+        from_model: Zone
+        type: list
+        required: true
+
+  - name: Thresholds
+    description: List of thresholds
+    type: settings
+    include_general: false
+    env_prefix: THRESHOLDS
+    variables:
+      - name: ITEMS
+        description: List of threshold configs
+        from_model: Threshold
+        type: list
+        required: true

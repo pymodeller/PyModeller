@@ -1,0 +1,20 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Setup venv & dependencies",
+      "type": "shell",
+      "command": "uv venv && uv pip install -r pyproject.toml",
+      "problemMatcher": [],
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    },
+    {
+      "label": "Run Ruff Linter",
+      "type": "shell",
+      "command": "uv pip run ruff check . --fix",
+      "problemMatcher": []
+    }
+  ]
+}
