@@ -30,9 +30,9 @@ Pymodeller is a powerful CLI tool designed to bridge the gap between configurati
 
  Install pymodeller via pip:
 
- '''bash  
- pip install pymodeller
-'''
+```bash
+ uv add pymodeller
+```
 
  ---
 
