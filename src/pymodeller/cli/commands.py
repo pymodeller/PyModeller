@@ -174,7 +174,7 @@ def codegen(
             bold=True,
             fg=typer.colors.CYAN,
         )
-    raise typer.Exit(code=1)
+    raise typer.Exit(code=0)
 
 
 def drift(
@@ -328,3 +328,4 @@ def setup() -> None:
     """Generate models from yaml and .env.example."""
     codegen()
     example()
+    raise typer.Exit(code=0)
