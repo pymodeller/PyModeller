@@ -51,8 +51,8 @@ jobs:
   call-publish:
     needs: [call-release, call-docs]
     if: |
-      always() && 
-      needs.call-release.result == 'success' && 
+      always() &&
+      needs.call-release.result == 'success' &&
       github.ref == 'refs/heads/main'
     permissions:
       id-token: write  # Requerido para OIDC (Trusted Publishers)
