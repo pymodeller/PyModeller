@@ -1,0 +1,37 @@
+name: "Pymodeller Drift"
+description: "Check drift between YAML spec and generated code"
+
+inputs:
+  spec:
+    description: "Path to env_spec.yaml"
+    required: false
+    default: "py_modeller.yaml"
+
+  data-model:
+    description: "Path to generated settings module"
+    required: false
+    default: "src/models.py"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.13"
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v8.1.0
+      with:
+        enable-cache: true
+        python-version: "3.13"
+
+    - name: Install pymodeller
+      run: uv sync
+      shell: bash
+
+    - name: Run drift check
+      run: |
+        uv run pymodeller drift \
+          --spec "${{ inputs.spec }}" \
+          --data-model "${{ inputs.data-model }}"
+      shell: bash

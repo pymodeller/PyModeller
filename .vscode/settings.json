@@ -1,0 +1,60 @@
+{
+  "python.defaultInterpreterPath": ".venv/bin/python",
+  "editor.rulers": [
+    120
+  ],
+  "psi-header.config": {
+    "forceToTop": true,
+    "spacesBetweenYears": false,
+    "license": "MIT",
+    "author": "PyModeller",
+    "initials": "PyModeller",
+    "authorEmail": "contact@pymodeller.com",
+    "company": "BBVA",
+    "copyrightHolder": "BBVA",
+    "creationDateZero": "asIs",
+    "authoremail": "pyModeller@pymodeller.com",
+    "website": "https://pymodeller.com",
+    "projectName": "PyModeller"
+  },
+  "psi-header.changes-tracking": {
+    "autoHeader": "autoSave",
+    "isActive": true,
+    "modDateFormat": "YYYY-MM-DD HH:mm:ss",
+    "modDate": "Last update",
+    "modBy": "Modified By",
+  },
+  "psi-header.lang-config": [
+    {
+      "language": "python",
+      "blankLinesAfter": 0,
+      "begin": "\"\"\"",
+      "commentMiddle": "",
+      "end": "\"\"\"",
+    }
+  ],
+  "psi-header.templates": [
+    {
+      "language": "python",
+      "template": [
+        "File title.",
+        "",
+        "========================================================================================================================",
+        "Name:         <<filename>>",
+        "Description:  Short description from the file ",
+        "Project:      PyModeller",
+        "",
+        "Copyright ©<<year>> <<company>>. All rights reserved.",
+        "========================================================================================================================",
+      ]
+    }
+  ],
+  "makefile.configureOnOpen": false,
+  "cSpell.words": [
+    "amrt",
+    "Cookiecutter",
+    "docstrings",
+    "fastmcp",
+    "Worktree"
+  ]
+}

@@ -1,0 +1,52 @@
+name: Documentation
+on:
+  workflow_call:
+
+permissions:
+  contents: write
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v8.1.0
+        with:
+          enable-cache: true
+          python-version: "3.13"
+
+      - name: Set up Python
+        run: uv python install 3.13
+
+      - name: Update Coverage Badge in README
+        run: |
+          # 1. Extraer el porcentaje total del JSON y formatear a 2 decimales
+          # El total suele estar en ["totals"]["percent_covered"] en el formato de coverage.py
+          # Si tu JSON no tiene 'totals', sumamos los statements y covered de todos los archivos:
+          COVERAGE=$(jq '[.files[].summary.percent_covered] | add / length' coverage.json | xargs printf "%.2f")
+
+          echo "Coverage detectado: $COVERAGE%"
+
+          # 2. Definir color según el rango
+          if (( $(echo "$COVERAGE > 90" | bc -l) )); then COLOR="brightgreen";
+          elif (( $(echo "$COVERAGE > 75" | bc -l) )); then COLOR="green";
+          elif (( $(echo "$COVERAGE > 50" | bc -l) )); then COLOR="yellow";
+          else COLOR="red"; fi
+
+          # 3. Reemplazar el badge en el README.md
+          # Busca el patrón del badge de Shields.io y lo actualiza
+          sed -i "s/coverage-[0-9.]*%25-[a-z]*/coverage-$COVERAGE%25-$COLOR/g" README.md
+
+      - name: Install dependencies and build
+        run: |
+          # Instalamos mkdocs y los plugins necesarios con uv
+          uv sync --group docs  # Si tienes [project.optional-dependencies] docs en tu pyproject.toml
+          # O instálalos directamente si no los tienes en el toml:
+          # uv pip install mkdocs-material mkdocstrings[python]
+
+          uv run --python 3.13 mkdocs build -vv
+
+      - name: Deploy to GitHub Pages
+        run: uv run mkdocs gh-deploy --force
