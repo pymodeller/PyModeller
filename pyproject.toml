@@ -1,6 +1,6 @@
 [project]
 name = "pymodeller"
-version = "0.0.2"
+version = "0.0.3-rc.1"
 description = "Package who read models from yaml and crate models using pydantic "
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -184,6 +184,7 @@ python_functions = "test_* it_* should_* scenario_*"
 [tool.semantic_release]
 build_command = "uv build"
 allow_zero_version = true
+tag_format = "v{version}"
 version_variables = [
     "pyproject.toml:version",
     "src/pymodeller/__init__.py:__version__"
