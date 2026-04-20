@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v0.1.4 (2026-04-20)
+
+### Bug Fixes
+
+- Added exit commands
+  ([`7db92df`](https://github.com/pymodeller/PyModeller/commit/7db92df1e442f7a354e6cc535ab02d60912b497f))
+
+- Added exit commands
+  ([`8a7c4ac`](https://github.com/pymodeller/PyModeller/commit/8a7c4accb85a9c4d13e760f983b8d5e477427e25))
+
+
 ## v0.1.3 (2026-04-20)
 
 ### Bug Fixes
