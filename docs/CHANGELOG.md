@@ -2,7 +2,12 @@
 
 <!-- version list -->
 
-## v0.0.3 (2026-04-20)
+## v0.0.3-rc.2 (2026-04-20)
+
+### Bug Fixes
+
+- Update actions.yaml
+  ([`83f084e`](https://github.com/pymodeller/PyModeller/commit/83f084eca13c21de09f577be5a477e018773159b))
 
 
 ## v0.0.3-rc.1 (2026-04-20)
