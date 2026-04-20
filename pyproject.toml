@@ -184,6 +184,7 @@ python_functions = "test_* it_* should_* scenario_*"
 [tool.semantic_release]
 build_command = "uv build"
 allow_zero_version = true
+tag_format = "v{version}"
 version_variables = [
     "pyproject.toml:version",
     "src/pymodeller/__init__.py:__version__"
