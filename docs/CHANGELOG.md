@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.1.0 (2026-04-20)
+
+### Features
+
+- Update sample py_modeller.yaml
+  ([`e2c10ae`](https://github.com/pymodeller/PyModeller/commit/e2c10aecbc04f34148ef670226be44ae8e6f877c))
+
+
 ## v0.0.3-rc.2 (2026-04-20)
 
 ### Bug Fixes
