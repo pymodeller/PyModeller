@@ -2,6 +2,28 @@
 
 <!-- version list -->
 
+## v0.1.2 (2026-04-20)
+
+### Bug Fixes
+
+- Added pyyaml as dependency
+  ([`9cc2303`](https://github.com/pymodeller/PyModeller/commit/9cc2303a710d9f72da24916a3c28f1a51c2ec5fc))
+
+### Continuous Integration
+
+- Added environment
+  ([`eea5281`](https://github.com/pymodeller/PyModeller/commit/eea52817364826c78e1c4e1107c8d20006469498))
+
+- Update main.yaml
+  ([`f4dcd16`](https://github.com/pymodeller/PyModeller/commit/f4dcd168498826e283cb66782e90f485a15fb59d))
+
+- Update main.yaml
+  ([`2daf41d`](https://github.com/pymodeller/PyModeller/commit/2daf41d9b52121bae94af8ca594c38dba4bcbd4a))
+
+- Update workflow with pypi
+  ([`76ff5e8`](https://github.com/pymodeller/PyModeller/commit/76ff5e8806f52fa32a83ffeff191891bc979a2ca))
+
+
 ## v0.1.1 (2026-04-20)
 
 ### Bug Fixes
