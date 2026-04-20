@@ -65,8 +65,8 @@ jobs:
     needs: [ call-release ]
     # Solo si el release fue bien y estamos en main
     if: |
-      always() && 
-      needs.call-release.result == 'success' && 
+      always() &&
+      needs.call-release.result == 'success' &&
       github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
