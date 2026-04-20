@@ -48,17 +48,54 @@ jobs:
       contents: write
     uses: ./.github/workflows/docs.yaml
 
-  call-publish:
-    needs: [call-release, call-docs]
+  # call-publish:
+  #   needs: [call-release, call-docs]
+  #   if: |
+  #     always() &&
+  #     needs.call-release.result == 'success' &&
+  #     github.ref == 'refs/heads/main'
+  #   permissions:
+  #     id-token: write  # Requerido para OIDC (Trusted Publishers)
+  #     contents: read
+  #   uses: ./.github/workflows/publish.yml  # Asegúrate de que la extensión sea .yml o .yaml según tu archivo
+  #   secrets: inherit
+
+  publish:
+    name: 🚀 Publish to PyPI
+    needs: [ call-release ]
+    # Solo si el release fue bien y estamos en main
     if: |
-      always() &&
-      needs.call-release.result == 'success' &&
+      always() && 
+      needs.call-release.result == 'success' && 
       github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    # 1. Definimos el entorno
+    environment: release
+
+    # 2. Permisos para OIDC
     permissions:
-      id-token: write  # Requerido para OIDC (Trusted Publishers)
+      id-token: write
       contents: read
-    uses: ./.github/workflows/publish.yml  # Asegúrate de que la extensión sea .yml o .yaml según tu archivo
-    secrets: inherit
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.13
+
+      - name: Build package
+        run: uv build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
 
   # 5. Docker (Solo tras un nuevo Release exitoso)
   # call-docker:
