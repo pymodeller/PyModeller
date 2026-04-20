@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.1.1 (2026-04-20)
+
+### Bug Fixes
+
+- Added trusted publish package
+  ([`3e784f2`](https://github.com/pymodeller/PyModeller/commit/3e784f26a86ca6efe22aeb336e296c4426d81c1d))
+
+
 ## v0.1.0 (2026-04-20)
 
 ### Features
