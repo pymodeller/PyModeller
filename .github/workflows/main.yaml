@@ -10,7 +10,7 @@ on:
       - main
       - develop
       - 'feature/*'
-  workflow_dispatch: # Te permite ejecutarlo manualmente desde la web para pruebas
+  workflow_dispatch:
 
 jobs:
   # 1. Pre-commit (Calidad de código rápida)
