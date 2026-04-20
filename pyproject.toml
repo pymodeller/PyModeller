@@ -5,7 +5,7 @@ description = "Package who read models from yaml and crate models using pydantic
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
-    { name = "Pymodeller team", email = "contact@pymodeller.com" },
+    { name = "Pymodeller team", email = "pymodeller@gmail.com" },
 ]
 requires-python = ">=3.13,<3.14"
 keywords = [
