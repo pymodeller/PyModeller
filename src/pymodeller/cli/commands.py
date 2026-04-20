@@ -92,6 +92,7 @@ def example(
     out_path.write_text(content, encoding="utf-8")
 
     typer.echo(f"✅ Created {out} ({len(s.all_vars)} variables)")
+    raise typer.Exit(code=0)
 
 
 def check(
@@ -114,6 +115,7 @@ def check(
         raise typer.Exit(1)
 
     typer.echo(f"✅ {env} is valid.")
+    raise typer.Exit(code=0)
 
 
 def codegen(
@@ -172,6 +174,7 @@ def codegen(
             bold=True,
             fg=typer.colors.CYAN,
         )
+    raise typer.Exit(code=1)
 
 
 def drift(
@@ -211,6 +214,7 @@ def drift(
     sync(spec)
 
     typer.echo("✅ No drift detected. Files are in sync.")
+    raise typer.Exit(code=0)
 
 
 def sync(
@@ -260,7 +264,7 @@ def sync(
             master_diff.setdefault("peewee_master", file_hash(tmp_peewee_master) != file_hash(code_gen_conf.peewee_out))
 
         show_master_diff(master_diff)
-        raise typer.Exit(1)
+        raise typer.Exit(code=0)
 
 
 def show_master_diff(master_diff: dict) -> None:
