@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.1.5-rc.1 (2026-04-20)
+
+### Bug Fixes
+
+- Update ci
+  ([`f3bcafe`](https://github.com/pymodeller/PyModeller/commit/f3bcafe6c928357b005e43501661725425974f23))
+
+
 ## v0.1.4 (2026-04-20)
 
 ### Bug Fixes
