@@ -17,7 +17,6 @@ config:
 
 sections:
 
-  # ────────────────────────────────────────────────────────────────────────────
   - name: General
     description: Top-level application flags
     type: settings
@@ -46,7 +45,7 @@ sections:
 
   # ────────────────────────────────────────────────────────────────────────────
   - name: Processing
-    description: Configuration for hough algorithm
+    description: Configuration for algorithm
     type: model
     env_prefix: PROCESSING
     variables:
@@ -64,8 +63,8 @@ sections:
         required: false
         secret: false
 
-  - name: Hough
-    description: Configuration for hough algorithm
+  - name: Algorithm
+    description: Configuration for algorithm
     type: model
     env_prefix: HOUGH
     variables:
@@ -85,7 +84,7 @@ sections:
         default: "100"
 
   # ────────────────────────────────────────────────────────────────────────────
-  - name: Calculate Hough
+  - name: Calculate Algorithm
     description: Model use to send information a thread
     type: model
     include_general: false
@@ -101,29 +100,8 @@ sections:
         type: pnd.NpNDArrayUint8
         required: true
 
-      - name: WATERFALL
-        description: Type of watefall sent to process
-        type: str
-        default: "energy"
-        required: false
-
       - name: X_START
         description: X start position in original matrix
-        type: int
-        required: true
-
-      - name: Y_START
-        description: Y start position in original matrix
-        type: int
-        required: true
-
-      - name: WIDTH
-        description: Width of the submatrix
-        type: int
-        required: true
-
-      - name: HEIGHT
-        description: Height of the submatrix
         type: int
         required: true
 
@@ -147,9 +125,9 @@ sections:
         required: false
         secret: false
 
-      - name: hough
-        description: hough configuration
-        from_model: Hough
+      - name: Algorithm
+        description: Algorithm configuration
+        from_model: Algorithm
         type: object
         required: false
 
