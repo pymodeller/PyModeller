@@ -1,0 +1,48 @@
+site_name: PyModeller
+
+extra_css:
+  - css/material.css
+
+markdown_extensions:
+  - attr_list
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight
+  - pymdownx.details
+
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          inventories:
+            - https://docs.python.org/3/objects.inv
+          options:
+            docstring_style: google
+            filters:
+              - "!^_"              # Exclude if starts with _
+              - "^__init__$"       # but include"__init__"
+              - "!^logger$"        # and exclude 'logger'
+            inherited_members: true
+            separate_signature: true
+            show_root_heading: false
+            show_root_full_path: false
+            show_signature_annotations: true
+            show_source: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            signature_crossrefs: true
+            summary: true
+            unwrap_annotated: true
+          paths: [., "src"]
+
+  - offline
+  - privacy
+  - search
+  - awesome-pages
+
+theme:
+  features:
+    - search.highlight
+    - content.code.copy
+  name: "material"

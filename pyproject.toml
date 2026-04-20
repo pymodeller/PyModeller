@@ -1,0 +1,220 @@
+[project]
+name = "pymodeller"
+version = "0.1.0"
+description = "Package who read models from yaml and crate models using pydantic "
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Pymodeller team", email = "contact@pymodeller.com" },
+]
+requires-python = ">=3.13,<3.14"
+keywords = [
+    "python", "data modeller", "migrations", "yaml"
+]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "pydantic>=2.12.5",
+    "pydantic-settings>=2.12.0",
+    "typer<0.24",
+    "python-dotenv>=1.2.1",
+]
+
+
+[dependency-groups]
+test = [
+    "peewee"
+]
+
+dev = [
+    "pre-commit>=4.5.1",
+    "pyrefly>=0.53.0",
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+    "pytest-cookies>=0.7.0",
+    "pytest-cov>=7.0.0",
+    "pytest-xdist>=3.8.0",
+    "ruff>=0.15.1",
+    "ty>=0.0.17",
+    "python-semantic-release==10.5.3",
+    "twine",
+]
+
+docs = [
+    "mkdocs==1.6.1",
+    "mkdocs-material>=9.7.2",
+    "mkdocstrings>=1.0.3",
+    "mkdocstrings-python>=2.0.2",
+    "typing-extensions>=4.15.0",
+    "mkdocs-awesome-pages-plugin==2.9.3",
+    "pymdown-extensions>=10.21.2",
+]
+
+
+[tool.ruff]
+preview = true
+target-version = "py313"
+line-length = 120
+indent-width = 4
+extend-exclude = [".venv", "build", "dist", "notebooks_extra", "tests"] # tests
+
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+
+
+[tool.ruff.lint]
+select = [
+    "A",   # flake8-builtins
+    "ANN", # flake8-annotations
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "C90", # mccabe
+    "D",   # pydocstyle
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "PGH", # pygrep-hooks
+    "RUF", # ruff-specific rules
+    "S",   # flake8-bandit
+    "SIM", # flake8-simplify
+    "T10", # flake8-debugger
+    "T20", # flake8-print
+    "UP",  # pyupgrade
+    "W",   # pycodestyle warnings
+    "YTT", # flake8-2020
+]
+ignore = ["ANN401", "D205"]
+
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+
+[tool.ruff.lint.isort]
+known-first-party = ["pymodeller"]
+section-order = [
+    "future",
+    "standard-library",
+    "third-party",
+    "first-party",
+    "local-folder",
+]
+
+
+[tool.ruff.lint.per-file-ignores]
+"**/notebooks_extra/**" = ["ALL"]
+"**/src/__main__.py" = ["ALL"]
+"**.ipynb" = ["E501", "D100", "D103", "D101", "E402", "I002", "T201"]
+"**/__init__.py" = ["D104", "F401"]
+"tests/**" = ["S101", "D103", "D100", "D104", "SLF001", "B018"]
+
+
+[tool.ty.rules]
+
+
+[tool.ty.environment]
+python = "./.venv"
+python-version = "3.13"
+python-platform = "linux"
+root = ["."]
+extra-paths = []
+
+
+[tool.ty.src]
+respect-ignore-files = false
+include = ["src"]
+exclude = ["**/node_modules", "**/__pycache__", "**/*venv/**/*", "./build", "src/__main__.py"]
+
+
+[tool.pyrefly]
+use-ignore-files = false
+project-includes = ["src"]
+project-excludes = [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/*venv/**/*",
+    "**/tests",
+]
+search-path = [
+    "src",
+    ".venv/lib/python3.13/site-packages",
+]
+python-platform = "linux"
+python-version = "3.13"
+python-interpreter-path = ".venv/bin/python3"
+
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+pythonpath = [
+    "src",
+]
+addopts = [
+    "-n",
+    "auto",
+    "--cov=pymodeller",
+    "--cov-report=xml",
+    "--cov-report=json",
+    "--cov-report=html",
+    "--cov-report=term-missing",
+]
+markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
+python_files = "test_*.py tests_*.py *_test.py"
+python_classes = "*Test Test* Describe*"
+python_functions = "test_* it_* should_* scenario_*"
+
+
+
+[tool.semantic_release]
+build_command = "uv build"
+allow_zero_version = true
+version_variables = [
+    "pyproject.toml:version",
+    "src/pymodeller/__init__.py:__version__"
+]
+
+[tool.semantic_release.changelog]
+default_templates.changelog_file = "docs/CHANGELOG.md"
+
+[tool.semantic_release.branches.main]
+match = "main"
+prerelease = false
+
+[tool.semantic_release.branches.develop]
+match = "develop"
+prerelease = true
+prerelease_token = "rc"
+
+[tool.semantic_release.branches.feature]
+match = "^feature/.*$"
+prerelease = true
+prerelease_token = "rc"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pymodeller"]
+
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
+# Add executable scripts
+[project.scripts]
+pymodeller = "pymodeller.cli.cli:main"

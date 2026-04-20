@@ -1,0 +1,61 @@
+name: Master Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+    tags-ignore: [ 'v*' ]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+      - develop
+      - 'feature/*'
+  workflow_dispatch: # Te permite ejecutarlo manualmente desde la web para pruebas
+
+jobs:
+  # 1. Pre-commit (Calidad de código rápida)
+  call-pre-commit:
+    if: "!contains(github.event.head_commit.message, 'chore(release)')"
+    uses: ./.github/workflows/pre-commit.yaml
+
+  # 2. Tests (Lógica y cobertura)
+  call-test:
+    needs: call-pre-commit
+    uses: ./.github/workflows/test.yaml
+    secrets: inherit
+
+  # 3. Semantic Release (Solo en PUSH a main)
+  call-release:
+    needs: call-test
+    if: |
+      (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')) ||
+      (github.event_name == 'workflow_dispatch')
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      packages: write
+    uses: ./.github/workflows/semantic-release.yaml
+    secrets: inherit
+
+  # 4. Documentación y Badges
+  call-docs:
+    needs: [call-test, call-release]
+    if: |
+      always() &&
+      (needs.call-release.result == 'success') && needs.call-test.result == 'success'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/docs.yaml
+
+  # 5. Docker (Solo tras un nuevo Release exitoso)
+  # call-docker:
+  #   needs: [call-test, call-release]
+  #   if: |
+  #     always() && github.event_name == 'push' &&
+  #     (github.ref == 'refs/heads/main' || needs.call-release.result == 'success')
+  #   permissions:
+  #     packages: write
+  #     contents: read
+  #   uses: ./.github/workflows/docker-publish.yaml
+  #   secrets: inherit

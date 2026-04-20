@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "psioniq.psi-header",
+    "charliermarsh.ruff",
+    "tamasfe.even-better-toml",
+    "codespellchecker"
+  ]
+}

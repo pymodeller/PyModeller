@@ -1,0 +1,49 @@
+# To update this file, run `uv run pre-commit autoupdate` and commit the changes.
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0 # Standard stable version
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: check-toml
+      - id: check-yaml
+        exclude: ^helm_config/.*
+      - id: check-json
+        exclude: (^|/)\.vscode/|^helm_config/
+      - id: pretty-format-json
+        exclude: (^|/)\.vscode/|^helm_config/
+        args: [--autofix, --no-sort-keys]
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=2000"]
+
+  # Use local hooks to ensure Ruff/Pyrefly use the environment managed by UV
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: Ruff Check
+        entry: ruff check --fix
+        language: system
+        types: [python]
+
+      - id: ruff-format
+        name: Ruff Format
+        entry: ruff format
+        language: system
+        types: [python]
+
+      - id: pyrefly-check
+        name: Pyrefly (type checking)
+        entry: pyrefly check src  # Added 'check' and the target directory
+        language: system
+        pass_filenames: false
+
+  - repo: https://github.com/checkmake/checkmake.git
+    rev: v0.3.0
+    hooks:
+      - id: checkmake
+        args: ["--config=checkmake.ini"]
