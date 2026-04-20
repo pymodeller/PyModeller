@@ -84,7 +84,7 @@ sections:
         default: "100"
 
   # ────────────────────────────────────────────────────────────────────────────
-  - name: Calculate Algorithm
+  - name: Cal Alth
     description: Model use to send information a thread
     type: model
     include_general: false
