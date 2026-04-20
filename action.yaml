@@ -7,11 +7,6 @@ inputs:
     required: false
     default: "py_modeller.yaml"
 
-  data-model:
-    description: "Path to generated settings module"
-    required: false
-    default: "src/models.py"
-
 runs:
   using: "composite"
   steps:
@@ -26,12 +21,10 @@ runs:
         python-version: "3.13"
 
     - name: Install pymodeller
-      run: uv sync
+      run: uv tool install pymodeller --python 3.13
       shell: bash
 
     - name: Run drift check
       run: |
-        uv run pymodeller drift \
-          --spec "${{ inputs.spec }}" \
-          --data-model "${{ inputs.data-model }}"
+        pymodeller drift --spec "${{ inputs.spec }}"
       shell: bash
