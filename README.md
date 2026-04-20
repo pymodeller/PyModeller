@@ -4,11 +4,11 @@
 
 ![Python](https://img.shields.io/badge/Python-3.13%2B-3775A8?logo=python&logoColor=white)
 ![uv](https://img.shields.io/badge/uv-0.5+-00A1E0?logo=uv&logoColor=white)
-[![License](https://img.shields.io/github/license/pymodeller/pymodeller?color=green)](LICENSE)
+[![License](https://img.shields.io/github/license/pymodeller/PyModeller?color=green)](LICENSE)
 
-[![Tests](https://img.shields.io/github/actions/workflow/status/pymodeller/pymodeller/tests.yml?label=Tests&logo=github)](https://github.com/pymodeller/pymodeller/actions)
-[![CI](https://img.shields.io/github/actions/workflow/status/pymodeller/pymodeller/ci.yml?label=CI&logo=github)](https://github.com/pymodeller/pymodeller/actions)
-[![Coverage](https://img.shields.io/codecov/c/github/pymodeller/pymodeller?logo=codecov&logoColor=white)](https://app.codecov.io/gh/pymodeller/pymodeller)
+[![Tests](https://img.shields.io/github/actions/workflow/status/pymodeller/PyModeller/tests.yml?label=Tests&logo=github)](https://github.com/pymodeller/pymodeller/actions)
+[![CI](https://img.shields.io/github/actions/workflow/status/pymodeller/PyModeller/ci.yml?label=CI&logo=github)](https://github.com/pymodeller/pymodeller/actions)
+[![Coverage](https://img.shields.io/codecov/c/github/pymodeller/PyModeller?logo=codecov&logoColor=white)](https://app.codecov.io/gh/pymodeller/pymodeller)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 </p>
