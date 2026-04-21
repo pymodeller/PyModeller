@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.2.1-rc.2 (2026-04-21)
+
+### Bug Fixes
+
+- Added job step for release workflow
+  ([`a06edd1`](https://github.com/pymodeller/PyModeller/commit/a06edd10c8613424318d4894bcf62ce42b8cc679))
+
+
 ## v0.2.1-rc.1 (2026-04-21)
 
 ### Bug Fixes
