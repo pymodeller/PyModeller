@@ -2,6 +2,28 @@
 
 <!-- version list -->
 
+## v0.2.1-rc.1 (2026-04-21)
+
+### Bug Fixes
+
+- Remove workflow
+  ([`40f0621`](https://github.com/pymodeller/PyModeller/commit/40f062154ff74282d3bc65f034711444acafee49))
+
+### Continuous Integration
+
+- Added approve-release guardian
+  ([`da6ef3a`](https://github.com/pymodeller/PyModeller/commit/da6ef3a9f5ecce162d0755f7cf5074d6be407ce4))
+
+- Cleaning comments
+  ([`d58e719`](https://github.com/pymodeller/PyModeller/commit/d58e71945ffafd6bdfbdc208a40e1df35aeb27a7))
+
+- Update conditions publish
+  ([`0fea6c5`](https://github.com/pymodeller/PyModeller/commit/0fea6c5eb454f07455197fa1a6e4714bcf115d65))
+
+- Update generate docs conditions
+  ([`1fcc95e`](https://github.com/pymodeller/PyModeller/commit/1fcc95e3725a502e91eb7b9b942d444b178aa417))
+
+
 ## v0.2.0 (2026-04-21)
 
 
