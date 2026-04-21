@@ -13,23 +13,27 @@ on:
   workflow_dispatch:
 
 jobs:
-  # 1. Pre-commit (Calidad de código rápida)
   pre-commit:
     if: "!contains(github.event.head_commit.message, 'chore(release)')"
     uses: ./.github/workflows/pre-commit.yaml
 
-  # 2. Tests (Lógica y cobertura)
   test:
     needs: pre-commit
     uses: ./.github/workflows/test.yaml
     secrets: inherit
 
-  # 3. Semantic Release (Solo en PUSH a main)
-  release:
+  approve-release:
     needs: test
     if: |
       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')) ||
       (github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - run: echo "Release approved by user"
+
+  release:
+    needs: approve-release
     permissions:
       contents: write
       issues: write
@@ -38,12 +42,12 @@ jobs:
     uses: ./.github/workflows/semantic-release.yaml
     secrets: inherit
 
-  # 4. Documentación y Badges
   docs:
     needs: [test, release]
     if: |
       always() &&
-      (needs.release.result == 'success') && needs.test.result == 'success'
+      (needs.release.result == 'success') && needs.test.result == 'success' &&
+      github.ref == 'refs/heads/main'
     permissions:
       contents: write
     uses: ./.github/workflows/docs.yaml
@@ -51,22 +55,15 @@ jobs:
   publish:
     name: 🚀 Publish to PyPI
     needs: [ release ]
-    # Solo si el release fue bien y estamos en main
     if: |
       always() &&
       needs.release.result == 'success' &&
-      github.ref == 'refs/heads/main' &&
-      github.ref == 'refs/heads/develop'
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     runs-on: ubuntu-latest
-
-    # 1. Definimos el entorno
-    environment: release
-
-    # 2. Permisos para OIDC
+    environment: publish
     permissions:
       id-token: write
       contents: read
-
     steps:
       - uses: actions/checkout@v6
         with:
