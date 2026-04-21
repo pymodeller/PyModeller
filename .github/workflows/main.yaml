@@ -14,18 +14,18 @@ on:
 
 jobs:
   # 1. Pre-commit (Calidad de código rápida)
-  call-pre-commit:
+  pre-commit:
     if: "!contains(github.event.head_commit.message, 'chore(release)')"
     uses: ./.github/workflows/pre-commit.yaml
 
   # 2. Tests (Lógica y cobertura)
-  call-test:
+  test:
     needs: call-pre-commit
     uses: ./.github/workflows/test.yaml
     secrets: inherit
 
   # 3. Semantic Release (Solo en PUSH a main)
-  call-release:
+  release:
     needs: call-test
     if: |
       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')) ||
@@ -39,7 +39,7 @@ jobs:
     secrets: inherit
 
   # 4. Documentación y Badges
-  call-docs:
+  docs:
     needs: [call-test, call-release]
     if: |
       always() &&
