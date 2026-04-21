@@ -14,18 +14,18 @@ on:
 
 jobs:
   # 1. Pre-commit (Calidad de código rápida)
-  call-pre-commit:
+  pre-commit:
     if: "!contains(github.event.head_commit.message, 'chore(release)')"
     uses: ./.github/workflows/pre-commit.yaml
 
   # 2. Tests (Lógica y cobertura)
-  call-test:
+  test:
     needs: call-pre-commit
     uses: ./.github/workflows/test.yaml
     secrets: inherit
 
   # 3. Semantic Release (Solo en PUSH a main)
-  call-release:
+  release:
     needs: call-test
     if: |
       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')) ||
@@ -39,7 +39,7 @@ jobs:
     secrets: inherit
 
   # 4. Documentación y Badges
-  call-docs:
+  docs:
     needs: [call-test, call-release]
     if: |
       always() &&
@@ -48,18 +48,6 @@ jobs:
       contents: write
     uses: ./.github/workflows/docs.yaml
 
-  # call-publish:
-  #   needs: [call-release, call-docs]
-  #   if: |
-  #     always() &&
-  #     needs.call-release.result == 'success' &&
-  #     github.ref == 'refs/heads/main'
-  #   permissions:
-  #     id-token: write  # Requerido para OIDC (Trusted Publishers)
-  #     contents: read
-  #   uses: ./.github/workflows/publish.yml  # Asegúrate de que la extensión sea .yml o .yaml según tu archivo
-  #   secrets: inherit
-
   publish:
     name: 🚀 Publish to PyPI
     needs: [ call-release ]
@@ -67,7 +55,8 @@ jobs:
     if: |
       always() &&
       needs.call-release.result == 'success' &&
-      github.ref == 'refs/heads/main'
+      github.ref == 'refs/heads/main' &&
+      github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
 
     # 1. Definimos el entorno
