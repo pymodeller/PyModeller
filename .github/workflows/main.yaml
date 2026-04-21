@@ -20,13 +20,13 @@ jobs:
 
   # 2. Tests (Lógica y cobertura)
   test:
-    needs: call-pre-commit
+    needs: pre-commit
     uses: ./.github/workflows/test.yaml
     secrets: inherit
 
   # 3. Semantic Release (Solo en PUSH a main)
   release:
-    needs: call-test
+    needs: test
     if: |
       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')) ||
       (github.event_name == 'workflow_dispatch')
@@ -40,21 +40,21 @@ jobs:
 
   # 4. Documentación y Badges
   docs:
-    needs: [call-test, call-release]
+    needs: [test, release]
     if: |
       always() &&
-      (needs.call-release.result == 'success') && needs.call-test.result == 'success'
+      (needs.release.result == 'success') && needs.test.result == 'success'
     permissions:
       contents: write
     uses: ./.github/workflows/docs.yaml
 
   publish:
     name: 🚀 Publish to PyPI
-    needs: [ call-release ]
+    needs: [ release ]
     # Solo si el release fue bien y estamos en main
     if: |
       always() &&
-      needs.call-release.result == 'success' &&
+      needs.release.result == 'success' &&
       github.ref == 'refs/heads/main' &&
       github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
@@ -95,11 +95,11 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
 
   # 5. Docker (Solo tras un nuevo Release exitoso)
-  # call-docker:
-  #   needs: [call-test, call-release]
+  # docker:
+  #   needs: [test, release]
   #   if: |
   #     always() && github.event_name == 'push' &&
-  #     (github.ref == 'refs/heads/main' || needs.call-release.result == 'success')
+  #     (github.ref == 'refs/heads/main' || needs.release.result == 'success')
   #   permissions:
   #     packages: write
   #     contents: read
