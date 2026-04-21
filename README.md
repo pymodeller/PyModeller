@@ -42,25 +42,25 @@ Pymodeller is a powerful CLI tool designed to bridge the gap between configurati
 
 ### 1. Code Generation
  Generate typed Pydantic models or Peewee code for your project.
-```bash  
+```bash
 pymodeller codegen --input schema.yaml --output models.py
 ```
 
 ### 2. Example Environment Generation
  Generate a template .env.example file based on your YAML specification to help collaborators set up their environment.
-```bash  
+```bash
 pymodeller example --input schema.yaml
 ```
 
 ### 3. Environment Check
  Validate your current .env file against the YAML specification to ensure all required variables are present and correctly formatted.
-```bash  
+```bash
 pymodeller check --env .env --spec schema.yaml
 ```
 
 ### 4. Drift Detection
  Check for "drift" between your YAML specification and the code already generated. This ensures that your Python models haven't fallen out of date.
-```bash  
+```bash
 pymodeller drift --input schema.yaml --code models.py
 ```
 
@@ -83,71 +83,71 @@ The py_modeller.yaml acts as the Single Source of Truth, which is parsed into an
 
 The py_modeller.yaml file defines the structure of your environment and database models. Below is an example of how to configure sections, variables, and nested models:
 
-```yaml 
-# Global configuration for output paths 
-config: 
+```yaml
+# Global configuration for output paths
+config:
   - name: PYDANTIC_OUT   # master config_models
-    value: src/models/config_models.py 
+    value: src/models/config_models.py
   - name: PEEWEE_OUT    # master config peewee
-    value: src/models/db_models.py 
+    value: src/models/db_models.py
   - name: PYDANTIC_FOLDER  # pydantic: output pydantic models folder
     value: src/paper_hough/models
   - name: PEEWEE_FOLDER  # peewee: output orm folder
-    value: src/paper_hough/models/db  
-  
-sections: 
-  # 1. Settings Section: Used for application-wide flags 
-  - name: General 
-    description: Top-level application flags 
-    type: settings 
-    variables: 
-      - name: LOCAL_DEV 
-        description: Enable local development mode 
-        type: bool 
-        default: "true" 
-      - name: API_KEY 
-        description: Secure token for external services 
-        type: secret  # Automatically handled as str + secret: true 
-        required: true 
- 
-  # 2. Model Section: Defines data structures and types 
-  - name: Algorithm 
-    description: Configuration for processing logic 
-    type: model 
-    env_prefix: HOUGH 
-    variables: 
-      - name: THRESHOLD 
-        type: int 
-        default: "100" 
-      - name: MATRIX_DATA 
-        description: Raw matrix input 
-        type: pnd.NpNDArrayUint8 # Specialized numpy-pydantic type 
-        required: true 
- 
-  # 3. Database Integration: Mapping fields to DB specs 
+    value: src/paper_hough/models/db
+
+sections:
+  # 1. Settings Section: Used for application-wide flags
+  - name: General
+    description: Top-level application flags
+    type: settings
+    variables:
+      - name: LOCAL_DEV
+        description: Enable local development mode
+        type: bool
+        default: "true"
+      - name: API_KEY
+        description: Secure token for external services
+        type: secret  # Automatically handled as str + secret: true
+        required: true
+
+  # 2. Model Section: Defines data structures and types
+  - name: Algorithm
+    description: Configuration for processing logic
+    type: model
+    env_prefix: HOUGH
+    variables:
+      - name: THRESHOLD
+        type: int
+        default: "100"
+      - name: MATRIX_DATA
+        description: Raw matrix input
+        type: pnd.NpNDArrayUint8 # Specialized numpy-pydantic type
+        required: true
+
+  # 3. Database Integration: Mapping fields to DB specs
   - name: UserProfile
-    description: Database schema for users 
-    type: model 
-    database: 
-      table_name: users 
-      primary_key: ["id"] 
-    variables: 
-      - name: USERNAME 
-        type: str 
-        db_spec: 
-          max_length: 50 
-          unique: true 
-          allow_null: false 
- 
-  # 4. Nested Models & Lists 
-  - name: ProcessingQueue 
-    type: settings 
-    variables: 
-      - name: ITEMS 
-        description: List of algorithm configurations 
-        from_model: Algorithm # Reference to another section 
-        type: list 
-        required: true 
+    description: Database schema for users
+    type: model
+    database:
+      table_name: users
+      primary_key: ["id"]
+    variables:
+      - name: USERNAME
+        type: str
+        db_spec:
+          max_length: 50
+          unique: true
+          allow_null: false
+
+  # 4. Nested Models & Lists
+  - name: ProcessingQueue
+    type: settings
+    variables:
+      - name: ITEMS
+        description: List of algorithm configurations
+        from_model: Algorithm # Reference to another section
+        type: list
+        required: true
 ```
 
 ### Key Mapping Features:
