@@ -83,5 +83,5 @@ def get_variants(name: str) -> str:
     upper = snake.upper()
     order_list = list({f'"{snake}"', f'"{camel}"', f'"{upper}"'})
     order_list.sort()
-    val_alias_opt = ", ".join(order_list)
-    return f"AliasChoices({val_alias_opt})"
+    val_alias_opt = ",\n            ".join(order_list)
+    return f"AliasChoices(\n            {val_alias_opt}\n        )"
