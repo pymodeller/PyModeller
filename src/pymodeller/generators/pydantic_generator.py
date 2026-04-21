@@ -286,7 +286,7 @@ class PydanticGenerator:
 
         PydanticGenerator.codegen_init(init_imports, all_imports, out)
 
-        lines[:0] = imports_headers
+        lines[1:1] = imports_headers
 
         name = to_snake_case(general_section.name)
         if general_section.type == SectionType.SETTINGS:
