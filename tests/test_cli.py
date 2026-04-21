@@ -75,7 +75,7 @@ def test_setup_command_delegation(mock_setup: MagicMock) -> None:
     """
     result: Result = runner.invoke(app, ["setup"])
 
-    assert result.exit_code == 1
+    assert result.exit_code == 0
     # verify logic delegation
     # assert mock_setup.called is True
 
