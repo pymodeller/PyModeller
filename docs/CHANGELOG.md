@@ -2,6 +2,43 @@
 
 <!-- version list -->
 
+## v0.2.0-rc.1 (2026-04-21)
+
+### Bug Fixes
+
+- Fix imports
+  ([`c6e5f8d`](https://github.com/pymodeller/PyModeller/commit/c6e5f8d5d8eb4c9836ace279fbb69b7cf3f52e6f))
+
+### Continuous Integration
+
+- Remove "call" from job names
+  ([`c4407e8`](https://github.com/pymodeller/PyModeller/commit/c4407e8f631d476edcd580e1a1d7967edef05959))
+
+- Update main workflow for publish stage
+  ([`afaf0a6`](https://github.com/pymodeller/PyModeller/commit/afaf0a676bcb8f97c0b9ae120c7df5c226ff2fbf))
+
+- Update needs in job "call"
+  ([`1125f64`](https://github.com/pymodeller/PyModeller/commit/1125f64cdacfae78fa4188b21390392bf855292d))
+
+### Documentation
+
+- Update readme
+  ([`3ee1c34`](https://github.com/pymodeller/PyModeller/commit/3ee1c346bfb06e7b805ce225fe1785b0a712a42a))
+
+### Features
+
+- Added enum generator
+  ([`ccc5760`](https://github.com/pymodeller/PyModeller/commit/ccc57600797c5c7730fc5aa094f1331389835d45))
+
+### Testing
+
+- Fix setup command result
+  ([`0dae3c7`](https://github.com/pymodeller/PyModeller/commit/0dae3c70adfabcac5258562ccf8581da57e35c92))
+
+- Fix setup command result
+  ([`fdde17c`](https://github.com/pymodeller/PyModeller/commit/fdde17ce16508f2215d8f8d36db0d580f81ccea1))
+
+
 ## v0.1.5-rc.1 (2026-04-20)
 
 ### Bug Fixes
