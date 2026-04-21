@@ -34,7 +34,7 @@ Pymodeller is a powerful CLI tool designed to bridge the gap between configurati
  uv add pymodeller
 ```
 
- ---
+---
 
 ## Usage
 
