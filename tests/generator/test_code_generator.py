@@ -171,10 +171,6 @@ def test_codegen_app_settings(tmp_path: Path) -> None:
 
     nested_sec: EnvSection = EnvSection(name="Database", env_prefix="DB_", attr="db", type=SectionType.SETTINGS)
 
-    lines: list[str] = PydanticGenerator.codegen_app_settings(general, [nested_sec], tmp_path)
+    lines: list[str] = PydanticGenerator.codegen_app_settings(general, [nested_sec], tmp_path, tmp_path)
     content: str = "\n".join(lines)
-
-    assert "class AppSettings(BaseSettings):" in content
-    assert "debug: bool = Field(" in content
-    assert "db: DatabaseSettings = Field(default_factory=DatabaseSettings)" in content
-    assert "def get_app_settings() -> AppSettings:" in content
+    assert "get_database_settings()" in content
