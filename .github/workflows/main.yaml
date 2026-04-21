@@ -39,7 +39,8 @@ jobs:
     needs: [test, release]
     if: |
       always() &&
-      (needs.release.result == 'success') && needs.test.result == 'success'
+      (needs.release.result == 'success') && needs.test.result == 'success' &&
+      github.ref == 'refs/heads/main'
     permissions:
       contents: write
     uses: ./.github/workflows/docs.yaml
