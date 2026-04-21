@@ -37,6 +37,7 @@ YAML_TYPE_MAP: dict[str, str] = {
     "boolean": "bool",
     "object": "object",
     "datetime": "datetime",
+    "model": "model",
     "list": "list",
     "secret": "str",  # Normalized to str + secret flag in __post_init__
     "path": "Path",
@@ -110,7 +111,7 @@ class EnvVarSpec:
     secret: bool = False
     from_model: str | None = None
     section: str = ""
-    alias: str = ""  # Python attribute name (e.g., hostName)
+    alias: str = ""
     validation_alias: str = ""
     env_name: str = ""  # Final ENV var name (e.g., SERVER__HOST)
     db_spec: DBField | None = None
@@ -145,6 +146,8 @@ class EnvSection:
     from_attributes: bool = True
     attr: str = ""
     database: DBSpec | None = None
+    yaml_file: Path | None = None
+    include_literal: bool = False  # This is for fastapi
     variables: list[EnvVarSpec] = field(default_factory=list)
 
 
@@ -230,6 +233,8 @@ def load_env_spec(path: str | Path | None = None) -> EnvSpec:
                 name=sec_name,
                 description=raw_sec.get("description", "Auto-generated description"),
                 include_general=raw_sec.get("include_general", True),
+                include_literal=raw_sec.get("include_literal", True),
+                yaml_file=raw_sec.get("yaml_file", None),
                 from_attributes=raw_sec.get("from_attributes", True),
                 env_prefix=prefix,
                 variables=vars_list,

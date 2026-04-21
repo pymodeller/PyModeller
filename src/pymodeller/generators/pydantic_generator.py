@@ -23,7 +23,9 @@ class PydanticGenerator:
             "from pydantic import AliasChoices, Field, SecretStr, BaseModel, ConfigDict",
             "from pydantic_settings import BaseSettings, SettingsConfigDict",
             "from functools import lru_cache",
+            "from datetime import datetime",
             "import pydantic_numpy.typing as pnd",
+            "from typing import Any, Literal",
         ]
 
         if extra_lines:
@@ -55,7 +57,7 @@ class PydanticGenerator:
         if var.secret:
             return "SecretStr"
         base = YAML_TYPE_MAP.get(var.type, "str")
-        if base == "object" and var.from_model:
+        if base in ["object", "model"] and var.from_model:
             base = "".join([var.from_model, "Model"])
         return f"{base} | None" if not var.required and var.default is None else base
 
@@ -79,7 +81,7 @@ class PydanticGenerator:
         else:
             default_expr = f'default="{var.default}"' if var.default is not None else "default=None"
 
-        if var.from_model and var.type != "object":
+        if var.from_model and var.type not in ["object", "model"]:
             py_type = "".join([py_type, "[", var.from_model, "Model]"])
 
         return (
@@ -128,16 +130,30 @@ class PydanticGenerator:
 
         headers = PydanticGenerator.build_header_files(extra_lines=extra_lines)
 
+        literal_: str | None = (
+            PydanticGenerator.generate_literal(section.name)
+            if section.include_literal and section.type == SectionType.MODEL
+            else None
+        )
+
         lines = [
             *headers,
             "",
             f"class {class_name}({class_base}):",
             f'    """Settings for the {section.name} section."""',
             "",
+        ]
+
+        if literal_:
+            lines.append(f"    {literal_}")
+            lines.append("")
+
+        # 4. Continue with the rest of the class body
+        lines.extend([
             *model_config,
             "",
             *generate_content,
-        ]
+        ])
 
         return lines
 
@@ -181,21 +197,50 @@ class PydanticGenerator:
         return extra_imports if len(extra_imports) > 1 else None
 
     @staticmethod
+    def generate_literal(name: str) -> str:
+        """Generate literal string for fastmcp."""
+        return f'type: Literal["{name}"] = Field(default="{name}", exclude=True)'
+
+    @staticmethod
+    def generate_setting_getter(model_name: str, yaml_file: Path | None = None) -> list[str]:
+        """Generate a cached getter function for a settings model."""
+        model_name = model_name.replace("\n", "")
+        func_name = f"get_{to_snake_case(model_name)}"
+
+        getter_lines = [
+            "@lru_cache(maxsize=1)",
+            f"def {func_name}() -> {model_name}:",
+            f'    """Return the cached application settings instance y {yaml_file or ""}."""',
+        ]
+
+        if yaml_file:
+            getter_lines.extend([
+                f'    values = _read_yaml(Path("{yaml_file}"))',
+            ])
+
+            getter_lines.extend([f"    return {model_name}(**values)", "", ""])
+        else:
+            getter_lines.extend([f"    return {model_name}()", "", ""])
+
+        return getter_lines
+
+    @staticmethod
     def codegen_app_settings(
-        general_section: EnvSection, sections_with_classes: list[EnvSection], out: Path
+        general_section: EnvSection, sections_with_classes: list[EnvSection], out: Path, models_dir: Path
     ) -> list[str]:
         """Return the root AppSettings class that composes all section classes."""
         lines = [
+            *PydanticGenerator.build_header_files(),
             "",
             "",
-            "class AppSettings(BaseSettings):",
+            "class GeneralSettings(BaseSettings):",
             '    """Root application settings. Composes all section settings."""',
             "",
             "    model_config = SettingsConfigDict(",
             f"        from_attributes={general_section.from_attributes},",
             '        env_file=".env",',
             '        env_file_encoding="utf-8",',
-            '        env_prefix="",',
+            f'        env_prefix="{general_section.env_prefix}",',
             "        env_ignore_empty=True,",
             '        env_nested_delimiter="__",',
             "        case_sensitive=False,",
@@ -211,8 +256,9 @@ class PydanticGenerator:
             lines.append(PydanticGenerator.format_field(var))
 
         imports_headers = []
-        init_imports = []
-        all_imports = []
+        init_imports = [PydanticGenerator.generate_init_import(general_section)]
+        all_imports = [f'"{PydanticGenerator._section_class_name(general_section)}"\n']
+        lru_caches_funcs = []
 
         # nested section instances
         for section in sections_with_classes:
@@ -220,7 +266,10 @@ class PydanticGenerator:
             class_name = PydanticGenerator._section_class_name(section)
 
             init_imports.append(PydanticGenerator.generate_init_import(section))
-            all_imports.append(f'"{class_name}"')
+            all_imports.append(f'"{class_name}"\n')
+
+            if section.type == SectionType.SETTINGS:
+                lru_caches_funcs.extend(PydanticGenerator.generate_setting_getter(class_name, section.yaml_file))
 
             if not section.include_general:
                 continue
@@ -239,16 +288,45 @@ class PydanticGenerator:
 
         lines[:0] = imports_headers
 
-        lines += [
+        name = to_snake_case(general_section.name)
+        if general_section.type == SectionType.SETTINGS:
+            name = "_".join([name, SectionType.SETTINGS.value])
+
+        # Nombre del archivo en snake_case
+        file_name = name + ".py"
+        file_path = models_dir / file_name
+
+        file_path.write_text("\n".join(lines), encoding="utf-8")
+
+        parts = code_gen_conf.pydantic_folder.parts
+
+        if parts and parts[0] == "src":
+            parts = parts[1:]
+
+        result = ".".join(parts)
+
+        models_settings = [c.replace('"', "") for c in all_imports if "settings" in c.lower()]
+
+        models_ = ",".join(models_settings)
+
+        singleton_lines = [
+            *imports_headers,
+            f"from {result} import ({models_})",
+            "import yaml",
             "",
             "",
-            "@lru_cache(maxsize=1)",
-            "def get_app_settings() -> AppSettings:",
-            '    """Return the cached application settings instance."""',
-            "    return AppSettings()",
+            "def _read_yaml(config_path: Path) -> dict:",
+            '    """Read YAML file safely."""',
+            "    if not config_path.is_file():",
+            "        return {}",
             "",
+            '    with open(config_path, "r", encoding="utf-8") as f:',
+            "        return yaml.safe_load(f) or {}",
+            "",
+            "",
+            *lru_caches_funcs,
         ]
-        return lines
+        return singleton_lines
 
     @staticmethod
     def generate_files(yaml_hash: str, s: EnvSpec, out: Path, master: Path) -> tuple:
@@ -283,7 +361,7 @@ class PydanticGenerator:
                 general_section = sect
 
         lines = PydanticGenerator.build_header_files(yaml_hash)
-        lines.extend(PydanticGenerator.codegen_app_settings(general_section, sections_with_classes, out))
+        lines.extend(PydanticGenerator.codegen_app_settings(general_section, sections_with_classes, out, models_dir))
 
         out_path = Path(master)
         out_path.parent.mkdir(parents=True, exist_ok=True)

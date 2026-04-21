@@ -56,7 +56,7 @@ class EnvManager:
             "#" * _LINE_WIDTH,
             "",
         ]
-        settings = [s for s in spec.sections if s.type != SectionType.PEEWEE and s.include_general]
+        settings = [s for s in spec.sections if s.type == SectionType.SETTINGS]
         for section in settings:
             lines.append(f"\n# {'─' * 20} {section.name} {'─' * 20}")
             if section.description:
@@ -71,7 +71,7 @@ class EnvManager:
                 badge_str = f"  [{' | '.join(badges)}]" if badges else ""
 
                 lines.append(f"# {var.description} | type: {var.type}{badge_str}")
-                lines.append(f"{var.env_name}={var.display_value()}")
+                lines.append(f"{var.env_name.upper()}={var.display_value()}")
 
         return "\n".join(lines)
 
@@ -82,7 +82,7 @@ class EnvManager:
 def example(
     spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.spec,
     out: Annotated[Path, typer.Option("--out", "-o", help="Output path for .env.example")] = code_gen_conf.env_example,
-) -> None:
+) -> typer.Exit:
     """Generate a template .env.example from the YAML spec."""
     s = load_env_spec(spec)
     content = EnvManager.generate_example_content(s)
@@ -92,13 +92,13 @@ def example(
     out_path.write_text(content, encoding="utf-8")
 
     typer.echo(f"✅ Created {out} ({len(s.all_vars)} variables)")
-    raise typer.Exit(code=0)
+    return typer.Exit(code=0)
 
 
 def check(
     spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.spec,
     env: Annotated[Path, typer.Option("--env", "-e", help="Path to .env file")] = code_gen_conf.env,
-) -> None:
+) -> typer.Exit:
     """Validate current .env file against the specification."""
     env_path = Path(env)
     if not env_path.exists():
@@ -115,7 +115,7 @@ def check(
         raise typer.Exit(1)
 
     typer.echo(f"✅ {env} is valid.")
-    raise typer.Exit(code=0)
+    return typer.Exit(code=0)
 
 
 def codegen(
@@ -132,7 +132,7 @@ def codegen(
     peewee_master: Annotated[
         Path, typer.Option("--peewee-master", "-pem", help="Path for the generated main Peewee module")
     ] = code_gen_conf.peewee_out,
-) -> None:
+) -> typer.Exit:
     """Generate typed Pydantic models for the environment."""
     s = load_env_spec(spec)
     yaml_hash = EnvManager.get_file_hash(Path(spec))
@@ -174,7 +174,7 @@ def codegen(
             bold=True,
             fg=typer.colors.CYAN,
         )
-    raise typer.Exit(code=0)
+    return typer.Exit(code=0)
 
 
 def drift(
@@ -182,7 +182,7 @@ def drift(
     data_model: Annotated[
         Path, typer.Option("--data-model", "-d", help="Path for the generated settings module")
     ] = code_gen_conf.pydantic_out,
-) -> None:
+) -> typer.Exit:
     """Check drift between YAML spec and generated code."""
     spec_path = Path(spec)
     dm_path = Path(data_model)
@@ -214,12 +214,12 @@ def drift(
     sync(spec)
 
     typer.echo("✅ No drift detected. Files are in sync.")
-    raise typer.Exit(code=0)
+    return typer.Exit(code=0)
 
 
 def sync(
     spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.spec,
-) -> None:
+) -> typer.Exit:
     """Check if generated models are in sync with the YAML spec."""
     original_cwd = Path.cwd()
     banner_full("Creating temporal files", "spring_green1")
@@ -264,7 +264,7 @@ def sync(
             master_diff.setdefault("peewee_master", file_hash(tmp_peewee_master) != file_hash(code_gen_conf.peewee_out))
 
         show_master_diff(master_diff)
-        raise typer.Exit(code=0)
+        return typer.Exit(code=0)
 
 
 def show_master_diff(master_diff: dict) -> None:
