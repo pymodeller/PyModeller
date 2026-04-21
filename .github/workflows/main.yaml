@@ -60,7 +60,7 @@ jobs:
       needs.release.result == 'success' &&
       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     runs-on: ubuntu-latest
-    environment: release
+    environment: publish
     permissions:
       id-token: write
       contents: read
