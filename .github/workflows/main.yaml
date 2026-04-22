@@ -26,8 +26,6 @@ jobs:
   sonar:
     needs: test
     uses: ./.github/workflows/sonarqube.yaml
-    secrets:
-      PR_TOKEN_USER: ${{ secrets.PR_TOKEN }}
 
   approve-release:
     needs: test
