@@ -41,7 +41,6 @@ jobs:
     uses: ./.github/workflows/semantic-release.yaml
     secrets:
       PR_TOKEN_USER: ${{ secrets.PR_TOKEN }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   docs:
     needs: [test, release]

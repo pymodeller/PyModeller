@@ -5,8 +5,6 @@ on:
     secrets:
       PR_TOKEN_USER:
         required: true
-      GITHUB_TOKEN:
-        required: true
 
 permissions:
   contents: write
@@ -18,7 +16,6 @@ jobs:
     env:
       PR_TOKEN_USER: ${{ secrets.PR_TOKEN_USER }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v6
         with:
