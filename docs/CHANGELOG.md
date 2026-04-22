@@ -2,6 +2,22 @@
 
 <!-- version list -->
 
+## v0.2.2 (2026-04-22)
+
+### Bug Fixes
+
+- Fixed security spot sonarqube
+  ([`2f09cb2`](https://github.com/pymodeller/PyModeller/commit/2f09cb2963454ec1b38160a9187f8417c74b41d4))
+
+### Continuous Integration
+
+- Resolve token conflict
+  ([`e236eff`](https://github.com/pymodeller/PyModeller/commit/e236efff891d97c4d3a109b3516f18918bb6db76))
+
+- Update workflow in test and semantic-release.yaml
+  ([`7ca5384`](https://github.com/pymodeller/PyModeller/commit/7ca53841f48c590c65832278bb9a9c536f0b3a05))
+
+
 ## v0.2.1 (2026-04-21)
 
 ### Bug Fixes
