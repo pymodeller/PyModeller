@@ -26,9 +26,11 @@ jobs:
   sonar:
     needs: test
     uses: ./.github/workflows/sonarqube.yaml
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   approve-release:
-    needs: test
+    needs: sonar
     if: |
       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')) ||
       (github.event_name == 'workflow_dispatch')
