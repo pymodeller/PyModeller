@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.2.5-rc.2 (2026-04-22)
+
+### Bug Fixes
+
+- Added sonar badges and sonar-project.properties
+  ([`cd2e30a`](https://github.com/pymodeller/PyModeller/commit/cd2e30ac9f232e2d962c4b147960ec1a1ec72038))
+
+
 ## v0.2.5-rc.1 (2026-04-22)
 
 ### Bug Fixes
