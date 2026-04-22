@@ -1,7 +1,6 @@
 name: "Pymodeller Drift"
 description: "Check drift between YAML spec and generated code"
 
-
 runs:
   using: "composite"
   steps:
