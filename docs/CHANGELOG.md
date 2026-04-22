@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.2.1 (2026-04-21)
+
+### Bug Fixes
+
+- Update ci environment
+  ([`29da46f`](https://github.com/pymodeller/PyModeller/commit/29da46fb85c7a1d47e1c6471a82f4e34803057d0))
+
+
 ## v0.2.1-rc.2 (2026-04-21)
 
 ### Bug Fixes

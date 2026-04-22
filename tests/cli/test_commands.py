@@ -150,8 +150,6 @@ def test_cli_codegen(mock_hash: MagicMock, mock_load: MagicMock, mock_gen: Magic
     result: Result = runner.invoke(app, ["codegen", "--out", str(out_file)])
 
     assert result.exit_code == 2
-    # assert out_file.exists()
-    # assert "✅ Data model generated" in result.stdout
 
 
 def test_cli_drift_detected(tmp_path: Path) -> None:
