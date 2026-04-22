@@ -3,7 +3,9 @@ name: SonarQube Analysis
 
 on:
   workflow_call:
-
+    secrets:
+      SONAR_TOKEN:
+        required: true
 jobs:
   sonarqube:
     name: SonarQube Scan
