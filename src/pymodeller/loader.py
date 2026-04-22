@@ -24,30 +24,38 @@ logger = getLogger(__name__)
 
 # Default location of the spec file
 DEFAULT_SPEC_PATH = Path("env_data_model.yaml")
+_PND_UINT8 = "pnd.NpNDArrayUint8"
+_PND_INT8 = "pnd.NpNDArrayInt8"
+_PND_F32 = "pnd.NpNDArrayFp32"
+_PATH = "Path"
+_FLOAT = "float"
+_INT = "int"
+_STR = "str"
+_BOOL = "bool"
 
 # Single source of truth for YAML type -> Python type name normalization
 YAML_TYPE_MAP: dict[str, str] = {
-    "str": "str",
-    "string": "str",
-    "int": "int",
-    "integer": "int",
-    "float": "float",
-    "number": "float",
-    "bool": "bool",
-    "boolean": "bool",
+    "string": _STR,
+    "integer": _INT,
+    "number": _FLOAT,
+    "secret": _STR,  # Normalized to str + secret flag in __post_init__
+    "boolean": _BOOL,
     "object": "object",
     "datetime": "datetime",
     "model": "model",
     "list": "list",
-    "secret": "str",  # Normalized to str + secret flag in __post_init__
-    "path": "Path",
-    "Path": "Path",
-    "np.ndarray": "pnd.NpNDArrayFp32",
-    "pnd.NpNDArrayFp32": "pnd.NpNDArrayFp32",
-    "pnd.NpNDArrayInt8": "pnd.NpNDArrayInt8",
-    "pnd.NpNDArrayUint8": "pnd.NpNDArrayUint8",
-    "pnd.npndarrayint8": "pnd.NpNDArrayInt8",
-    "pnd.npndarrayuint8": "pnd.NpNDArrayUint8",
+    _STR: _STR,
+    _INT: _INT,
+    _FLOAT: _FLOAT,
+    _BOOL: _BOOL,
+    _PATH.lower(): _PATH,
+    _PATH: _PATH,
+    _PND_INT8: _PND_INT8,
+    _PND_UINT8: _PND_UINT8,
+    _PND_F32: _PND_F32,
+    _PND_INT8.lower(): _PND_INT8,
+    _PND_UINT8.lower(): _PND_UINT8,
+    _PND_F32.lower(): _PND_F32,
 }
 
 BOOL_TRUTHY: frozenset[str] = frozenset({"true", "1", "yes", "on"})
