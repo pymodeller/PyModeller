@@ -68,9 +68,7 @@ pymodeller drift --input schema.yaml --code models.py
 
 ## CLI Command Reference
 
-<p align="center">
-  <img src="assets/cli.png" alt="pymodeller cli">
-</p>
+![pymodeller cli](docs/assets/cli.png)
  ---
 
 ## Data Loading & Specification
