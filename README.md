@@ -3,11 +3,11 @@
 ![Python](https://img.shields.io/badge/Python-3.13%2B-3775A8?logo=python&logoColor=white)
 ![uv](https://img.shields.io/badge/uv-0.5+-00A1E0?logo=uv&logoColor=white)
 [![License](https://img.shields.io/github/license/pymodeller/PyModeller?color=green)](LICENSE)
-[![Tests](https://img.shields.io/github/actions/workflow/status/pymodeller/PyModeller/tests.yaml?label=Tests&logo=github)](https://github.com/pymodeller/pymodeller/actions)
-[![CI](https://img.shields.io/github/actions/workflow/status/pymodeller/PyModeller/ci.yml?label=CI&logo=github)](https://github.com/pymodeller/pymodeller/actions)
-[![Coverage](https://img.shields.io/codecov/c/github/pymodeller/PyModeller?logo=codecov&logoColor=white)](https://app.codecov.io/gh/pymodeller/pymodeller)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pymodeller_PyModeller&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pymodeller_PyModeller)
+[![Tests](https://img.shields.io/github/actions/workflow/status/pymodeller/PyModeller/main.yaml?label=Tests&logo=github)](https://github.com/pymodeller/PyModeller/actions)
+[![CI](https://img.shields.io/github/actions/workflow/status/pymodeller/PyModeller/main.yaml?label=CI&logo=github)](https://github.com/pymodeller/PyModeller/actions)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=pymodeller_PyModeller&metric=coverage)](https://sonarcloud.io/summary/new_code?id=pymodeller_PyModeller)
 
 Pymodeller is a powerful CLI tool designed to bridge the gap between configuration specifications and Python code. By using a single YAML source of truth, you can automate the generation of Pydantic models, Peewee ORM classes, and manage environment variables with ease.
 
