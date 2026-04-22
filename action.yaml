@@ -1,11 +1,6 @@
 name: "Pymodeller Drift"
 description: "Check drift between YAML spec and generated code"
 
-inputs:
-  spec:
-    description: "Path to env_spec.yaml"
-    required: false
-    default: "py_modeller.yaml"
 
 runs:
   using: "composite"
@@ -25,6 +20,5 @@ runs:
       shell: bash
 
     - name: Run drift check
-      run: |
-        pymodeller drift --spec "${{ inputs.spec }}"
+      run: pymodeller drift
       shell: bash
