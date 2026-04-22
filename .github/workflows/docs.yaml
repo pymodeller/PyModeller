@@ -36,7 +36,7 @@ jobs:
           # Busca el patrón del badge de Shields.io y lo actualiza
           sed -i "s/coverage-[0-9.]*%25-[a-z]*/coverage-$COVERAGE%25-$COLOR/g" README.md
 
-      
+
 
       - name: Install dependencies and build
         run: |
