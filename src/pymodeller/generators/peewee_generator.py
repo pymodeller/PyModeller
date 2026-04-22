@@ -261,7 +261,7 @@ class PeeweeCodeGenerator:
             "    return PostgresqlDatabase(",
             "        database=db_settings.name,",
             "        user=db_settings.user,",
-            "        password=db_settings.psswrd.get_secret_value(),", # NOSONAR
+            "        password=db_settings.psswrd.get_secret_value(),",  # NOSONAR
             "        host=db_settings.host,",
             "        port=db_settings.port,",
             "    )",
