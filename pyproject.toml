@@ -1,13 +1,13 @@
 [project]
 name = "pymodeller"
 version = "0.2.6"
-description = "Package who read models from yaml and crate models using pydantic "
+description = "A package that reads models from YAML and creates Pydantic models"
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
     { name = "Pymodeller team", email = "pymodeller@gmail.com" },
 ]
-requires-python = ">=3.13,<3.14"
+requires-python = ">=3.13"
 keywords = [
     "python", "data modeller", "migrations", "yaml"
 ]
@@ -29,6 +29,10 @@ dependencies = [
     "pyyaml>=6.0.3"
 ]
 
+[project.urls]
+Homepage = "https://github.com/pymodeller/PyModeller"
+Repository = "https://github.com/pymodeller/PyModeller"
+Issues = "https://github.com/pymodeller/PyModeller/issues"
 
 [dependency-groups]
 test = [
