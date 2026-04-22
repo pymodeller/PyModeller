@@ -13,10 +13,11 @@ from pathlib import Path
 from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
+import typer
 from typer.testing import CliRunner, Result
 
 from pymodeller.cli.cli import app
-from pymodeller.cli.commands import EnvManager
+from pymodeller.cli.commands import EnvManager, banner_full, check, codegen, print_diff, setup, sync
 
 # Global runner for Typer sub-app testing
 runner: CliRunner = CliRunner()
@@ -325,3 +326,183 @@ class TestCLICommands:
         with patch("typer.echo") as mock_echo:
             print_diff("Test", diff_data)
             mock_echo.assert_any_call("   ✅ In sync")
+
+
+def test_print_diff_equal(capsys: MagicMock) -> None:
+    """Verifica el mensaje cuando los modelos son iguales."""
+    diff = {"equal": True, "added": [], "removed": [], "modified": []}
+
+    print_diff("User", diff)
+
+    captured = capsys.readouterr()
+    assert "Comparing User models" in captured.out
+    assert "✅ In sync" in captured.out
+    # Aseguramos que no imprima otras secciones
+    assert "Added" not in captured.out
+
+
+def test_print_diff_with_changes(capsys: MagicMock) -> None:
+    """Verifica que se listen correctamente los añadidos, eliminados y modificados."""
+    diff = {"equal": False, "added": ["age", "email"], "removed": ["old_id"], "modified": ["name"]}
+
+    print_diff("Product", diff)
+
+    captured = capsys.readouterr()
+    out = captured.out
+
+    assert "Comparing Product models" in out
+
+    # Verificar sección de añadidos
+    assert "+ Added:" in out
+    assert "- age" in out
+    assert "- email" in out
+
+    # Verificar sección de eliminados
+    assert "- Removed:" in out
+    assert "- old_id" in out
+
+    # Verificar sección de modificados
+    assert "✏️ Modified:" in out
+    assert "- name" in out
+
+
+def test_print_diff_partial_changes(capsys: MagicMock) -> None:
+    """Verifica que si solo hay una categoría (ej. added), no muestre las otras."""
+    diff = {"equal": False, "added": ["phone"], "removed": [], "modified": []}
+
+    print_diff("Settings", diff)
+
+    captured = capsys.readouterr()
+    out = captured.out
+
+    assert "+ Added:" in out
+    assert "- phone" in out
+    assert "Removed:" not in out
+    assert "Modified:" not in out
+
+
+# --- TESTS PARA LÍNEAS 71 (Error en check si el .env no existe) ---
+
+
+def test_check_env_not_found(capsys: MagicMock) -> None:
+    """Generate test check env."""
+    with patch("pymodeller.cli.commands.Path.exists", return_value=False):
+        with pytest.raises(typer.Exit) as exc:
+            check(env=Path(".env.missing"))
+
+        assert exc.value.exit_code == 1
+        captured = capsys.readouterr()
+        assert ".env.missing not found" in captured.out
+
+
+# --- TESTS PARA LÍNEAS 164-167 (Generación de modelos vacíos en codegen) ---
+
+
+@patch("pymodeller.cli.commands.load_env_spec")
+@patch("pymodeller.cli.commands.EnvManager.get_file_hash", return_value="abc")
+@patch("pymodeller.cli.commands.PydanticGenerator.generate_files")
+@patch("pymodeller.cli.commands.PeeweeCodeGenerator.generate_files")
+@patch("pymodeller.cli.commands.ToolRunner.run_with_uv")
+def test_codegen_no_models_declared(
+    mock_uv: MagicMock,
+    mock_peewee: MagicMock,
+    mock_pydantic: MagicMock,
+    mock_hash: MagicMock,
+    mock_load: MagicMock,
+    capsys: MagicMock,
+) -> None:
+    """Test code gen."""
+    # Simulamos que no se generan archivos (retornan None o vacíos)
+    mock_pydantic.return_value = (None, None)
+    mock_peewee.return_value = (None, None)
+
+    exc = codegen()
+
+    assert exc.exit_code == 0
+    captured = capsys.readouterr()
+    assert "No declared pydantic models" in captured.out
+    assert "No declared peewee models" in captured.out
+    # Verificamos que NO se llamó a ruff/uv si no hay archivos
+    assert mock_uv.call_count == 0
+
+
+# --- TESTS PARA LÍNEAS 217-218 (Drift detected) ---
+
+
+@patch("pymodeller.cli.commands.Path.open")
+@patch("pymodeller.cli.commands.EnvManager.get_file_hash")
+def test_drift_detected(mock_hash: MagicMock, mock_open: MagicMock, capsys: MagicMock) -> None:
+    from pymodeller.cli.commands import drift
+
+    mock_hash.return_value = "new_hash"
+    # Simulamos lectura de archivo con un hash distinto
+    mock_file = MagicMock()
+    mock_file.__enter__.return_value = ["# YAML_HASH: old_hash"]
+    mock_open.return_value = mock_file
+
+    with patch("pymodeller.cli.commands.Path.exists", return_value=True):
+        with pytest.raises(typer.Exit) as exc:
+            drift()
+
+        assert exc.value.exit_code == 1
+        assert "Drift detected!" in capsys.readouterr().out
+
+
+# --- TESTS PARA LÍNEAS 244-268 (Sync y comparación de Master files) ---
+
+
+@patch("pymodeller.cli.commands.compare_dirs")
+@patch("pymodeller.cli.commands.file_hash")
+@patch("pymodeller.cli.commands.codegen")
+@patch("pymodeller.cli.commands.Path.exists", return_value=True)
+def test_sync_with_master_diff(
+    mock_exists: MagicMock,
+    mock_codegen: MagicMock,
+    mock_file_hash: MagicMock,
+    mock_compare: MagicMock,
+    capsys: MagicMock,
+) -> None:
+    # Resultados de directorios iguales
+    mock_compare.return_value = {"equal": True, "added": [], "removed": [], "modified": []}
+    # Forzamos que los hashes de los archivos master sean DIFERENTES
+    mock_file_hash.side_effect = ["hash_a", "hash_b", "hash_c", "hash_d"]
+
+    exc = sync()
+
+    assert exc.exit_code == 0
+    captured = capsys.readouterr()
+    # Verifica que se detectó modificación en archivos master (Líneas 273-288)
+    assert "Modified:" in captured.out
+
+
+# --- TESTS PARA LÍNEAS 273-288 (show_master_diff) ---
+
+
+def test_show_master_diff_modified(capsys: MagicMock) -> None:
+    """Test show master diff."""
+    from pymodeller.cli.commands import show_master_diff
+
+    master_diff = {"pydantic_master": True, "peewee_master": False}
+
+    show_master_diff(master_diff)
+    captured = capsys.readouterr()
+    assert "Modified" in captured.out
+    assert "✅" not in captured.out
+
+
+# --- TESTS PARA LÍNEAS 320-325 (Banner y Setup) ---
+
+
+def test_banner_full() -> None:
+    """Solo para asegurar que se ejecuta sin errores de consola."""
+    banner_full("Test Message", "blue")
+
+
+@patch("pymodeller.cli.commands.codegen")
+@patch("pymodeller.cli.commands.example")
+def test_setup_flow(mock_example: MagicMock, mock_codegen: MagicMock) -> None:
+    """Test setup flow."""
+    exc = setup()
+    assert exc.exit_code == 0
+    mock_codegen.assert_called_once()
+    mock_example.assert_called_once()
