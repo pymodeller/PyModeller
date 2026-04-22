@@ -22,9 +22,6 @@ jobs:
 
       - name: Update Coverage Badge in README
         run: |
-          # 1. Extraer el porcentaje total del JSON y formatear a 2 decimales
-          # El total suele estar en ["totals"]["percent_covered"] en el formato de coverage.py
-          # Si tu JSON no tiene 'totals', sumamos los statements y covered de todos los archivos:
           COVERAGE=$(jq '[.files[].summary.percent_covered] | add / length' coverage.json | xargs printf "%.2f")
 
           echo "Coverage detectado: $COVERAGE%"
@@ -39,14 +36,15 @@ jobs:
           # Busca el patrón del badge de Shields.io y lo actualiza
           sed -i "s/coverage-[0-9.]*%25-[a-z]*/coverage-$COVERAGE%25-$COLOR/g" README.md
 
+      
+
       - name: Install dependencies and build
         run: |
-          # Instalamos mkdocs y los plugins necesarios con uv
-          uv sync --group docs  # Si tienes [project.optional-dependencies] docs en tu pyproject.toml
-          # O instálalos directamente si no los tienes en el toml:
-          # uv pip install mkdocs-material mkdocstrings[python]
-
+          uv sync --group docs
           uv run --python 3.13 mkdocs build -vv
+
+      - name: Fix README links for MkDocs
+        run: make fix-links
 
       - name: Deploy to GitHub Pages
         run: uv run mkdocs gh-deploy --force

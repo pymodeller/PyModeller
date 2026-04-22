@@ -2,6 +2,17 @@
 # Documentation
 # ─────────────────────────────────────────────────────────────────────────────
 
+# Detect the operating system
+UNAME_S := $(shell uname -s)
+
+# Command definition
+ifeq ($(UNAME_S),Darwin)
+    SED_FIX = sed -i ''
+else
+    SED_FIX = sed -i
+endif
+
+
 .PHONY: docs
 docs: 	## Serve documentation locally
 	@echo "$(ARROW) Serving documentation (mkdocs)..."
@@ -32,3 +43,9 @@ generate-docs: ## Generate mkdocs files from src
 		echo "::: $$module_path" > docs/code/$$dir_path/$$base_name.md; \
 	done
 	@echo "Docs generated in docs/code"
+
+
+
+.PHONY: fix-links
+fix-links: ## target to clean links
+	$(SED_FIX) 's/(docs\//(/' README.md
