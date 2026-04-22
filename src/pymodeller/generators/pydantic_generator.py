@@ -99,26 +99,28 @@ class PydanticGenerator:
         class_name = PydanticGenerator._section_class_name(section)
         class_base = "BaseSettings" if section.type == SectionType.SETTINGS else "BaseModel"
 
+        options = [
+            f"        from_attributes={section.from_attributes},",
+            '        extra="ignore",',
+            "        populate_by_name=True,",
+        ]
+
         model_config_settings = [
             "    model_config = SettingsConfigDict(",
-            f"        from_attributes={section.from_attributes},",
             '        env_file=".env",',
             '        env_file_encoding="utf-8",',
             "        env_ignore_empty=True,",
             f'        env_prefix="{section.env_prefix}",',
             '        env_nested_delimiter="__",',
             "        case_sensitive=False,",
-            '        extra="ignore",',
-            "        populate_by_name=True,",
             '        env_prefix_target="all",',
+            *options,
             "    )",
         ]
 
         model_config_base = [
             "    model_config = ConfigDict(",
-            "        from_attributes=False,",
-            '        extra="ignore",',
-            "        populate_by_name=True,",
+            *options,
             "    )",
         ]
 
