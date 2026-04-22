@@ -103,6 +103,7 @@ class PydanticGenerator:
             f"        from_attributes={section.from_attributes},",
             '        extra="ignore",',
             "        populate_by_name=True,",
+            "    )",
         ]
 
         model_config_settings = [
@@ -115,13 +116,11 @@ class PydanticGenerator:
             "        case_sensitive=False,",
             '        env_prefix_target="all",',
             *options,
-            "    )",
         ]
 
         model_config_base = [
             "    model_config = ConfigDict(",
             *options,
-            "    )",
         ]
 
         model_config = model_config_settings if section.type == SectionType.SETTINGS else model_config_base
