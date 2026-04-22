@@ -20,7 +20,8 @@ jobs:
   test:
     needs: pre-commit
     uses: ./.github/workflows/test.yaml
-    secrets: inherit
+    secrets:
+      PR_TOKEN_USER: ${{ secrets.PR_TOKEN }}
 
   approve-release:
     needs: test
@@ -36,11 +37,11 @@ jobs:
     needs: approve-release
     permissions:
       contents: write
-      issues: write
-      pull-requests: write
       packages: write
     uses: ./.github/workflows/semantic-release.yaml
-    secrets: inherit
+    secrets:
+      PR_TOKEN_USER: ${{ secrets.PR_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   docs:
     needs: [test, release]
