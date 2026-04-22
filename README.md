@@ -1,7 +1,7 @@
 # PyModeller
 
 ![Python](https://img.shields.io/badge/Python-3.13%2B-3775A8?logo=python&logoColor=white)
-![uv](https://img.shields.io/badge/uv-0.5+-00A1E0?logo=uv&logoColor=white)
+![uv](https://img.shields.io/badge/uv-0.9+-00A1E0?logo=uv&logoColor=white)
 [![License](https://img.shields.io/github/license/pymodeller/PyModeller?color=green)](LICENSE)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pymodeller_PyModeller&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pymodeller_PyModeller)
 [![Tests](https://img.shields.io/github/actions/workflow/status/pymodeller/PyModeller/main.yaml?label=Tests&logo=github)](https://github.com/pymodeller/PyModeller/actions)
