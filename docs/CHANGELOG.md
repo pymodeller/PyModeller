@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v0.2.5-rc.1 (2026-04-22)
+
+### Bug Fixes
+
+- Fixing sonarqube and readme
+  ([`7454cd8`](https://github.com/pymodeller/PyModeller/commit/7454cd8f9e36a91b2271f81bab484cc2e15ff25b))
+
+- Pretty qa
+  ([`49c9659`](https://github.com/pymodeller/PyModeller/commit/49c965906da732bd7ab7ddc496f86e6006b192bc))
+
+
 ## v0.2.4 (2026-04-22)
 
 ### Bug Fixes
