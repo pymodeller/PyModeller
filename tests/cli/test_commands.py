@@ -302,7 +302,7 @@ class TestCLICommands:
         }
 
         # Setup mock for temp directory path
-        mock_temp.return_value.__enter__.return_value = Path("/tmp/dummy")  # noqa: S108
+        mock_temp.return_value.__enter__.return_value = Path("./tmp/dummy")
 
         import typer
 
