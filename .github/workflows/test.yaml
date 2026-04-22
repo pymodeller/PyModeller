@@ -33,25 +33,6 @@ jobs:
         run: |
           uv run pytest -v --tb=short --disable-warnings --maxfail=1
 
-      - name: Update Coverage Badge in README
-        run: |
-          # 1. Extraer el porcentaje total del JSON y formatear a 2 decimales
-          # El total suele estar en ["totals"]["percent_covered"] en el formato de coverage.py
-          # Si tu JSON no tiene 'totals', sumamos los statements y covered de todos los archivos:
-          COVERAGE=$(jq '[.files[].summary.percent_covered] | add / length' coverage.json | xargs printf "%.2f")
-
-          echo "Coverage detectado: $COVERAGE%"
-
-          # 2. Definir color según el rango
-          if (( $(echo "$COVERAGE > 90" | bc -l) )); then COLOR="brightgreen";
-          elif (( $(echo "$COVERAGE > 75" | bc -l) )); then COLOR="green";
-          elif (( $(echo "$COVERAGE > 50" | bc -l) )); then COLOR="yellow";
-          else COLOR="red"; fi
-
-          # 3. Reemplazar el badge en el README.md
-          # Busca el patrón del badge de Shields.io y lo actualiza
-          sed -i "s/coverage-[0-9.]*%25-[a-z]*/coverage-$COVERAGE%25-$COLOR/g" README.md
-
       - name: Upload coverage
         uses: actions/upload-artifact@v7.0.1
         with:
