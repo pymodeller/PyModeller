@@ -39,11 +39,6 @@ class IssueKind(StrEnum):
     TYPE_ERROR = "type_error"
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Result dataclasses
-# ──────────────────────────────────────────────────────────────────────────────
-
-
 @dataclass
 class VarIssue:
     """A single validation problem for one environment variable."""
@@ -82,11 +77,6 @@ class EnvValidationResult:
         return [i for i in self.issues if i.issue == IssueKind.TYPE_ERROR]
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Exception
-# ──────────────────────────────────────────────────────────────────────────────
-
-
 class EnvValidationError(RuntimeError):
     """Raised when required environment variables are missing or malformed."""
 
@@ -97,11 +87,6 @@ class EnvValidationError(RuntimeError):
         for issue in result.issues:
             lines.append(f"  [{issue.issue.upper()}] {issue.name} ({issue.section}) — {issue.detail}")
         super().__init__("\n".join(lines))
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Validator
-# ──────────────────────────────────────────────────────────────────────────────
 
 
 class EnvValidator:
@@ -237,11 +222,6 @@ class EnvValidator:
             )
 
         return None
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Convenience function
-# ──────────────────────────────────────────────────────────────────────────────
 
 
 def validate_env(
