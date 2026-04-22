@@ -108,12 +108,11 @@ class TestPeeweeGenerator:
     def test_generate_files_no_peewee_sections(self) -> None:
         """Verify early exit if no Peewee sections exist (Line 285)."""
         spec = EnvSpec(sections=[EnvSection(name="S1", type=SectionType.SETTINGS, variables=[])])
-        out_path, _ = PeeweeCodeGenerator.generate_files("hash", spec, Path("out"), Path("master.py"))
+        out_path, _ = PeeweeCodeGenerator.generate_files(spec, Path("out"), Path("master.py"))
         assert out_path is None
 
     @patch("pathlib.Path.write_text")
-    @patch("pathlib.Path.mkdir")
-    def test_generate_files_success(self, mock_mkdir: MagicMock, mock_write: MagicMock) -> None:
+    def test_generate_files_success(self, mock_write: MagicMock) -> None:
         """Cover full file orchestration: models, __init__.py, and master settings.
         Covers lines 284-315 and helper codegen_init/generate_main.
         """
@@ -125,7 +124,7 @@ class TestPeeweeGenerator:
         out = Path("models_pkg")
         master = Path("settings/db_master.py")
 
-        res_master, res_dir = PeeweeCodeGenerator.generate_files("abc", spec, out, master)
+        res_master, res_dir = PeeweeCodeGenerator.generate_files(spec, out, master)
 
         assert res_master == master
         assert res_dir == out

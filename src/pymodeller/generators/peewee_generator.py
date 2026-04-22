@@ -90,42 +90,47 @@ class PeeweeCodeGenerator:
         """Genera una línea de campo estilo Peewee con lógica simplificada."""
         db = var.db_spec
         field_type = PeeweeCodeGenerator.get_peewee_type(var)
+
+        def add(condition: bool, value: str) -> None:
+            """Add param to list."""
+            if condition:
+                params.append(value)
+
         params = []
 
-        # 1. Parámetros booleanos y directos de DB
+        condition = bool(not var.required or (db and db.allow_null))
+        # null
+        add(condition, "null=True")
+
+        # default
+        if var.default is not None:
+            default = repr(var.default)
+            params.append(f"default={default}")
+
         if db:
-            mapping = {
-                "max_length": db.max_length,
-                "index": True if db.index else None,
-                "unique": True if db.unique else None,
-                "column_name": f"'{db.column_name}'" if db.column_name else None,
-                "default": db.default_callable,  # Sobrescribe el default estático si existe
-            }
-            for key, value in mapping.items():
-                if value is not None:
-                    params.append(f"{key}={value}")
+            add(db.max_length is not None, f"max_length={db.max_length}")
+            add(db.index, "index=True")
+            add(db.unique, "unique=True")
+            add(db.column_name is not None, f"column_name='{db.column_name}'")
+            add(db.default_callable is not None, f"default={db.default_callable}")
 
-        # 2. Lógica especial (null y default estático)
-        if not var.required or (db and db.allow_null):
-            params.append("null=True")
-
-        if var.default is not None and not (db and db.default_callable):
-            val = f"'{var.default}'" if isinstance(var.default, str) else var.default
-            params.append(f"default={val}")
-
-        # 3. Lógica externa y constraints
+        # foreign key
         params, field_type = PeeweeCodeGenerator.add_foreign(db, params, field_type)
 
+        # constraints
         if db and db.constraints:
-            c_list = ",\n            ".join(f"SQL({c!r})" for c in db.constraints)
-            params.append(f"constraints=[\n            {c_list}\n        ]")
+            constraints = ",\n            ".join(f"SQL({c!r})" for c in db.constraints)
+            params.append(f"constraints=[\n            {constraints}\n        ]")
 
-        # 4. Construcción del resultado
-        indent = "\n        "
-        if len(params) > 3:
-            return f"    {var.name} = {field_type}({indent}{f',{indent}'.join(params)}\n    )"
+        # render
+        if len(params) <= 3:
+            joined = ", ".join(params)
+            return f"    {var.name} = {field_type}({joined})"
 
-        return f"    {var.name} = {field_type}({', '.join(params)})"
+        joined = ",\n        ".join(params)
+        return f"""    {var.name} = {field_type}(
+            {joined}
+        )"""
 
     @staticmethod
     def to_composite_key(s: list[str]) -> str:
@@ -256,7 +261,7 @@ class PeeweeCodeGenerator:
             "    return PostgresqlDatabase(",
             "        database=db_settings.name,",
             "        user=db_settings.user,",
-            "        password=db_settings.psswrd.get_secret_value(),",
+            "        password=db_settings.psswrd.get_secret_value(),",  # NOSONAR
             "        host=db_settings.host,",
             "        port=db_settings.port,",
             "    )",
@@ -264,7 +269,7 @@ class PeeweeCodeGenerator:
         return lines
 
     @staticmethod
-    def generate_files(yaml_hash: str, s: EnvSpec, out: Path, master: Path) -> tuple:
+    def generate_files(s: EnvSpec, out: Path, master: Path) -> tuple:
         """Generate files."""
         sections = [s for s in s.sections if s.type == SectionType.PEEWEE]
         if len(sections) == 0:
