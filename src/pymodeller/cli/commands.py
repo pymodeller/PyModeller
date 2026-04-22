@@ -325,8 +325,8 @@ def banner_full(message: str, color: str = "green") -> None:
     )
 
 
-def setup() -> None:
+def setup() -> typer.Exit:
     """Generate models from yaml and .env.example."""
     codegen()
     example()
-    raise typer.Exit(code=0)
+    return typer.Exit(code=0)
