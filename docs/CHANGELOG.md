@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.2.4 (2026-04-22)
+
+### Bug Fixes
+
+- Fixing sonarqube
+  ([`344cb23`](https://github.com/pymodeller/PyModeller/commit/344cb234b3b99ff4fd6a8fb85b53f5d3965d27fe))
+
+
 ## v0.2.3 (2026-04-22)
 
 ### Bug Fixes
