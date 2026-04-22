@@ -149,8 +149,6 @@ def test_codegen_init(mock_conf: MagicMock, tmp_path: Path) -> None:
 
     PydanticGenerator.codegen_init(init_imports, all_imports, tmp_path)
 
-    assert True
-
 
 def test_codegen_app_settings(tmp_path: Path) -> None:
     """Test the generation of the main AppSettings class that nests other sections."""

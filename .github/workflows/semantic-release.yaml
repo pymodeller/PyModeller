@@ -2,6 +2,11 @@ name: Semantic Release
 
 on:
   workflow_call:
+    secrets:
+      PR_TOKEN_USER:
+        required: true
+      GITHUB_TOKEN:
+        required: true
 
 permissions:
   contents: write
@@ -10,15 +15,15 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      PR_TOKEN_USER: ${{ secrets.PR_TOKEN_USER }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-
-      - name: Set PR token env
-        env:
-          PR_TOKEN_USER: ${{ secrets.PR_TOKEN_USER }}
-        run: echo "PR_TOKEN_USER=${PR_TOKEN_USER}" >> $GITHUB_ENV
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-python@v6
         with:
@@ -37,7 +42,4 @@ jobs:
         run: rm -rf dist/
 
       - name: Semantic release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: uv run semantic-release version
