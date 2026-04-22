@@ -2,6 +2,28 @@
 
 <!-- version list -->
 
+## v0.2.6 (2026-04-22)
+
+### Bug Fixes
+
+- Added more tests
+  ([`93138ca`](https://github.com/pymodeller/PyModeller/commit/93138ca45fe658ef9ee8646429bab15936efcd3b))
+
+### Continuous Integration
+
+- Sonarqube.yaml update
+  ([`863ecf9`](https://github.com/pymodeller/PyModeller/commit/863ecf9b03e5902e8da4ced3680b39cafd2eacf3))
+
+- Update organization key in sonar-project.properties
+  ([`1abd352`](https://github.com/pymodeller/PyModeller/commit/1abd352d29afaf08a452f68f24d3cd6fe26ce3dc))
+
+- Update secrets
+  ([`bdc6941`](https://github.com/pymodeller/PyModeller/commit/bdc6941595219b1817a6162b2f4bbce66db32bc5))
+
+- Update workflows
+  ([`87740ae`](https://github.com/pymodeller/PyModeller/commit/87740aed48cf64e4762461421a0010ba7756c36a))
+
+
 ## v0.2.5 (2026-04-22)
 
 
