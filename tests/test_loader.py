@@ -17,10 +17,6 @@ import yaml
 
 from pymodeller.loader import EnvSpec, EnvVarSpec, load_env_spec
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Helpers
-# ──────────────────────────────────────────────────────────────────────────────
-
 
 def write_spec(tmp_path: Path, data: dict[str, Any]) -> Path:
     """Write a YAML spec file and return its path.
@@ -174,11 +170,6 @@ def test_display_value_empty_when_no_default() -> None:
     assert var.display_value() == ""
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Error cases
-# ──────────────────────────────────────────────────────────────────────────────
-
-
 def test_load_raises_file_not_found() -> None:
     """Verify that a missing file path raises FileNotFoundError."""
     with pytest.raises(FileNotFoundError):
@@ -199,11 +190,6 @@ def test_section_description_defaults_to_empty(tmp_path: Path) -> None:
     path: Path = write_spec(tmp_path, data)
     spec: EnvSpec = load_env_spec(path)
     assert spec.sections[0].description == "Auto-generated description"
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-# EnvVarSpec.__post_init__ — alias & type:secret sugar
-# ──────────────────────────────────────────────────────────────────────────────
 
 
 def test_alias_defaults_to_lowercase_name(tmp_path: Path) -> None:

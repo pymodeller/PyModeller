@@ -2,6 +2,9 @@ name: Tests
 
 on:
   workflow_call:
+    secrets:
+      PR_TOKEN_USER:
+        required: true
 
 env:
   PYTHONPATH: src
@@ -10,14 +13,10 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
-
+    env:
+      PR_TOKEN_USER: ${{ secrets.PR_TOKEN_USER }}
     steps:
       - uses: actions/checkout@v6
-
-      - name: Set PR token env
-        env:
-          PR_TOKEN_USER: ${{ secrets.PR_TOKEN_USER }}
-        run: echo "PR_TOKEN_USER=${PR_TOKEN_USER}" >> $GITHUB_ENV
 
       - name: Install uv
         uses: astral-sh/setup-uv@v8.1.0
@@ -28,8 +27,7 @@ jobs:
         run: uv python install 3.13
 
       - name: Install dependencies
-        run: |
-          uv sync --group dev
+        run: uv sync --group dev
 
       - name: Run tests with coverage
         run: |

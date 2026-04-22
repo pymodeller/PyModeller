@@ -81,7 +81,6 @@ def get_variants(name: str) -> str:
     snake = to_snake_case(name)
     camel = to_camel_case(snake)
     upper = snake.upper()
-    order_list = list({f'"{snake}"', f'"{camel}"', f'"{upper}"'})
-    order_list.sort()
+    order_list = sorted({f'"{snake}"', f'"{camel}"', f'"{upper}"'})
     val_alias_opt = ",\n            ".join(order_list)
     return f"AliasChoices(\n            {val_alias_opt}\n        )"
