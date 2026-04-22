@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.2.7 (2026-04-22)
+
+### Bug Fixes
+
+- Update configuration
+  ([`d0d05c5`](https://github.com/pymodeller/PyModeller/commit/d0d05c5f8c3a6b739b5344f8419f93e001ab25b5))
+
+
 ## v0.2.6 (2026-04-22)
 
 ### Bug Fixes
