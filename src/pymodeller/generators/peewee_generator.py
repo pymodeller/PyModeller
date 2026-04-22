@@ -87,56 +87,45 @@ class PeeweeCodeGenerator:
 
     @staticmethod
     def format_field(var: EnvVarSpec) -> str:
-        """Genera una línea de campo estilo Peewee: name = CharField(null=True)."""
-        field_type = PeeweeCodeGenerator.get_peewee_type(var)
-
-        params = []
+        """Genera una línea de campo estilo Peewee con lógica simplificada."""
         db = var.db_spec
+        field_type = PeeweeCodeGenerator.get_peewee_type(var)
+        params = []
 
-        # null
+        # 1. Parámetros booleanos y directos de DB
+        if db:
+            mapping = {
+                "max_length": db.max_length,
+                "index": True if db.index else None,
+                "unique": True if db.unique else None,
+                "column_name": f"'{db.column_name}'" if db.column_name else None,
+                "default": db.default_callable,  # Sobrescribe el default estático si existe
+            }
+            for key, value in mapping.items():
+                if value is not None:
+                    params.append(f"{key}={value}")
+
+        # 2. Lógica especial (null y default estático)
         if not var.required or (db and db.allow_null):
             params.append("null=True")
 
-        # default
-        if var.default is not None:
-            default = f"'{var.default}'" if isinstance(var.default, str) else var.default
-            params.append(f"default={default}")
+        if var.default is not None and not (db and db.default_callable):
+            val = f"'{var.default}'" if isinstance(var.default, str) else var.default
+            params.append(f"default={val}")
 
-        # max_length (solo si aplica, ej: CharField)
-        if db and db.max_length is not None:
-            params.append(f"max_length={db.max_length}")
-
-        # index
-        if db and db.index:
-            params.append("index=True")
-
-        # unique
-        if db and db.unique:
-            params.append("unique=True")
-
-        # column_name
-        if db and db.column_name:
-            params.append(f"column_name='{db.column_name}'")
-
-        # default callable
-        if db and db.default_callable:
-            params.append(f"default={db.default_callable}")
-
-        # foreign key
+        # 3. Lógica externa y constraints
         params, field_type = PeeweeCodeGenerator.add_foreign(db, params, field_type)
 
-        constraints = var.db_spec.constraints if var.db_spec else None
+        if db and db.constraints:
+            c_list = ",\n            ".join(f"SQL({c!r})" for c in db.constraints)
+            params.append(f"constraints=[\n            {c_list}\n        ]")
 
-        if constraints:
-            result = "[\n            " + ",\n            ".join(f"SQL({c!r})" for c in constraints) + "\n        ]"
-            params.append(f"constraints = {result}")
+        # 4. Construcción del resultado
+        indent = "\n        "
+        if len(params) > 3:
+            return f"    {var.name} = {field_type}({indent}{f',{indent}'.join(params)}\n    )"
 
-        if len(params) <= 3:
-            return f"    {var.name} = {field_type}({', '.join(params)})"
-
-        joined = ",\n        ".join(params)
-
-        return f"    {var.name} = {field_type}(\n        {joined}\n    )"
+        return f"    {var.name} = {field_type}({', '.join(params)})"
 
     @staticmethod
     def to_composite_key(s: list[str]) -> str:
