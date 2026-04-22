@@ -158,7 +158,7 @@ def codegen(
         )
 
     typer.secho(" Step 2: Generating Peewee Models", bold=True)
-    p_path, pm_dir = PeeweeCodeGenerator.generate_files(yaml_hash, s, peewee_out, peewee_master)
+    p_path, pm_dir = PeeweeCodeGenerator.generate_files(s, peewee_out, peewee_master)
 
     if p_path:
         typer.secho("Step 2.A. Executing ruff commands over files generated", fg=typer.colors.BRIGHT_GREEN)
