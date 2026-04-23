@@ -1,140 +1,120 @@
+"""Test for peewee generator."""
+
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from pymodeller.generators.peewee_generator import PeeweeCodeGenerator
-from pymodeller.loader import DBField, EnvSection, EnvSpec, EnvVarSpec, SectionType
+from pymodeller.generators.peewee_generator import PeeweeGenerator
+from pymodeller.loader import DBField, DBSpec, EnvSection, EnvSpec, EnvVarSpec, SectionType
 
 
 class TestPeeweeGenerator:
-    """Tests for Peewee model generation covering all mapping and file logic."""
+    """Test suite for the PeeweeGenerator class."""
 
-    # --- Tests for Path & Import Logic (Lines 21-29, 34-58) ---
+    @pytest.fixture
+    def generator(self) -> PeeweeGenerator:
+        """Fixture to provide a PeeweeGenerator instance with mocked Jinja2 env."""
+        with patch("jinja2.Environment"):
+            gen = PeeweeGenerator()
+            # Mock the templates to return a simple string or the context
+            gen.env.get_template = MagicMock()
+            return gen
 
-    @pytest.mark.parametrize(
-        "path_str, expected",
-        [
-            ("tmp_dir/models/db.py", "models.db"),
-            ("src/pymodeller/models.py", "pymodeller.models"),
-            ("simple/path.py", "simple.path"),
-        ],
-    )
-    def test_create_import_str(self, path_str: str, expected: str) -> None:
-        """Verify that system paths are correctly converted into Python import dots."""
-        assert PeeweeCodeGenerator.create_import_str(Path(path_str)) == expected
+    def test_generate_module_class_name(self, generator: PeeweeGenerator) -> None:
+        """Test conversion of strings to snake_case modules and PascalCase classes."""
+        module, clazz = generator.generate_module_class_name("User Profile")
+        assert module == "user_profile"
+        assert clazz == "UserProfile"
 
-    def test_build_header_files_with_and_without_out(self) -> None:
-        """Cover lines 34-58: Header generation with optional database imports."""
-        header_no_out = PeeweeCodeGenerator.build_header_files(None)
-        assert "Auto-generated" in "".join(header_no_out)
+    def test_generate_import_removes_src(self, generator: PeeweeGenerator) -> None:
+        """Test that 'src' prefix is correctly removed from python import paths."""
+        path = Path("src/app/database/models.py")
+        import_path = generator.generate_import(path)
+        assert import_path == "app.database.models"
 
-        header_with_out = PeeweeCodeGenerator.build_header_files(Path("src/db.py"))
-        assert "from db import get_database" in "".join(header_with_out)
+    def test_get_field_data_basic_types(self, generator: PeeweeGenerator) -> None:
+        """Test mapping of basic YAML types to Peewee field types."""
+        var = EnvVarSpec(name="age", type="int", required=True)
+        data = generator._get_field_data(var)
 
-    # --- Tests for Field Mapping (Lines 63-70, 76-86, 91-139) ---
+        assert data["name"] == "age"
+        assert data["field_type"] == "IntegerField"
+        assert "null=True" not in data["params"]
 
-    @pytest.mark.parametrize(
-        "var_type, expected_peewee",
-        [
-            ("str", "CharField"),
-            ("int", "IntegerField"),
-            ("bool", "BooleanField"),
-            ("datetime", "DateTimeField"),
-            ("unknown", "CharField"),  # Default case
-        ],
-    )
-    def test_get_peewee_type(self, var_type: str, expected_peewee: str) -> None:
-        """Verify mapping between YAML types and Peewee field classes."""
-        var = MagicMock(spec=EnvVarSpec)
-        var.type = var_type
-        assert PeeweeCodeGenerator.get_peewee_type(var) == expected_peewee
+    def test_get_field_data_with_db_spec(self, generator: PeeweeGenerator) -> None:
+        """Test field generation with specific DB constraints like unique and index."""
+        db_field = DBField(unique=True, index=True, max_length=50, column_name="username_db")
+        var = EnvVarSpec(name="username", type="str", db_spec=db_field)
 
-    def test_format_field_complex_scenarios(self) -> None:
-        """Cover lines 91-139: Tests parameters like null, default, max_length,
-        indices, and multi-line formatting.
-        """
-        # Scenario: String with constraints and indices
-        db_spec = DBField(
-            allow_null=True,
-            max_length=100,
-            index=True,
-            unique=True,
-            column_name="legacy_col",
-            constraints=["CHECK (length(name) > 0)"],
-        )
-        var = EnvVarSpec(name="username", type="str", required=False, default="guest", db_spec=db_spec, env_name="USER")
+        data = generator._get_field_data(var)
+        assert "unique=True" in data["params"]
+        assert "index=True" in data["params"]
+        assert "max_length=50" in data["params"]
+        assert "column_name='username_db'" in data["params"]
 
-        result = PeeweeCodeGenerator.format_field(var)
-        assert "CharField" in result
-        assert "null=True" in result
-        assert "default='guest'" in result
-        assert "max_length=100" in result
-        assert "column_name='legacy_col'" in result
-        assert "SQL(" in result  # Constraints check
-
-    def test_add_foreign_logic(self) -> None:
-        """Cover lines 76-86: Foreign key mapping and parameters."""
-        db = DBField(foreign_key="User", backref="profiles", on_delete="CASCADE")
-        params, field_type = PeeweeCodeGenerator.add_foreign(db, [], "CharField")
+    def test_prepare_foreign_key(self, generator: PeeweeGenerator) -> None:
+        """Test preparation of ForeignKeyField parameters."""
+        db_field = DBField(foreign_key="User", backref="posts", on_delete="CASCADE")
+        field_type, params = generator._prepare_foreign_key(db_field)
 
         assert field_type == "ForeignKeyField"
         assert "User" in params
-        assert "backref='profiles'" in params
+        assert "backref='posts'" in params
         assert "on_delete='CASCADE'" in params
 
-    # --- Tests for Meta & Composite Keys (Lines 144-147, 152-184) ---
+    def test_render_section_context(self, generator: PeeweeGenerator) -> None:
+        """Test that the context sent to the Jinja2 template is correct."""
+        # Setup complex section
+        db_spec = DBSpec(table_name="custom_table", primary_key=["id", "code"])
+        var = EnvVarSpec(name="id", type="int", required=True)
+        section = EnvSection(name="Product", type=SectionType.PEEWEE, variables=[var], database=db_spec)
+        master_path = Path("src/db/config.py")
 
-    def test_to_composite_key(self) -> None:
-        """Verify composite key string generation."""
-        assert PeeweeCodeGenerator.to_composite_key(["id", "version"]) == 'CompositeKey("id", "version")'
-        assert PeeweeCodeGenerator.to_composite_key([]) == ""
+        # Mock template render return value
+        generator.env.get_template().render.return_value = "rendered_code"
 
-    def test_add_meta_with_indexes(self) -> None:
-        """Cover lines 152-184: Table name, primary keys, and indexes list."""
-        section = MagicMock(spec=EnvSection)
-        section.name = "User Profile"
-        section.database.table_name = ""  # Triggers to_snake_case
-        section.database.primary_key = ["id", "tenant"]
-        section.database.indexes = [{"fields": ["email"], "unique": True}]
+        result = generator.render_section(section, master_path)
 
-        lines = PeeweeCodeGenerator.add_meta([], section)
+        # Verify template was called with expected context keys
+        args, _ = generator.env.get_template().render.call_args
+        context = args[0]
 
-        content = "\n".join(lines)
-        assert "class Meta:" in content
+        assert context["class_name"] == "Product"
+        assert context["table_name"] == "custom_table"
+        assert "CompositeKey('id', 'code')" in context["primary_key"]
+        assert "from db.config import get_database" in context["extra_imports"]
+        assert result == "rendered_code"
 
-    # --- Tests for File Generation & Orchestration (Lines 189-315) ---
+    def test_generate_files_creation(self, generator: PeeweeGenerator, tmp_path: Path) -> None:
+        """Test full file generation cycle using a temporary directory."""
+        # Setup paths
+        out_dir = tmp_path / "models"
+        master_file = tmp_path / "db.py"
 
-    def test_generate_files_no_peewee_sections(self) -> None:
-        """Verify early exit if no Peewee sections exist (Line 285)."""
-        spec = EnvSpec(sections=[EnvSection(name="S1", type=SectionType.SETTINGS, variables=[])])
-        out_path, _ = PeeweeCodeGenerator.generate_files(spec, Path("out"), Path("master.py"))
-        assert out_path is None
+        # Setup minimal spec
+        var = EnvVarSpec(name="name", type="str")
+        section = EnvSection(name="Client", type=SectionType.PEEWEE, variables=[var])
+        spec = EnvSpec(sections=[section])
 
-    @patch("pathlib.Path.write_text")
-    def test_generate_files_success(self, mock_write: MagicMock) -> None:
-        """Cover full file orchestration: models, __init__.py, and master settings.
-        Covers lines 284-315 and helper codegen_init/generate_main.
-        """
-        # Setup complex spec
-        var = EnvVarSpec(name="id", type="int", required=True, env_name="ID")
-        sect = EnvSection(name="User", type=SectionType.PEEWEE, variables=[var])
-        spec = EnvSpec(sections=[sect])
+        # Mock templates
+        generator.env.get_template().render.return_value = "mocked code"
 
-        out = Path("models_pkg")
-        master = Path("settings/db_master.py")
+        res_master, res_out = generator.generate_files(spec, out_dir, master_file)
 
-        res_master, res_dir = PeeweeCodeGenerator.generate_files(spec, out, master)
+        # Assertions
+        assert master_file.exists()
+        assert (out_dir / "client.py").exists()
+        assert (out_dir / "__init__.py").exists()
+        assert res_master == master_file
+        assert res_out == out_dir
 
-        assert res_master == master
-        assert res_dir == out
-        # Check that it tried to write at least 3 files: model, __init__, and master
-        assert mock_write.call_count >= 3
+    def test_generate_files_no_peewee_sections(self, generator: PeeweeGenerator, tmp_path: Path) -> None:
+        """Verify that the generator returns None if no PEEWEE sections are found."""
+        section = EnvSection(name="Settings", type=SectionType.SETTINGS, variables=[])
+        spec = EnvSpec(sections=[section])
 
-    def test_generate_main_content(self) -> None:
-        """Cover lines 236-275: Main database settings template generation."""
-        lines = PeeweeCodeGenerator.generate_main()
-        content = "\n".join(lines)
-        assert "class DatabaseSettings(BaseSettings):" in content
-        assert "def get_database() -> PostgresqlDatabase:" in content
-        assert 'env_prefix="DATABASE_"' in content
+        res_master, res_out = generator.generate_files(spec, tmp_path / "out", tmp_path / "db.py")
+
+        assert res_master is None
+        assert res_out is None

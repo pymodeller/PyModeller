@@ -1,0 +1,47 @@
+"""AUTO-GENERATED ROOT SETTINGS. """
+
+from pathlib import Path
+from .base_settings import BaseTraceableSettings
+from typing import Any, Literal, Callable, Dict, Tuple, Type, Optional, List
+from pydantic import AliasChoices, Field, SecretStr, BaseModel, ConfigDict, PrivateAttr, model_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict, PydanticBaseSettingsSource
+from functools import lru_cache
+from datetime import datetime
+# Dynamic imports for nested sections
+{% for imp in imports %}
+{{ imp }}
+{% endfor %}
+
+class {{ class_name }}(BaseTraceableSettings):
+    """
+    Root application settings.
+    Composes all section settings into a single tree.
+    """
+
+    model_config = SettingsConfigDict(
+        from_attributes={{ from_attributes | default(True) }},
+        env_file=".env",
+        env_file_encoding="utf-8",
+        env_ignore_empty=True,
+        env_prefix="{{ env_prefix }}",
+        env_nested_delimiter="__",
+        case_sensitive=False,
+        extra="ignore",
+        populate_by_name=True,
+        env_prefix_target="all",
+    )
+
+    # --- Flat variables (General Section) ---
+    {% for var in flat_variables %}
+    {{ var.name }}: {{ var.py_type }} = Field(
+        {{ var.default_expr }},
+        alias="{{ var.alias }}",
+        validation_alias={{ var.validation_alias }},
+        description="{{ var.description }}"
+    )
+    {% endfor %}
+
+    # --- Nested Sections (Composition) ---
+    {% for section in nested_sections %}
+    {{ section.attr }}: {{ section.class_name }} = Field(default_factory={{ section.class_name }})
+    {% endfor %}

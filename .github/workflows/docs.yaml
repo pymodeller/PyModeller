@@ -20,24 +20,6 @@ jobs:
       - name: Set up Python
         run: uv python install 3.13
 
-      - name: Update Coverage Badge in README
-        run: |
-          COVERAGE=$(jq '[.files[].summary.percent_covered] | add / length' coverage.json | xargs printf "%.2f")
-
-          echo "Coverage detectado: $COVERAGE%"
-
-          # 2. Definir color según el rango
-          if (( $(echo "$COVERAGE > 90" | bc -l) )); then COLOR="brightgreen";
-          elif (( $(echo "$COVERAGE > 75" | bc -l) )); then COLOR="green";
-          elif (( $(echo "$COVERAGE > 50" | bc -l) )); then COLOR="yellow";
-          else COLOR="red"; fi
-
-          # 3. Reemplazar el badge en el README.md
-          # Busca el patrón del badge de Shields.io y lo actualiza
-          sed -i "s/coverage-[0-9.]*%25-[a-z]*/coverage-$COVERAGE%25-$COLOR/g" README.md
-
-
-
       - name: Install dependencies and build
         run: |
           uv sync --group docs

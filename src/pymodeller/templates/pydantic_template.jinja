@@ -1,0 +1,55 @@
+"""Auto-generated settings from YAML spec."""
+# YAML-SHA256: {{ yaml_hash }}
+
+from pathlib import Path
+from typing import Any, Literal, Callable, Dict, Tuple, Type, Optional, List
+from pydantic import AliasChoices, Field, SecretStr, BaseModel, ConfigDict, PrivateAttr, model_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict, PydanticBaseSettingsSource
+from functools import lru_cache
+from datetime import datetime
+{% for imp in extra_imports %}
+{{ imp }}
+{% endfor %}
+
+{% if is_settings %}
+from .base_settings import BaseTraceableSettings
+
+class {{ class_name }}(BaseTraceableSettings):
+{% else %}
+class {{ class_name }}(BaseModel):
+{% endif %}
+    """{{ description }}"""
+
+    {% if is_settings %}
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        env_ignore_empty=True,
+        env_prefix="{{ env_prefix }}_",
+        env_nested_delimiter="__",
+        case_sensitive=False,
+        env_prefix_target="all",
+        from_attributes={{ from_attributes | default(True) }},
+        extra="ignore",
+        populate_by_name=True,
+    )
+    {% else %}
+    model_config = ConfigDict(
+        from_attributes={{ from_attributes | default(True) }},
+        extra="ignore",
+        populate_by_name=True,
+    )
+    {% endif %}
+
+    {% if literal_name %}
+    type: Literal["{{ literal_name }}"] = Field(default="{{ literal_name }}", exclude=True)
+    {% endif %}
+
+    {% for var in variables %}
+    {{ var.name }}: {{ var.py_type }} = Field(
+        {{ var.default_expr }},
+        alias="{{ var.alias }}",
+        validation_alias={{ var.validation_alias }},
+        description="{{ var.description }}"
+    )
+    {% endfor %}
