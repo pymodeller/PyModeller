@@ -19,7 +19,8 @@ class PydanticGenerator:
         self.env = Environment(loader=PackageLoader("pymodeller", "templates"), autoescape=select_autoescape())
         self.template = self.env.get_template("pydantic_template.jinja")
 
-    def get_python_type(self, var: EnvVarSpec) -> str:
+    @staticmethod
+    def get_python_type(var: EnvVarSpec) -> str:
         """Resolve Pydantic/Python type string."""
         if var.secret:
             return "SecretStr"
@@ -48,6 +49,27 @@ class PydanticGenerator:
             return f"default={var.default}"
 
         return f'default="{var.default}"' if var.default is not None else "default=None"
+
+    @staticmethod
+    def generate_module_class_name(section: EnvSection) -> tuple:
+        """Generate module and class names."""
+        module_name = to_snake_case(section.name)
+        if section.type == SectionType.SETTINGS:
+            module_name = "_".join([module_name, SectionType.SETTINGS.value])
+
+        class_name = "".join(word.title() for word in section.name.split()) + section.type.capitalize()
+
+        return module_name, class_name
+
+    @staticmethod
+    def generate_import(master: Path) -> str:
+        """Generate import."""
+        parts = master.with_suffix("").parts
+
+        if parts and parts[0] == "src":
+            parts = parts[1:]
+
+        return ".".join(parts)
 
     def render_section(self, section: EnvSection, yaml_hash: str = "") -> str:
         """Prepares context and renders the Jinja template."""
@@ -122,7 +144,7 @@ class PydanticGenerator:
         file_path = out_path / "__init__.py"
         file_path.write_text(rendered_code, encoding="utf-8")
 
-    def generate_master(self, sections: list, out_path: Path, yaml_hash: str) -> None:
+    def generate_master(self, sections: list, folder: Path, out_path: Path, yaml_hash: str) -> None:
         """Generate master file."""
         template = self.env.get_template("master_pydantic.jinja")
 
@@ -135,11 +157,11 @@ class PydanticGenerator:
             sections_context.append({
                 "class_name": class_name,
                 "func_name": master_,
-                "yaml_file": s.yaml_file,  # Puede ser "config/*.yaml", "config/file.yaml" o None
+                "yaml_file": s.yaml_file,
             })
 
         context = {
-            "models_import_path": "config_das.new_models",  # O el path que corresponda
+            "models_import_path": self.generate_import(folder),  # O el path que corresponda
             "sections": sorted(sections_context, key=lambda x: x["class_name"]),
             "yaml_hash": yaml_hash,
         }
@@ -191,17 +213,6 @@ class PydanticGenerator:
 
         file_path.write_text(rendered_code, encoding="utf-8")
 
-    @staticmethod
-    def generate_module_class_name(section: EnvSection) -> tuple:
-        """Generate module and class names."""
-        module_name = to_snake_case(section.name)
-        if section.type == SectionType.SETTINGS:
-            module_name = "_".join([module_name, SectionType.SETTINGS.value])
-
-        class_name = "".join(word.title() for word in section.name.split()) + section.type.capitalize()
-
-        return module_name, class_name
-
     def generate_files(self, yaml_hash: str, s: EnvSpec, out: Path, master: Path) -> tuple:
         """Generate pydantic files."""
         sections = [s for s in s.sections if s.type != SectionType.PEEWEE]
@@ -231,7 +242,7 @@ class PydanticGenerator:
         self.generate_general_settings(general_section, sections_with_classes, out)
         self.generate_init(sections, out)
         self.generate_base_class(out)
-        self.generate_master(sections, master, yaml_hash)
+        self.generate_master(sections, out, master, yaml_hash)
 
         typer.echo(f"   Out: {out}")
         typer.echo(f"   Out: {master}")
