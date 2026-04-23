@@ -1,0 +1,52 @@
+"""AUTO-GENERATED SETTINGS MANAGER."""
+# YAML-SHA256: {{ yaml_hash }}
+
+from functools import lru_cache
+from pathlib import Path
+from typing import Dict, Any
+import yaml
+
+from {{ models_import_path }} import (
+    {%- for section in sections %}
+    {{ section.class_name }}{{ "," if not loop.last }}
+    {%- endfor %}
+)
+
+def _read_yaml(config_path: Path) -> dict:
+    """Read YAML file safely."""
+    if not config_path.is_file():
+        return {}
+    with open(config_path, encoding="utf-8") as f:
+        return yaml.safe_load(f) or {}
+
+{% for section in sections %}
+@lru_cache(maxsize=1)
+def get_{{ section.func_name }}() -> {{ section.class_name }}:
+    """Return the cached application settings instance for {{ section.class_name }}.
+    {% if section.yaml_file %} Source: {{ section.yaml_file }}{% endif %}."""
+    {% if section.yaml_file %}
+    {% if "*" in section.yaml_file %}
+    # Glob pattern loading
+    path_obj = Path("{{ section.yaml_file }}")
+    search_dir = path_obj.parent
+    search_pattern = path_obj.name
+
+    item_list = []
+    for file_path in sorted(search_dir.glob(search_pattern)):
+        data = _read_yaml(file_path) or {}
+        data['name'] = file_path.stem
+        item_list.append(data)
+
+    values = {'items': item_list}
+    return {{ section.class_name }}.model_validate(values)
+    {% else %}
+    # Single file loading
+    values = _read_yaml(Path("{{ section.yaml_file }}"))
+    return {{ section.class_name }}.model_validate(values)
+    {% endif %}
+    {% else %}
+    # Default instantiation (no YAML)
+    return {{ section.class_name }}()
+    {% endif %}
+
+{% endfor %}
