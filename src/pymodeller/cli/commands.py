@@ -22,8 +22,9 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
 
+from pymodeller import __version__
 from pymodeller.config import get_code_gen_config
-from pymodeller.generators.peewee_generator import PeeweeCodeGenerator
+from pymodeller.generators.peewee_generator import PeeweeGenerator
 from pymodeller.generators.pydantic_generator import _YAML_HASH_MARKER, PydanticGenerator
 from pymodeller.loader import SectionType, load_env_spec
 from pymodeller.tool_runner import ToolRunner
@@ -54,6 +55,8 @@ class EnvManager:
             "# .env.example - AUTO-GENERATED",
             "# Source: env_data_model.yaml",
             "# Legend: ✱ required | 🔒 secret",
+            "# Important notice! If the settings attribute is a Model and you want to designate a attribute from .env "
+            "# use __ before the attribute's name. Example: CONFIG_DEVICE__NAME"
             "#" * _LINE_WIDTH,
             "",
         ]
@@ -139,7 +142,7 @@ def codegen(
     yaml_hash = EnvManager.get_file_hash(Path(spec))
 
     typer.secho(" Step 1: Generating Pydantic Models", bold=True)
-    out_path, models_dir = PydanticGenerator.generate_files(yaml_hash, s, pydantic_out, pydantic_master)
+    out_path, models_dir = PydanticGenerator().generate_files(yaml_hash, s, pydantic_out, pydantic_master)
 
     if out_path:
         typer.secho("Step 1.A. Executing ruff commands over files generated", fg=typer.colors.BRIGHT_GREEN)
@@ -158,7 +161,7 @@ def codegen(
         )
 
     typer.secho(" Step 2: Generating Peewee Models", bold=True)
-    p_path, pm_dir = PeeweeCodeGenerator.generate_files(s, peewee_out, peewee_master)
+    p_path, pm_dir = PeeweeGenerator().generate_files(s, peewee_out, peewee_master)
 
     if p_path:
         typer.secho("Step 2.A. Executing ruff commands over files generated", fg=typer.colors.BRIGHT_GREEN)
@@ -266,6 +269,13 @@ def sync(
 
         show_master_diff(master_diff)
         return typer.Exit(code=0)
+
+
+def show_version(value: bool) -> typer.Exit | None:
+    """Show version."""
+    if value:
+        typer.echo(f"PyModeller version {__version__}")
+        raise typer.Exit(code=0)
 
 
 def show_master_diff(master_diff: dict) -> None:

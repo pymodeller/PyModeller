@@ -7,164 +7,1249 @@
 # ==============================================================================
 config:
   - name: PYDANTIC_OUT
-    value: src/paper_hough/config_models.py
+    value: src/config_das/config_models.py
   - name: PYDANTIC_FOLDER
-    value: src/paper_hough/models
+    value: src/config_das/new_models
   - name: PEEWEE_OUT
-    value: src/paper_hough/models/db_models.py
+    value: src/config_das/new_models/db_models.py
   - name: PEEWEE_FOLDER
-    value: src/paper_hough/models/db
+    value: src/config_das/new_models/db
 
 sections:
-
-  - name: General
-    description: Top-level application flags
-    type: settings
+  # Definición de modelos para Peewee
+  - name: user
+    type: peewee
+    description: "Tabla de usuarios del sistema con autenticación básica"
+    database:
+      table_name: "users_account"
     variables:
-      - name: LOCAL_DEV
-        description: Enable local development mode (disables some production guards)
+      - name: username
+        type: str
+        required: true
+        db_spec:
+          max_length: 50
+          unique: true
+          index: true
+      - name: email
+        type: str
+        required: true
+        db_spec:
+          column_name: "user_email"
+          unique: true
+          constraints:
+            - "CHECK (char_length(user_email) > 5)"
+      - name: is_active
         type: bool
-        default: "true"
-        required: false
-        secret: false
-      - name: N_THREADS
-        description: Number of threads for processing
-        type: int
-        default: "1"
-        required: false
-      - name: output
-        description: Output folder to save bmp images
-        type: path
-        default: "."
-        required: false
-      - name: input
-        description: Input folder to read bin files
-        type: path
-        default: "."
-        required: false
+        default: true
+        db_spec:
+          index: true
 
-  # ────────────────────────────────────────────────────────────────────────────
-  - name: Processing
-    description: Configuration for algorithm
-    type: model
-    env_prefix: PROCESSING
+  - name: products
+    type: peewee
+    description: "Catálogo maestro de productos con control de precios"
+    database:
+      table_name: "catalog_products"
     variables:
-      - name: WINDOW_TIME
-        description: Time window size used for split the input matrix
-        type: int
-        default: "10"
-        required: false
-        secret: false
-
-      - name: WINDOW_SPACE
-        description: Space window size used for split the input matrix
-        type: int
-        default: "100"
-        required: false
-        secret: false
-
-  - name: Algorithm
-    description: Configuration for algorithm
-    type: model
-    env_prefix: HOUGH
-    variables:
-      - name: RHO
-        description: Distance resolution in pixels
-        type: float
-        default: "1"
-
-      - name: THETA
-        description: Angle resolution in radians
-        type: float
-        default: "0.0174533"  # pi/180
-
-      - name: THRESHOLD
-        description: Minimum number of votes
-        type: int
-        default: "100"
-
-  # ────────────────────────────────────────────────────────────────────────────
-  - name: Cal Alth
-    description: Model use to send information a thread
-    type: model
-    include_general: false
-    variables:
-      - name: IDENTIFIER
-        description: Identifier
+      - name: sku
         type: str
-        default: ""
-        required: false
-
-      - name: MATRIX
-        description: Matrix values to calculate hough
-        type: pnd.NpNDArrayUint8
         required: true
-
-      - name: X_START
-        description: X start position in original matrix
-        type: int
-        required: true
-
-  - name: Zone
-    description: Zone configuration
-    type: model
-    env_prefix: ZONE
-    include_general: false
-    variables:
-      - name: START
-        description: Start point to process
-        type: int
-        default: "0"
-        required: false
-        secret: false
-
-      - name: END
-        description: End point to process
-        type: int
-        default: "50"
-        required: false
-        secret: false
-
-      - name: Algorithm
-        description: Algorithm configuration
-        from_model: Algorithm
-        type: object
-        required: false
-
-  - name: Threshold
-    description: Threshold configuration
-    type: model
-    env_prefix: THRESHOLD
-    include_general: false
-    variables:
-      - name: WATERFALL
-        description: Waterfall name
-        type: str
-        default: ""
-        required: false
-        secret: false
-
-      - name: THRESHOLD
-        description: Threshold for the waterfall
+        db_spec:
+          max_length: 20
+          unique: true
+      - name: price
         type: float
-        default: "50.0"
-        required: false
-        secret: false
-
-      - name: ZONES
-        description: List of zones configs
-        from_model: Zone
-        type: list
         required: true
+        db_spec:
+          max_digits: 10
+          decimal_places: 2
+          allow_null: false
+      - name: created_at
+        type: datetime
+        db_spec:
+          default_callable: "datetime.now"
+          index: true
 
-  - name: Thresholds
-    description: List of thresholds
-    type: settings
-    include_general: false
-    env_prefix: THRESHOLDS
+  - name: posts
+    type: peewee
+    description: "Publicaciones realizadas por los usuarios"
     variables:
-      - name: ITEMS
-        description: List of threshold configs
-        from_model: Threshold
-        type: list
+      - name: title
+        type: str
         required: true
+        db_spec:
+          max_length: 255
+      - name: author
+        type: int
+        required: true
+        db_spec:
+          foreign_key: "User"
+          backref: "posts"
+          on_delete: "CASCADE"
+      - name: content
+        type: str
+        db_spec:
+          allow_null: false
+          constraints:
+            - "CHECK (content != '')"
+
+  - name: inventory
+    type: peewee
+    description: "Relación de stock por producto y almacén (Llave Compuesta)"
+    database:
+      table_name: "warehouse_inventory"
+      primary_key: [ "product_id", "warehouse_id" ]
+      indexes:
+        - fields: [ "status", "zone" ]
+          unique: false
+    variables:
+      - name: product_id
+        type: int
+        required: true
+      - name: warehouse_id
+        type: int
+        required: true
+      - name: stock_level
+        type: int
+        default: 0
+        db_spec:
+          column_name: "quantity"
+          constraints:
+            - "CHECK (quantity >= 0)"
+      - name: status
+        type: str
+        default: "available"
+        db_spec:
+          max_length: 20
+      - name: zone
+        type: str
+        db_spec:
+          max_length: 10
+          allow_null: true
+
+#sections:
+#
+#  - name: General
+#    description: Top-level application flags
+#    type: settings
+#    variables:
+#      - name: LOCAL_DEV
+#        description: Enable local development mode (disables some production guards)
+#        type: bool
+#        default: true
+#        required: false
+#        secret: false
+#      - name: N_THREADS
+#        description: Number of threads for processing
+#        type: int
+#        default: 1
+#        required: false
+#      - name: output
+#        description: Output folder to save bmp images
+#        type: path
+#        default: .
+#        required: false
+#      - name: input
+#        description: Input folder to read bin files
+#        type: path
+#        default: .
+#        required: false
+#
+#
+#  # =============================================
+#  # Process Configuration
+#  # =============================================
+#  - name: Process
+#    description: Configuration for algorithm processing parameters
+#    type: model
+#    env_prefix: PROCESSING
+#    variables:
+#      - name: frames_energy
+#        description: Number of frames used for energy computation.
+#        type: int
+#        default: 10
+#        required: false
+#        secret: false
+#
+#      - name: threads_energy
+#        description: Number of threads used for energy processing.
+#        type: int
+#        default: 10
+#        required: false
+#        secret: false
+#
+#      - name: multi_frames_energy
+#        description: Number of frames used for multi-frame energy processing.
+#        type: int
+#        default: 12
+#        required: false
+#        secret: false
+#
+#      - name: frames_cluster
+#        description: Number of frames used for clustering.
+#        type: int
+#        default: 4
+#        required: false
+#        secret: false
+#
+#      - name: threads_cluster
+#        description: Number of threads used for clustering.
+#        type: int
+#        default: 4
+#        required: false
+#        secret: false
+#
+#      - name: multi_frames_cluster
+#        description: Number of frames used for multi-frame clustering.
+#        type: int
+#        default: 4
+#        required: false
+#        secret: false
+#
+#      - name: max_id_alarms
+#        description: Maximum number of alarm identifiers.
+#        type: int
+#        default: 3
+#        required: false
+#        secret: false
+#
+#      - name: max_wf
+#        description: Maximum number of waveforms to process.
+#        type: int
+#        default: 4
+#        required: false
+#        secret: false
+#
+#
+#  # =============================================
+#  # Laser Configuration
+#  # =============================================
+#  - name: Laser
+#    description: Laser parameters configuration
+#    type: model
+#    env_prefix: LASER_
+#    variables:
+#      - name: frequency
+#        description: Laser frequency in Hz
+#        type: int
+#        default: 1000
+#        required: false
+#        secret: false
+#
+#      - name: pulse_width
+#        description: Pulse width
+#        type: float
+#        default: 0.5
+#        required: false
+#        secret: false
+#
+#      - name: amplitude
+#        description: Amplitude
+#        type: float
+#        default: 0.6
+#        required: false
+#        secret: false
+#
+#      - name: optical_power
+#        description: Optical power
+#        type: float
+#        default: 0.7
+#        required: false
+#        secret: false
+#
+#      - name: phase_shift
+#        description: Phase shift
+#        type: float
+#        default: 0.8
+#        required: false
+#        secret: false
+#
+#
+#  # =============================================
+#  # Flags Configuration
+#  # =============================================
+#  - name: Flags
+#    description: Processing flags and options
+#    type: model
+#    env_prefix: FLAGS_
+#    variables:
+#      - name: diff_data
+#        description: If we have to diff data
+#        type: bool
+#        default: false
+#        required: false
+#        secret: false
+#
+#      - name: save_data
+#        description: Option to save data in bin files
+#        type: bool
+#        default: false
+#        required: false
+#        secret: false
+#
+#      - name: detrend_data
+#        description: If we have to detrend data
+#        type: bool
+#        default: false
+#        required: false
+#        secret: false
+#
+#
+#  # =============================================
+#  # EDFA Configuration
+#  # =============================================
+#  - name: Edfa
+#    description: Erbium Doped Fiber Amplifier configuration
+#    type: model
+#    env_prefix: EDFA_
+#    variables:
+#      - name: pump_current
+#        description: Pump current
+#        type: int
+#        default: 20
+#        required: false
+#        secret: false
+#
+#      - name: transient_suppression
+#        description: Transient suppression mode
+#        type: str
+#        default: Single
+#        required: false
+#        secret: false
+#
+#      - name: output_power
+#        description: Output power
+#        type: float
+#        default: 0.0
+#        required: false
+#        secret: false
+#
+#      - name: target_gain
+#        description: Target gain
+#        type: float
+#        default: 0.0
+#        required: false
+#        secret: false
+#
+#      - name: control_mode
+#        description: Control mode
+#        type: str
+#        default: Automatic Gain Control
+#        required: false
+#        secret: false
+#
+#
+#  # =============================================
+#  # Device Configuration
+#  # =============================================
+#  - name: Device
+#    description: Device and hardware configuration
+#    type: model
+#    env_prefix: DEVICE_
+#    variables:
+#      - name: name
+#        description: Device name
+#        type: str
+#        default: no_device
+#        required: false
+#        secret: false
+#
+#      - name: number_channels
+#        description: Number of channels
+#        type: int
+#        default: 4
+#        required: false
+#        secret: false
+#
+#      - name: location
+#        description: Device location
+#        type: str
+#        default:
+#        required: false
+#        secret: false
+#
+#      - name: description
+#        description: Device description
+#        type: str
+#        default:
+#        required: false
+#        secret: false
+#
+#      - name: auto_shutdown
+#        description: Enable auto shutdown
+#        type: bool
+#        default: false
+#        required: false
+#        secret: false
+#
+#      - name: power_saving
+#        description: Enable power saving mode
+#        type: bool
+#        default: false
+#        required: false
+#        secret: false
+#
+#      - name: input
+#        description: Input data path
+#        type: path
+#        default: ./data
+#        required: false
+#        secret: false
+#
+#      - name: output
+#        description: Output results path
+#        type: path
+#        default: ./result
+#        required: false
+#        secret: false
+#
+#      - name: voltage
+#        description: List of voltage values per channel
+#        type: list
+#        default: []
+#        required: false
+#        secret: false
+#
+#      - name: sampling
+#        description: List of sampling rates per channel
+#        type: list
+#        default: []
+#        required: false
+#        secret: false
+#
+#
+#  # =============================================
+#  # Contour Configuration
+#  # =============================================
+#  - name: Contour
+#    description: Contour detection parameters
+#    type: model
+#    env_prefix: CONTOURS_
+#    variables:
+#      - name: min_area
+#        description: Minimum area for contour detection
+#        type: float
+#        default: 2
+#        required: false
+#        secret: false
+#
+#
+#  # =============================================
+#  # Reader Configuration
+#  # =============================================
+#  - name: Reader
+#    description: Data reader configuration
+#    type: model
+#    env_prefix: READER_
+#    variables:
+#      - name: is_continue
+#        description: Continue reading mode
+#        type: bool
+#        default: false
+#        required: false
+#        secret: false
+#
+#      - name: mode
+#        description: Reading mode (bin, etc.)
+#        type: str
+#        default: bin
+#        required: false
+#        secret: false
+#
+#      - name: dtype
+#        description: Data type to read
+#        type: str
+#        default: f64
+#        required: false
+#        secret: false
+#
+#      - name: block_size
+#        description: Block size for reading
+#        type: int
+#        default: 1000
+#        required: false
+#        secret: false
+#
+#      - name: overlap_lines
+#        description: Number of overlap lines
+#        type: int
+#        default: 500
+#        required: false
+#        secret: false
+#
+#
+#  # =============================================
+#  # DAQ Configuration
+#  # =============================================
+#  - name: DAQ
+#    description: Data Acquisition (DAQ) settings
+#    type: model
+#    env_prefix: DAQ_
+#    variables:
+#      - name: trigger_source
+#        description: Trigger source
+#        type: str
+#        default: External
+#        required: false
+#        secret: false
+#
+#      - name: acquisition_mode
+#        description: Acquisition mode
+#        type: str
+#        default: Single
+#        required: false
+#        secret: false
+#
+#      - name: buffer_size
+#        description: Buffer size
+#        type: int
+#        default: 10000
+#        required: false
+#        secret: false
+#
+#      - name: resolution
+#        description: Resolution
+#        type: float
+#        default: 0.8
+#        required: false
+#        secret: false
+#
+#      - name: decimate
+#        description: Decimation factor
+#        type: float
+#        default: 1.0
+#        required: false
+#        secret: false
+#
+#      - name: points
+#        description: Number of points to acquire
+#        type: int
+#        default: 1400
+#        required: false
+#        secret: false
+#
+#
+#  # =============================================
+#  # RabbitMQ Configuration
+#  # =============================================
+#  - name: Rabbitmq
+#    description: RabbitMQ connection and sending configuration
+#    type: model
+#    env_prefix: RABBITMQ_
+#    variables:
+#      - name: send_data
+#        description: Parameter to send data to rabbitmq or not
+#        type: bool
+#        default: false
+#        required: false
+#        secret: false
+#
+#      - name: url_template
+#        description: RabbitMQ URL template
+#        type: str
+#        default: amqp://{}:{}@localhost:5672
+#        required: false
+#        secret: false
+#
+#      - name: user
+#        description: RabbitMQ username
+#        type: str
+#        default:
+#        required: false
+#        secret: true
+#
+#      - name: password
+#        description: RabbitMQ password
+#        type: str
+#        default:
+#        required: false
+#        secret: true
+#
+#      - name: queue
+#        description: Queue name
+#        type: str
+#        default: notifications
+#        required: false
+#        secret: true
+#
+#      - name: exchange
+#        description: Exchange name
+#        type: str
+#        default: notifications
+#        required: false
+#        secret: true
+#
+#
+#  # =============================================
+#  # Threshold Configuration (Data Model)
+#  # =============================================
+#  - name: Threshold
+#    description: Threshold definition schema
+#    type: model
+#    env_prefix: THRESHOLD
+#    variables:
+#      - name: id_threshold
+#        description: Threshold identifier
+#        type: str
+#        required: true
+#        secret: false
+#
+#      - name: name
+#        description: Threshold name
+#        type: str
+#        required: true
+#        secret: false
+#
+#      - name: threshold
+#        description: Threshold value
+#        type: float
+#        required: true
+#        secret: false
+#
+#      - name: saturation
+#        description: Saturation value
+#        type: float
+#        required: true
+#        secret: false
+#
+#      - name: group_id
+#        description: Group identifier
+#        type: str
+#        required: true
+#        secret: false
+#
+#      - name: start_point
+#        description: Start point
+#        type: int
+#        required: true
+#        secret: false
+#
+#      - name: end_point
+#        description: End point
+#        type: int
+#        required: true
+#        secret: false
+#
+#  # =============================================
+#  # Alarm Configuration / Data Model
+#  # =============================================
+#  - name: Alarm
+#    description: Alarm data model for events and notifications
+#    type: model
+#    env_prefix: ALARM   # No env_prefix porque es más un data model que settings
+#    variables:
+#      - name: id_alarm
+#        description: Unique alarm identifier
+#        type: str
+#        required: true
+#        secret: false
+#
+#      - name: created
+#        description: Alarm creation / start time
+#        type: datetime
+#        required: true
+#        secret: false
+#
+#      - name: end_time
+#        description: Alarm end time
+#        type: datetime
+#        required: false
+#        secret: false
+#
+#      - name: timestamp
+#        description: Last update timestamp
+#        type: datetime
+#        required: true
+#        secret: false
+#
+#      - name: duration
+#        description: Duration of the alarm in minutes
+#        type: float
+#        default: 0
+#        required: false
+#        secret: false
+#
+#      - name: start_meter
+#        description: Starting meter position of the alarm
+#        type: float
+#        required: true
+#        secret: false
+#
+#      - name: end_meter
+#        description: Ending meter position of the alarm
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: distance
+#        description: Distance covered by the alarm
+#        type: float
+#        required: true
+#        secret: false
+#
+#      - name: line
+#        description: Line or track where the alarm occurred
+#        type: str
+#        required: true
+#        secret: false
+#
+#      - name: severity
+#        description: Alarm severity level
+#        type: str
+#        default: Low
+#        required: false
+#        secret: false
+#
+#      - name: status
+#        description: Current status of the alarm (Open, Closed, etc.)
+#        type: str
+#        default: Open
+#        required: false
+#        secret: false
+#
+#      - name: classification
+#        description: Type of alarm
+#        type: str
+#        default: Unknown
+#        required: false
+#        secret: false
+#
+#      - name: n_events
+#        description: Number of events associated with this alarm
+#        type: int
+#        default: 0
+#        required: false
+#        secret: false
+#
+#      - name: close_by
+#        description: User or system that closed the alarm
+#        type: int
+#        default: 0
+#        required: false
+#        secret: false
+#
+#      - name: comments
+#        description: Additional comments for the alarm
+#        type: str
+#        default:
+#        required: false
+#        secret: false
+#
+#      - name: attach
+#        description: Attachment or reference file
+#        type: str
+#        default:
+#        required: false
+#        secret: false
+#
+#
+#  # =============================================
+#  # Denoise Configuration
+#  # =============================================
+#  - name: Denoise
+#    description: Denoise algorithm configuration
+#    type: model
+#    variables:
+#      - name: active
+#        description: Denoise global parameter activation
+#        type: bool
+#        default: false
+#        required: false
+#        secret: false
+#
+#      - name: save
+#        description: Save denoise values
+#        type: bool
+#        default: false
+#        required: false
+#        secret: false
+#
+#      - name: learning_rate
+#        description: Learning Rate for denoising
+#        type: float
+#        default: 0.02
+#        required: false
+#        secret: false
+#
+#      - name: coherent_noise
+#        description: Coherent noise level
+#        type: float
+#        default: 1.007
+#        required: false
+#        secret: false
+#
+#
+#  # =============================================
+#  # Event Data Model
+#  # =============================================
+#  - name: Event
+#    description: Event data model with geometric and signal features
+#    type: model
+#    variables:
+#      - name: identifier
+#        description: Unique event identifier
+#        type: str
+#        required: false
+#        secret: false
+#
+#      - name: state
+#        description: Current state of the event
+#        type: str
+#        required: false
+#        secret: false
+#
+#      - name: line
+#        description: Line or track where the event occurred
+#        type: str
+#        required: false
+#        secret: false
+#
+#      - name: start_time
+#        description: Start time of the event
+#        type: datetime
+#        required: false
+#        secret: false
+#
+#      - name: end_time
+#        description: End time of the event
+#        type: datetime
+#        required: false
+#        secret: false
+#
+#      - name: last_update
+#        description: Last update timestamp
+#        type: datetime
+#        required: false
+#        secret: false
+#
+#      - name: meters_width
+#        description: Width in meters
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: time_height
+#        description: Height in time domain
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: start_meter
+#        description: Starting meter position
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: end_meter
+#        description: Ending meter position
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: width
+#        description: Width of the event
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: height
+#        description: Height of the event
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: area
+#        description: Area of the event
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: perimeter
+#        description: Perimeter of the event
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: min_enclosing_circle_radius
+#        description: Radius of the minimum enclosing circle
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: hull_area
+#        description: Area of the convex hull
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: extent
+#        description: Extent of the event
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: solidity
+#        description: Solidity of the event
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: aspect_ratio
+#        description: Aspect ratio of the event
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: equivalent_diameter
+#        description: Equivalent diameter
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: activity
+#        description: Activity measure
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: mobility
+#        description: Mobility measure
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: complexity
+#        description: Complexity measure
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: complexity2
+#        description: Secondary complexity measure
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: spectral_purity
+#        description: Spectral purity
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: fft_energy
+#        description: FFT energy
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: band_1
+#        description: Energy in frequency band 1
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: band_2
+#        description: Energy in frequency band 2
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: band_3
+#        description: Energy in frequency band 3
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: clustering
+#        description: Clustering metric
+#        type: float
+#        required: false
+#        secret: false
+#
+#      - name: matrix
+#        description: Matrix value
+#        type: float
+#        required: false
+#        secret: false
+#
+#
+#  # =============================================
+#  # Image Configuration
+#  # =============================================
+#  - name: Image
+#    description: Image processing and visualization settings
+#    type: model
+#    env_prefix: IMAGE
+#    variables:
+#      - name: threshold
+#        description: Threshold value used in image processing.
+#        type: float
+#        default: 60.0
+#        required: false
+#        secret: false
+#
+#      - name: saturation
+#        description: Saturation level for image normalization.
+#        type: float
+#        default: 25.0
+#        required: false
+#        secret: false
+#
+#      - name: zones_path
+#        description: Path to zones configuration.
+#        type: path
+#        default: zones
+#        required: false
+#        secret: false
+#
+#
+#  # =============================================
+#  # Channel Configuration (Composite Model)
+#  # =============================================
+#  - name: Channel
+#    description: Main channel configuration that combines all processing modules
+#    type: model
+#    include_general: false
+#    env_prefix: CHANNEL
+#    variables:
+#      - name: name
+#        description: Channel name
+#        type: str
+#        required: true
+#
+#      - name: process
+#        description: Processing parameters
+#        from_model: Process
+#        type: model
+#        required: true
+#
+#      - name: image
+#        description: Image processing settings
+#        from_model: Image
+#        type: model
+#        required: true
+#
+#      - name: rabbitmq
+#        description: RabbitMQ sending configuration
+#        from_model: Rabbitmq
+#        type: model
+#        required: true
+#
+#      - name: reader
+#        description: Data reader configuration
+#        from_model: Reader
+#        type: model
+#        required: true
+#
+#      - name: contour
+#        description: Contour detection parameters
+#        from_model: Contour
+#        type: model
+#        required: true
+#
+#      - name: denoise
+#        description: Denoise algorithm settings
+#        from_model: Denoise
+#        type: model
+#        required: true
+#
+#      - name: flags
+#        description: Processing flags and options
+#        from_model: Flags
+#        type: model
+#        required: true
+#
+#  - name: Channels
+#    description: List of Channels
+#    type: settings
+#    yaml_file: config/channel_*.yaml
+#    include_general: false
+#    env_prefix: CHANNELS
+#    variables:
+#      - name: ITEMS
+#        description: List of threshold configs
+#        from_model: Channel
+#        type: list
+#        required: true
+#
+#
+#  # =============================================
+#  # ConfigDAS - Configuración Principal del Sistema
+#  # =============================================
+#  - name: Config DAS
+#    description: Configuración principal del sistema DAS (Data Acquisition System)
+#    type: settings
+#    env_prefix: CONFIG_DAS
+#    yaml_file: config/config.yaml
+#    include_general: false
+#    variables:
+#      - name: device
+#        description: Device and hardware configuration
+#        from_model: Device
+#        type: model
+#        required: true
+#
+#      - name: daq
+#        description: Data Acquisition (DAQ) settings
+#        from_model: DAQ
+#        type: model
+#        required: true
+#
+#      - name: edfa
+#        description: Erbium Doped Fiber Amplifier configuration
+#        from_model: EDFA
+#        type: model
+#        required: true
+#
+#      - name: laser
+#        description: Laser parameters configuration
+#        from_model: Laser
+#        type: model
+#        required: true
+#
+#  - name: Thresholds
+#    description: List of thresholds
+#    type: settings
+#    yaml_file: config/threshold.yaml
+#    include_general: false
+#    env_prefix: THRESHOLDS
+#    variables:
+#      - name: ITEMS
+#        description: List of threshold configs
+#        from_model: Threshold
+#        type: list
+#        required: true
+#
+#  # =============================================
+#  # Database Configuration
+#  # =============================================
+#  - name: Database
+#    description: Database connection settings
+#    type: settings
+#    include_general: false
+#    env_prefix: DATABASE
+#    variables:
+#      - name: name
+#        description: Database name
+#        type: str
+#        required: false
+#        secret: false
+#
+#      - name: user
+#        description: Database username
+#        type: str
+#        required: false
+#        secret: false
+#
+#      - name: psswrd
+#        description: Database password
+#        type: str
+#        required: false
+#        secret: true
+#
+#      - name: host
+#        description: Database host address
+#        type: str
+#        required: false
+#        secret: false
+#
+#      - name: port
+#        description: Database port
+#        type: str
+#        required: false
+#        secret: false
+#
+#
+#  # =============================================
+#  # Observer Configuration
+#  # =============================================
+#  - name: Observer
+#    description: Observer and watchdog settings for monitoring processes and results
+#    type: settings
+#    include_general: false
+#    env_prefix: OBSERVER
+#    variables:
+#      - name: observer_path_template
+#        description: Template path for observer results (used in Windows/local environments)
+#        type: Path
+#        default: ./result-{}
+#        required: false
+#        secret: false
+#
+#      - name: observers_watchdog
+#        description: Dictionary for watchdog observers status
+#        type: dict
+#        default: {}
+#        required: false
+#        secret: false
+#
+#      - name: process_channel
+#        description: Dictionary for process channel information
+#        type: dict
+#        default: {}
+#        required: false
+#        secret: false
+#
+#      - name: signal_send
+#        description: Dictionary for signal sending status
+#        type: dict
+#        default: {}
+#        required: false
+#        secret: false
+#
+#  # =============================================
+#  # Paths Configuration
+#  # =============================================
+#  - name: Path
+#    description: Paths and directories configuration for input, output and Docker
+#    type: settings
+#    include_general: false
+#    env_prefix: PATH
+#    variables:
+#      - name: base_image
+#        description: Base path for generated images
+#        type: path
+#        default: ./result/images
+#        required: false
+#        secret: false
+#
+#      - name: input
+#        description: Input data directory
+#        type: path
+#        default: /data
+#        required: false
+#        secret: false
+#
+#      - name: output
+#        description: Output results directory
+#        type: path
+#        default: /result
+#        required: false
+#        secret: false
+#
+#      - name: prefix_input
+#        description: Prefix for input files
+#        type: str
+#        default: CHA
+#        required: false
+#        secret: false
+#
+#      - name: prefix_output
+#        description: Prefix for output files
+#        type: str
+#        default: rCHA
+#        required: false
+#        secret: false
+#
+#      - name: activate_docker
+#        description: Activate Docker mode
+#        type: bool
+#        default: false
+#        required: false
+#        secret: false
+#
+#      - name: docker_image
+#        description: Docker image name and tag
+#        type: str
+#        default: registry.agrubio.dev/das-app/processor-das-python:latest
+#        required: false
+#        secret: false

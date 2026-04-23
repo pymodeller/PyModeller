@@ -1,0 +1,36 @@
+"""Auto-generated Peewee model."""
+
+from datetime import datetime
+from typing import ClassVar
+from peewee import (
+    Model, SQL, CompositeKey, CharField, DateTimeField,
+    FloatField, IntegerField, BooleanField, ForeignKeyField, BooleanField
+)
+{% if extra_imports %}
+{% for imp in extra_imports %}
+{{ imp }}
+{% endfor %}
+{% endif %}
+
+class {{ class_name }}(Model):
+    """{{ description }}."""
+    {% for var in variables %}
+    {{ var.name }} = {{ var.field_type }}(
+        {%- for param in var.params %}{{ param }}{{ ", " if not loop.last }}{% endfor -%}
+    )
+    {% endfor %}
+
+    class Meta:
+        """Class meta."""
+        database = {{ database_func }}()
+        table_name = '{{ table_name }}'
+        {% if primary_key %}
+        primary_key = {{ primary_key }}
+        {% endif %}
+        {% if indexes %}
+        indexes: ClassVar = [
+            {% for idx in indexes %}
+            (({{ idx.fields }}), {{ idx.unique }}),
+            {% endfor %}
+        ]
+        {% endif %}
