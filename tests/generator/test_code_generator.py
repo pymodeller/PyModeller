@@ -128,7 +128,7 @@ def test_codegen_section(sample_var: EnvVarSpec) -> None:
     lines: list[str] = PydanticGenerator.codegen_section(section)
     content: str = "\n".join(lines)
     assert "ServerSettings" in content
-    assert 'env_prefix="SRV_"' in content
+    assert 'env_prefix="SRV__"' in content
     assert "host: str = Field(" in content
 
 
