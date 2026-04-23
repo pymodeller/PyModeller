@@ -22,6 +22,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
 
+from pymodeller import __version__
 from pymodeller.config import get_code_gen_config
 from pymodeller.generators.peewee_generator import PeeweeCodeGenerator
 from pymodeller.generators.pydantic_generator import _YAML_HASH_MARKER, PydanticGenerator
@@ -54,6 +55,8 @@ class EnvManager:
             "# .env.example - AUTO-GENERATED",
             "# Source: env_data_model.yaml",
             "# Legend: ✱ required | 🔒 secret",
+            "# Important notice! If the settings attribute is a Model and you want to designate a attribute from .env "
+            "# use __ before the attribute's name. Example: CONFIG_DEVICE__NAME"
             "#" * _LINE_WIDTH,
             "",
         ]
@@ -266,6 +269,13 @@ def sync(
 
         show_master_diff(master_diff)
         return typer.Exit(code=0)
+
+
+def show_version(value: bool) -> typer.Exit | None:
+    """Show version."""
+    if value:
+        typer.echo(f"PyModeller version {__version__}")
+        raise typer.Exit(code=0)
 
 
 def show_master_diff(master_diff: dict) -> None:

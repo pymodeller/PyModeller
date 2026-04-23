@@ -11,7 +11,7 @@ Copyright ©2026 PyModeller. All rights reserved.
 
 import typer
 
-from pymodeller.cli.commands import check, codegen, drift, example, setup
+from pymodeller.cli.commands import check, codegen, drift, example, setup, show_version
 from pymodeller.cli.dev_tools import main_check, main_ci, main_test
 
 app = typer.Typer(
@@ -39,6 +39,12 @@ app.command()(example)
 app.command()(check)
 app.command()(codegen)
 app.command()(drift)
+
+
+@app.callback()
+def core(version: bool | None = typer.Option(None, "--version", "-v", callback=show_version, is_eager=True)) -> None:
+    """Console-script entry point — registered as 'orion-mcp'."""
+    pass
 
 
 def main() -> None:

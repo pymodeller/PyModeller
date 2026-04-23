@@ -20,12 +20,13 @@ class PydanticGenerator:
         """Generate the header for auto-generated files."""
         headers = [
             "from pathlib import Path",
-            "from pydantic import AliasChoices, Field, SecretStr, BaseModel, ConfigDict",
-            "from pydantic_settings import BaseSettings, SettingsConfigDict",
+            "from pydantic import AliasChoices, Field, SecretStr, BaseModel, ConfigDict, PrivateAttr, model_validator",
+            "from pydantic_settings import BaseSettings, SettingsConfigDict, PydanticBaseSettingsSource",
             "from functools import lru_cache",
             "from datetime import datetime",
             "import pydantic_numpy.typing as pnd",
-            "from typing import Any, Literal",
+            "from typing import Any, Literal, Callable",
+            "import glob",
         ]
 
         if extra_lines:
@@ -42,9 +43,14 @@ class PydanticGenerator:
         ]
 
     @staticmethod
+    def capitalize(name: str) -> str:
+        """Just capitalize."""
+        return "".join(word.title() for word in name.split())
+
+    @staticmethod
     def generate_name(name: str, type_: str) -> str:
         """Generate name."""
-        return "".join(word.title() for word in name.split()) + type_.capitalize()
+        return PydanticGenerator.capitalize(name) + type_.capitalize()
 
     @staticmethod
     def _section_class_name(section: EnvSection) -> str:
@@ -58,7 +64,7 @@ class PydanticGenerator:
             return "SecretStr"
         base = YAML_TYPE_MAP.get(var.type, "str")
         if base in ["object", "model"] and var.from_model:
-            base = "".join([var.from_model, "Model"])
+            base = "".join([var.from_model.capitalize(), "Model"])
         return f"{base} | None" if not var.required and var.default is None else base
 
     @staticmethod
@@ -82,7 +88,7 @@ class PydanticGenerator:
             default_expr = f'default="{var.default}"' if var.default is not None else "default=None"
 
         if var.from_model and var.type not in ["object", "model"]:
-            py_type = "".join([py_type, "[", var.from_model, "Model]"])
+            py_type = "".join([py_type, "[", var.from_model.capitalize(), "Model]"])
 
         return (
             f"    {var.name}: {py_type} = Field(\n"
@@ -107,11 +113,13 @@ class PydanticGenerator:
         ]
 
         model_config_settings = [
+            "    _metadata_origins: dict[str, str] = PrivateAttr(default_factory=dict)",
+            "",
             "    model_config = SettingsConfigDict(",
             '        env_file=".env",',
             '        env_file_encoding="utf-8",',
             "        env_ignore_empty=True,",
-            f'        env_prefix="{section.env_prefix}",',
+            f'        env_prefix="{section.env_prefix}_",',
             '        env_nested_delimiter="__",',
             "        case_sensitive=False,",
             '        env_prefix_target="all",',
@@ -156,7 +164,77 @@ class PydanticGenerator:
             *generate_content,
         ])
 
+        if section.type == SectionType.SETTINGS:
+            lines.extend(PydanticGenerator.generate_sources_funcs())
+
         return lines
+
+    @staticmethod
+    def generate_sources_funcs() -> list:
+        """Generate sources functions."""
+        return [
+            "",
+            '    @model_validator(mode="before")',
+            "    @classmethod",
+            "    def _prepare_metadata(cls, data: Any) -> Any:",
+            '        """ Intercept data origin and save. """',
+            '        if isinstance(data, dict) and "_metadata_origins" in data:',
+            '            cls._metadata_origins = data.pop("_metadata_origins")',
+            "            return data",
+            "        return data",
+            "",
+            "    @classmethod",
+            "    def settings_customise_sources(",
+            "        cls,",
+            "        settings_cls: PydanticBaseSettingsSource,",
+            "        init_settings: PydanticBaseSettingsSource,",
+            "        env_settings: PydanticBaseSettingsSource,",
+            "        dotenv_settings: PydanticBaseSettingsSource,",
+            "        file_secret_settings: PydanticBaseSettingsSource,",
+            "    ) -> tuple:",
+            '        """Settings customise sources. """',
+            "        return (",
+            f'            track_source(init_settings, "init / yaml"),',
+            f'            track_source(env_settings, "env"),',
+            f'            track_source(dotenv_settings, "dotenv"),',
+            f'            track_source(file_secret_settings, "file_secret"),',
+            "        )",
+            "",
+            "    def get_origin(self, field_path: str) -> str:",
+            '        """Get origin variable."""',
+            '        return self._metadata_origins.get(field_path, "Unknown")',
+            "",
+            "",
+            'def track_origin(data: dict, origin: str, prefix: str = "",',
+            '                 registry: dict | None = None) -> dict[str, str]:',
+            '    """ Get data a register the origin. """',
+            "    if registry is None:",
+            "        registry = {}",
+            "",
+            "    for key, value in data.items():",
+            '        path = f"{prefix}.{key}" if prefix else key',
+            "        ",
+            "        if isinstance(value, dict):",
+            "            track_origin(value, origin, path, registry)",
+            "        else:",
+            "            if path not in registry:",
+            "                registry[path] = origin",
+            "                ",
+            "    return registry",
+            "",
+            "",
+            "def track_source(source: PydanticBaseSettingsSource, origin: str) -> Any:",
+            '    """ Wrapper to save data origins. """',
+            "    def wrapper() -> dict[str, Any]:",
+            '        """Wrapper. """',
+            "        data = source()",
+            "        result = dict(data)",
+            "        if result:",
+            '            result["_metadata_origins"] = track_origin(data, origin)',
+            "        return result",
+            "    return wrapper",
+            ""
+        ]
 
     @staticmethod
     def codegen_init(init_imports: list, all_imports: list, folder: Path) -> None:
@@ -193,7 +271,8 @@ class PydanticGenerator:
         extra_imports = [""]
         for v in variables_:
             name = to_snake_case(v.from_model or "")
-            extra_imports.append(f"from .{name} import {v.from_model}Model")
+            model_name = PydanticGenerator.capitalize(v.from_model or "")
+            extra_imports.append(f"from .{name} import {model_name}Model")
 
         return extra_imports if len(extra_imports) > 1 else None
 
@@ -214,12 +293,27 @@ class PydanticGenerator:
             f'    """Return the cached application settings instance y {yaml_file or ""}."""',
         ]
 
-        if yaml_file:
+        if yaml_file and "*" in yaml_file:
+            getter_lines.extend([
+                f'    path_obj = Path("{yaml_file}")',
+                "    search_dir = path_obj.parent",
+                "    search_pattern = path_obj.name",
+                "    ",
+                "    item_list = []",
+                "    for file_path in sorted(search_dir.glob(search_pattern)):",
+                "        data = _read_yaml(file_path) or {}",
+                "        data['name'] = file_path.stem",
+                "        item_list.append(data)",
+                "    ",
+                "    values = {'items': item_list}",
+            ])
+            getter_lines.extend([f"    return {model_name}.model_validate(values)", "", ""])
+        elif yaml_file:
             getter_lines.extend([
                 f'    values = _read_yaml(Path("{yaml_file}"))',
             ])
 
-            getter_lines.extend([f"    return {model_name}(**values)", "", ""])
+            getter_lines.extend([f"    return {model_name}.model_validate(values)", "", ""])
         else:
             getter_lines.extend([f"    return {model_name}()", "", ""])
 
@@ -277,17 +371,11 @@ class PydanticGenerator:
 
             lines.append(f"    {attr}: {class_name} = Field(default_factory={class_name})")
 
-            parts = code_gen_conf.pydantic_folder.parts
-
-            if parts and parts[0] == "src":
-                parts = parts[1:]
-
-            result = ".".join(parts)
-            imports_headers.append(f"from {result} import {class_name}")
+            imports_headers.append(f"from . import {class_name}")
 
         PydanticGenerator.codegen_init(init_imports, all_imports, out)
 
-        lines[1:1] = imports_headers
+        lines[1:1] = [ i for i in init_imports if "generalsettings" not in i.lower()]
 
         name = to_snake_case(general_section.name)
         if general_section.type == SectionType.SETTINGS:
