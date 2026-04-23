@@ -102,11 +102,10 @@ class PeeweeGenerator:
             import_ = self.generate_import(master_import_path)
             extra_imports.append(f"from {import_} import get_database")
 
-        foreign_keys_ = [v.db_spec.foreign_key for v in section.variables if
-                         v.db_spec and v.db_spec.foreign_key]
+        foreign_keys_ = [v.db_spec.foreign_key for v in section.variables if v.db_spec and v.db_spec.foreign_key]
 
         for e in foreign_keys_:
-            module_, class_= self.generate_module_class_name(e)
+            module_, class_ = self.generate_module_class_name(e)
             extra_imports.append(f"from .{module_} import {class_}")
 
         variables_context = [self._get_field_data(v) for v in section.variables]
@@ -170,8 +169,6 @@ class PeeweeGenerator:
         master.write_text(db_config_code, encoding="utf-8")
 
         for sect in sections:
-            master_mod = master.stem
-
             module_, _ = self.generate_module_class_name(sect.name)
 
             model_code = self.render_section(sect, master)
