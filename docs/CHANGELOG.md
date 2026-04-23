@@ -2,6 +2,33 @@
 
 <!-- version list -->
 
+## v0.3.0 (2026-04-23)
+
+### Continuous Integration
+
+- Update sonar-project.properties
+  ([`c0e7750`](https://github.com/pymodeller/PyModeller/commit/c0e7750d5613b48b8cb8f39bfd043cf8f06fa981))
+
+### Features
+
+- Added peewee_generator.py.py from jinja
+  ([`d3dc14f`](https://github.com/pymodeller/PyModeller/commit/d3dc14f6878e26dbc16c4fce67fe80d158adab4f))
+
+- Added pydantic_generator.py from jinja
+  ([`bb26a48`](https://github.com/pymodeller/PyModeller/commit/bb26a484ceb019b77894d1ebce659c73fc74b00e))
+
+- Load data from yaml, and save origins in pydantic_generator
+  ([`84f9c3f`](https://github.com/pymodeller/PyModeller/commit/84f9c3f9d49060dc9f084cf9b76627cef3efcf52))
+
+### Testing
+
+- Added tests
+  ([`b18c259`](https://github.com/pymodeller/PyModeller/commit/b18c2597e36159978360480215a4d3a4cc99bfce))
+
+- Code generator fix test
+  ([`911c102`](https://github.com/pymodeller/PyModeller/commit/911c102b8286ef7587ce3beef9704dd78c3bfc53))
+
+
 ## v0.2.7 (2026-04-22)
 
 ### Bug Fixes
