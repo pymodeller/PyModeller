@@ -1,11 +1,12 @@
 """Test for peewee generator."""
+
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from pymodeller.generators.peewee_generator import PeeweeGenerator
-from pymodeller.loader import DBField, EnvSection, EnvSpec, EnvVarSpec, SectionType, DBSpec
+from pymodeller.loader import DBField, DBSpec, EnvSection, EnvSpec, EnvVarSpec, SectionType
 
 
 class TestPeeweeGenerator:
@@ -76,7 +77,7 @@ class TestPeeweeGenerator:
         result = generator.render_section(section, master_path)
 
         # Verify template was called with expected context keys
-        args, kwargs = generator.env.get_template().render.call_args
+        args, _ = generator.env.get_template().render.call_args
         context = args[0]
 
         assert context["class_name"] == "Product"
