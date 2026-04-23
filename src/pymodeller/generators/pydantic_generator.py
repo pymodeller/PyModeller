@@ -194,10 +194,10 @@ class PydanticGenerator:
             "    ) -> tuple:",
             '        """Settings customise sources. """',
             "        return (",
-            f'            track_source(init_settings, "init / yaml"),',
-            f'            track_source(env_settings, "env"),',
-            f'            track_source(dotenv_settings, "dotenv"),',
-            f'            track_source(file_secret_settings, "file_secret"),',
+            '            track_source(init_settings, "init / yaml"),',
+            '            track_source(env_settings, "env"),',
+            '            track_source(dotenv_settings, "dotenv"),',
+            '            track_source(file_secret_settings, "file_secret"),',
             "        )",
             "",
             "    def get_origin(self, field_path: str) -> str:",
@@ -206,7 +206,7 @@ class PydanticGenerator:
             "",
             "",
             'def track_origin(data: dict, origin: str, prefix: str = "",',
-            '                 registry: dict | None = None) -> dict[str, str]:',
+            "                 registry: dict | None = None) -> dict[str, str]:",
             '    """ Get data a register the origin. """',
             "    if registry is None:",
             "        registry = {}",
@@ -233,7 +233,7 @@ class PydanticGenerator:
             '            result["_metadata_origins"] = track_origin(data, origin)',
             "        return result",
             "    return wrapper",
-            ""
+            "",
         ]
 
     @staticmethod
@@ -293,7 +293,7 @@ class PydanticGenerator:
             f'    """Return the cached application settings instance y {yaml_file or ""}."""',
         ]
 
-        if yaml_file and "*" in yaml_file:
+        if yaml_file and "*" in str(yaml_file):
             getter_lines.extend([
                 f'    path_obj = Path("{yaml_file}")',
                 "    search_dir = path_obj.parent",
@@ -375,7 +375,7 @@ class PydanticGenerator:
 
         PydanticGenerator.codegen_init(init_imports, all_imports, out)
 
-        lines[1:1] = [ i for i in init_imports if "generalsettings" not in i.lower()]
+        lines[1:1] = [i for i in init_imports if "generalsettings" not in i.lower()]
 
         name = to_snake_case(general_section.name)
         if general_section.type == SectionType.SETTINGS:
