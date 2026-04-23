@@ -1,0 +1,36 @@
+"""Database configuration and connection."""
+
+from functools import lru_cache
+from peewee import PostgresqlDatabase
+from pydantic import Field, SecretStr
+from pydantic_settings import SettingsConfigDict, BaseSettings
+
+
+class DatabaseSettings(BaseSettings):
+    """Database settings."""
+    name: str | None = Field(default=None)
+    user: str | None = Field(default=None)
+    psswrd: SecretStr = Field(default=SecretStr(""))
+    host: str | None = Field(default=None)
+    port: str | None = Field(default=None)
+
+    model_config = SettingsConfigDict(
+        env_prefix="DATABASE_",
+        populate_by_name=True,
+        env_file=".env",
+        case_sensitive=False,
+        extra="ignore",
+    )
+
+
+@lru_cache(maxsize=1)
+def get_database() -> PostgresqlDatabase:
+    """Get database instance."""
+    db_settings = DatabaseSettings()
+    return PostgresqlDatabase(
+        database=db_settings.name,
+        user=db_settings.user,
+        password=db_settings.psswrd.get_secret_value(),
+        host=db_settings.host,
+        port=db_settings.port,
+    )
