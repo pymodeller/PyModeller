@@ -7,6 +7,7 @@ from pydantic import AliasChoices, Field, SecretStr, BaseModel, ConfigDict, Priv
 from pydantic_settings import BaseSettings, SettingsConfigDict, PydanticBaseSettingsSource
 from functools import lru_cache
 from datetime import datetime
+import pydantic_numpy.typing as pnd
 # Dynamic imports for nested sections
 {% for imp in imports %}
 {{ imp }}
