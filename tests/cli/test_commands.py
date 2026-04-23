@@ -226,7 +226,7 @@ class TestCLICommands:
     # --- Tests for Codegen (Lines 161-164, 188-189, 213) ---
 
     @patch("pymodeller.cli.commands.PydanticGenerator.generate_files")
-    @patch("pymodeller.cli.commands.PeeweeCodeGenerator.generate_files")
+    @patch("pymodeller.cli.commands.PeeweeGenerator.generate_files")
     @patch("pymodeller.cli.commands.load_env_spec")
     @patch("pymodeller.cli.commands.EnvManager.get_file_hash")
     def test_codegen_no_models_declared(
@@ -401,7 +401,7 @@ def test_check_env_not_found(capsys: MagicMock) -> None:
 @patch("pymodeller.cli.commands.load_env_spec")
 @patch("pymodeller.cli.commands.EnvManager.get_file_hash", return_value="abc")
 @patch("pymodeller.cli.commands.PydanticGenerator.generate_files")
-@patch("pymodeller.cli.commands.PeeweeCodeGenerator.generate_files")
+@patch("pymodeller.cli.commands.PeeweeGenerator.generate_files")
 @patch("pymodeller.cli.commands.ToolRunner.run_with_uv")
 def test_codegen_no_models_declared(
     mock_uv: MagicMock,
