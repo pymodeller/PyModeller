@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.3.1 (2026-04-23)
+
+### Bug Fixes
+
+- Generated import fix in pydantic models
+  ([`3359c18`](https://github.com/pymodeller/PyModeller/commit/3359c18a349b9a1800e7c5ebf19502f0d49d3c82))
+
+
 ## v0.3.0 (2026-04-23)
 
 ### Continuous Integration
