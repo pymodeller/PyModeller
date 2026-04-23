@@ -210,7 +210,7 @@ def load_env_spec(path: str | Path | None = None) -> EnvSpec:
         vars_list = []
         for v in raw_sec.get("variables", []):
             raw_name = v["name"]
-            env_name = f"{prefix}__{raw_name}" if prefix else raw_name
+            env_name = f"{prefix}_{raw_name}" if prefix else raw_name
 
             db_finfo = v.get("db_spec", None)
             db_f_ = DBField(**db_finfo) if db_finfo else None
