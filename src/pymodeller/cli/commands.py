@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import hashlib
 import tempfile
+import time
 from pathlib import Path
 from typing import Annotated, Any
 
@@ -148,6 +149,8 @@ def codegen(
         typer.secho("Step 1.A. Executing ruff commands over files generated", fg=typer.colors.BRIGHT_GREEN)
         ToolRunner.run_with_uv("ruff", ["check", str(out_path), _CONFIG_TOML, "--fix"])
         ToolRunner.run_with_uv("ruff", ["check", str(models_dir), _CONFIG_TOML, "--fix"])
+        ToolRunner.run_with_uv("ruff", ["format", str(out_path), _CONFIG_TOML])
+        ToolRunner.run_with_uv("ruff", ["format", str(models_dir), _CONFIG_TOML])
         typer.secho(
             f"      ✅ Pydantic models generated at {pydantic_out}",
             bold=True,
@@ -167,6 +170,8 @@ def codegen(
         typer.secho("Step 2.A. Executing ruff commands over files generated", fg=typer.colors.BRIGHT_GREEN)
         ToolRunner.run_with_uv("ruff", ["check", str(p_path), _CONFIG_TOML, "--fix"])
         ToolRunner.run_with_uv("ruff", ["check", str(pm_dir), _CONFIG_TOML, "--fix"])
+        ToolRunner.run_with_uv("ruff", ["format", str(p_path), _CONFIG_TOML])
+        ToolRunner.run_with_uv("ruff", ["format", str(pm_dir), _CONFIG_TOML])
         typer.secho(
             f"      ✅ Peewee models generated at {peewee_out}",
             bold=True,
