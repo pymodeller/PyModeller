@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v0.5.1 (2026-04-24)
+
+### Bug Fixes
+
+- Added ruff format commands
+  ([`a137fbe`](https://github.com/pymodeller/PyModeller/commit/a137fbe1b9d724511180f422850704e254537c01))
+
+- Remove no used packages
+  ([`ff5578d`](https://github.com/pymodeller/PyModeller/commit/ff5578dca3a300db3396628f1a05265b1b70ef55))
+
+
 ## v0.1.0 (2026-04-24)
 
 - Initial Release
