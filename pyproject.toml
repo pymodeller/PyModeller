@@ -31,7 +31,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/pymodeller/PyModeller"
+Homepage = "https://pymodeller.github.io/PyModeller/"
 Repository = "https://github.com/pymodeller/PyModeller"
 Issues = "https://github.com/pymodeller/PyModeller/issues"
 
