@@ -19,7 +19,6 @@ endif
 include make/build.mk
 include make/clean.mk
 include make/docs.mk
-include make/env.mk
 include make/qa.mk
 include make/settings.mk
 include make/setup.mk
