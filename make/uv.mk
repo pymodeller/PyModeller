@@ -54,3 +54,15 @@ wrong-venv: ## Wrong venv activated
 check-venv: check-uv no-venv wrong-venv ## Verify virtual environment
 	@uv lock --locked
 	@echo "Correct virtual environment active $(OK)"
+
+
+
+.PHONY: auth-github
+auth-github: ## auth-github: Prompts for credentials and configures git-store for uv
+	@echo "$(ARROW) Configuring uv authentication for GitHub..."
+	@# uv uses the system's git credentials for private repositories.
+	@# We enable the 'store' helper and populate the credentials file.
+	git config --local credential.helper store "store --file .git/github-credentials"
+	@echo "https://$(GITHUB_USER):$(GITHUB_TOKEN)@github.com" > .git/github-credentials
+	@chmod 600 .git/github-credentials
+	@echo "$(ARROW) GitHub authentication successfully configured for uv."

@@ -1,21 +1,20 @@
 # Contributing
 
+ ## Using the Makefile (Recommended)
 
-## Using the Makefile (Recommended)
+ This project provides a robust Makefile to simplify and standardize common development tasks.
 
-This project provides a Makefile to simplify and standardize common development tasks.
+ **Quick Start:** We strongly recommend running the following command to see all available shortcuts and descriptions:
 
-Contributors are encouraged to use the Makefile during development, as it:
-- Ensures consistent commands across the team
-- Integrates tooling such as uv, ruff, pytest, pre-commit, and mkdocs
-- Reduces the need to remember complex command combinations
+ ```bash
+ make help
+ ```
 
-## Common Development Tasks
+ Contributors are encouraged to use the Makefile during development, as it:
+ - Ensures consistent command execution across the entire team.
+ - Seamlessly integrates core tooling such as `uv`, `ruff`, `pytest`, `pre-commit`, and `mkdocs`.
+ - Simplifies complex workflows into memorable single-word commands.
 
-To see all available commands and their descriptions, run:
-```bash
-make help
-```
 
 ### Frequently Used Commands
 

@@ -208,7 +208,7 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-/.env.backup
+/.env.backup2
 /.env.example
 /config/
 /uv.lock

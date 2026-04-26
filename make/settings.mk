@@ -32,7 +32,7 @@ BOLD        := \033[1m
 
 OK      := $(SUCCESS)✓$(NO_COLOR)
 FAIL    := $(ERROR)✗$(NO_COLOR)
-ARROW   := $(INFO)→$(NO_COLOR)
+ARROW   := $(INFO)⮕$(NO_COLOR)
 
 # Variables
 VENV_DIR := .venv

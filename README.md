@@ -9,20 +9,35 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=pymodeller_PyModeller&metric=coverage)](https://sonarcloud.io/summary/new_code?id=pymodeller_PyModeller)
 
-Pymodeller is a powerful CLI tool designed to bridge the gap between configuration specifications and Python code. By using a single YAML source of truth, you can automate the generation of Pydantic models, Peewee ORM classes, and manage environment variables with ease.
+**PyModeller** is a __DevOps-oriented__ CLI tool designed to synchronize infrastructure requirements with Python
+application code. By utilizing a single YAML "Source of Truth," PyModeller automates the
+generation of Pydantic models, Peewee ORM classes, and `.env` templates, ensuring your
+configuration and database schemas never drift from your documentation.
 
-## Features
+## Core Features
 
- * Code Generation: Automatically generate typed Pydantic models or Peewee schemas.
- * Environment Management: Create .env.example templates directly from your spec.
- * Validation: Ensure your local .env files stay in sync with your definitions.
- * Drift Detection: Identify discrepancies between your YAML specification and your generated Python code.
+* **Code Generation**: Instant creation of typed Pydantic models or Peewee schemas from YAML.
+* **Traceable Settings**: Automatically generates a `BaseTraceableSettings` class. All settings inherit from this,
+enabling data source tracking and native YAML loading capabilities.
+* **Environment Templates**: Auto-generate `.env.example` files for seamless developer onboarding.
+* **Validation & Safety**: Verify local `.env` files against specifications to catch errors before runtime.
+* **Drift Detection**: Identify discrepancies between your YAML definitions and existing Python code.
+
+## Project Initialization & Core Models
+
+By default, PyModeller looks for a `py_modeller.yaml` file in the root of your project. This file must contain two main sections: `config` and `sections`.
+
+### The 'General' Section
+For Pydantic model generation, it is **required** to define a section named `General`. This section is used to generate the `general_setting` class, which serves as the primary configuration entry point.
+* **Centralized Access**: This allows you to import the global configuration state from anywhere in your application.
+* **Project Metadata**: It typically holds flags like `LOCAL_DEV`, `N_THREADS`, or global API keys.
+
 
  ---
 
 ## Installation
 
- Install pymodeller via pip:
+Install the package using [uv](https://github.com/astral-sh/uv) or pip:
 
 ```bash
  uv add pymodeller
@@ -34,28 +49,28 @@ Pymodeller is a powerful CLI tool designed to bridge the gap between configurati
 
  The CLI provides four main commands to manage your development workflow:
 
-### 1. Code Generation
+### 1. Generate models
  Generate typed Pydantic models or Peewee code for your project.
 ```bash
-pymodeller codegen --input schema.yaml --output models.py
+pymodeller codegen
 ```
 
 ### 2. Example Environment Generation
  Generate a template .env.example file based on your YAML specification to help collaborators set up their environment.
 ```bash
-pymodeller example --input schema.yaml
+pymodeller example
 ```
 
 ### 3. Environment Check
  Validate your current .env file against the YAML specification to ensure all required variables are present and correctly formatted.
 ```bash
-pymodeller check --env .env --spec schema.yaml
+pymodeller check
 ```
 
 ### 4. Drift Detection
  Check for "drift" between your YAML specification and the code already generated. This ensures that your Python models haven't fallen out of date.
 ```bash
-pymodeller drift --input schema.yaml --code models.py
+pymodeller drift
 ```
 
  ---
@@ -71,109 +86,153 @@ The project uses a structured YAML-to-Object mapping to manage environment varia
 The py_modeller.yaml acts as the Single Source of Truth, which is parsed into an EnvSpec instance.
 
 
-## 1. YAML Configuration Example
+## Environment Data Model Specification (YAML)
 
-The py_modeller.yaml file defines the structure of your environment and database models. Below is an example of how to configure sections, variables, and nested models:
+This document defines the schema for the `py_modeller.yaml` file. This file is used by the `loader.py` to generate typed
+Python dataclasses and manage environment variables, settings, and database schemas.
 
-```yaml
-# Global configuration for output paths
-config:
-  - name: PYDANTIC_OUT   # master config_models
-    value: src/models/config_models.py
-  - name: PEEWEE_OUT    # master config peewee
-    value: src/models/db_models.py
-  - name: PYDANTIC_FOLDER  # pydantic: output pydantic models folder
-    value: src/paper_hough/models
-  - name: PEEWEE_FOLDER  # peewee: output orm folder
-    value: src/paper_hough/models/db
-
-sections:
-  # 1. Settings Section: Used for application-wide flags
-  - name: General
-    description: Top-level application flags
-    type: settings
-    variables:
-      - name: LOCAL_DEV
-        description: Enable local development mode
-        type: bool
-        default: "true"
-      - name: API_KEY
-        description: Secure token for external services
-        type: secret  # Automatically handled as str + secret: true
-        required: true
-
-  # 2. Model Section: Defines data structures and types
-  - name: Algorithm
-    description: Configuration for processing logic
-    type: model
-    env_prefix: HOUGH
-    variables:
-      - name: THRESHOLD
-        type: int
-        default: "100"
-      - name: MATRIX_DATA
-        description: Raw matrix input
-        type: pnd.NpNDArrayUint8 # Specialized numpy-pydantic type
-        required: true
-
-  # 3. Database Integration: Mapping fields to DB specs
-  - name: UserProfile
-    description: Database schema for users
-    type: model
-    database:
-      table_name: users
-      primary_key: ["id"]
-    variables:
-      - name: USERNAME
-        type: str
-        db_spec:
-          max_length: 50
-          unique: true
-          allow_null: false
-
-  # 4. Nested Models & Lists
-  - name: ProcessingQueue
-    type: settings
-    variables:
-      - name: ITEMS
-        description: List of algorithm configurations
-        from_model: Algorithm # Reference to another section
-        type: list
-        required: true
-```
-
-### Key Mapping Features:
-* Type Normalization: Keywords like integer, bool, or path are automatically mapped to Python types.
-* Secret Sugar: Setting type: secret is a shortcut that sets the type to str and enables the secret flag for masking.
-* Automatic Aliasing: A variable named SERVER_HOST in YAML will be accessible as serverHost in Python via camelCase conversion.
-* Model Reusability: Use from_model to create complex, nested structures from existing sections.
-
-### 2. Object Hierarchy
-* EnvSpec: The root object containing all configuration sections.
-* EnvSection: Groups variables logically (e.g., General, Algorithm).
-    * Supports env_prefix to namespace variables in the shell.
-    * Can optionally hold a DBSpec for table-level database metadata.
-* EnvVarSpec: Defines individual settings.
-    * Automatic Aliasing: Converts SNAKE_CASE names to camelCase attributes automatically during __post_init__.
-    * Secret Handling: If type: secret is used in YAML, it is normalized to str but flagged as hidden for logs/documentation.
-* DBField: Detailed field-level constraints for Peewee ORM integration (lengths, nullability, foreign keys, etc.).
-
-### 3. Validation
+####  Validation
 The loading process includes a mandatory validate_no_duplicates() call which ensures:
 1. No two environment variables share the same env_name.
 2. No two Python attributes (aliases) collide within the same section.
 
 
-## Example YAML Specification
+---
 
- Your py_modeller.yaml should define the structure of your models. See file: py_modeller.yaml
+ ## Technical Specification
 
+### BaseTraceableSettings
+ Every generated settings class inherits from `BaseTraceableSettings`. This core class provides:
+* **Source Tracking**: Maintains a record of where each setting value originated (Environment, YAML, or Default).
+* **YAML Loader**: Built-in methods to populate settings directly from structured YAML files.
+
+### 1. Global Config (`config`)
+ Defines the output paths for generated files.
+
+ | Key | Description |
+ | :--- | :--- |
+ | `PYDANTIC_OUT` | Main file path for Pydantic models. |
+ | `PYDANTIC_FOLDER`| Directory for individual Pydantic model files. |
+ | `PEEWEE_OUT` | Main file path for the Peewee ORM models. |
+ | `PEEWEE_FOLDER` | Directory for individual ORM model files. |
+
+
+### 2. Root Structure
+The YAML must contain a top-level `sections` key which is a list of environment groups.
+
+```yaml
+sections:
+- name: "ExampleSection"
+  variables: []
+```
+
+---
+
+### 3. Section Schema (`EnvSection`)
+
+| Key | Type | Description |
+| :--- | :--- | :--- |
+| `name` | `string` | **Required**. The display name of the section. |
+| `description` | `string` | Brief explanation of the section's purpose. |
+| `env_prefix` | `string` | Prefix added to all variables in this section (e.g., `APP_`). |
+| `type` | `string` | Section category: `settings`, `model`, or `peewee` (Default: `model`). |
+| `include_general` | `boolean` | Whether to include general configurations (Default: `true`). |
+| `include_literal` | `boolean` | Used for FastAPI/literal exports (Default: `true`). |
+| `database` | `object` | *Optional*. Metadata for Database tables (See [DBSpec](#4-database-specification-dbspec)). |
+| `variables` | `list` | A list of variable definitions (See [EnvVarSpec](#3-variable-specification-envvarspec)). |
+
+---
+
+### 4. Variable Specification (`EnvVarSpec`)
+
+| Key | Type | Description |
+| :--- | :--- | :--- |
+| `name` | `string` | **Required**. The variable name (automatically converted to `snake_case` in Python). |
+| `type` | `string` | Data type mapping (See [Supported Types](#supported-types)). |
+| `description` | `string` | Documentation for the variable. |
+| `default` | `any` | Default value if the environment variable is not set. |
+| `required` | `boolean` | If true, the loader validates its existence. |
+| `secret` | `boolean` | If true, masks the value in logs (Type `secret` is a shortcut). |
+| `alias` | `string` | Custom Python attribute name (Defaults to `camelCase` of name). |
+| `db_spec` | `object` | *Optional*. ORM field configuration (See [DBField](#5-database-field-specification-dbfield)). |
+
+#### Supported Types
+The loader normalizes the following types:
+- **Primitives:** `string`, `integer`, `number` (float), `boolean`, `datetime`.
+- **Special:** `secret` (shortcut for `str` + `secret: true`), `path`, `list`.
+- **Numpy Arrays:** `pnd.NpNDArrayUint8`, `pnd.NpNDArrayInt8`, `pnd.NpNDArrayFp32`.
+
+> Note: We are actively working on expanding this list to support additional data types and specialized structures in
+> future releases.
+
+---
+
+### 5. Database Specification (`DBSpec`)
+Defined at the section level for Peewee/ORM metadata.
+
+| Key | Type | Description |
+| :--- | :--- | :--- |
+| `table_name` | `string` | Explicit name for the database table. |
+| `schema` | `string` | Database schema (e.g., `public`). |
+| `primary_key` | `list` | List of field names that form a composite primary key. |
+| `indexes` | `list` | Custom database index definitions. |
+| `constraints` | `list` | Table-level constraints. |
+
+---
+
+### 6. Database Field Specification (`DBField`)
+Defined under the `db_spec` key within a variable.
+
+| Key | Type | Description |
+| :--- | :--- | :--- |
+| `primary_key` | `boolean` | Marks the field as the primary key. |
+| `allow_null` | `boolean` | Allows NULL values in DB (Default: `false`). |
+| `unique` | `boolean` | Adds a UNIQUE constraint. |
+| `max_length` | `integer` | Max characters for string fields. |
+| `foreign_key` | `string` | Reference to another model/table. |
+| `choices` | `list` | Enforces a list of allowed string values. |
+| `max_digits` | `integer` | Precision for decimal numbers. |
+| `decimal_places`| `integer` | Scale for decimal numbers. |
+
+---
+
+### Example Usage
+
+```yaml
+sections:
+- name: "Network"
+  env_prefix: "NET"
+  type: "settings"
+  variables:
+    - name: "host_address"
+      type: "string"
+      default: "0.0.0.0"
+      alias: "serverHost"
+
+- name: "UsersTable"
+  type: "peewee"
+  database:
+    table_name: "app_users"
+  variables:
+    - name: "id"
+      type: "integer"
+      db_spec:
+        primary_key: true
+    - name: "api_key"
+      type: "secret"
+      required: true
+```
 
  ---
 
-## Contributing
+ ## Contributing
 
- Contributions are welcome! Please feel free to submit a Pull Request or open an issue if you find a bug or have a feature request.
+ Contributions are welcome! We value your help in making PyModeller better.
+
+ Before you get started, please refer to our [Contributing Guide](CONTRIBUTING.md) for details on our development
+ workflow, coding standards, and how to submit pull requests.
+
+ If you encounter a bug or have a feature request, feel free to [open an issue](https://github.com/pymodeller/PyModeller/issues).
 
 ## License
 
