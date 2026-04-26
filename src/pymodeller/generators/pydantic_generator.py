@@ -71,7 +71,7 @@ class PydanticGenerator:
 
         return ".".join(parts)
 
-    def render_section(self, section: EnvSection, yaml_hash: str = "") -> str:
+    def render_section(self, section: EnvSection) -> str:
         """Prepares context and renders the Jinja template."""
         # Preparar variables para el template
         variables_context = []
@@ -98,7 +98,6 @@ class PydanticGenerator:
 
         # Contexto final
         context = {
-            "yaml_hash": yaml_hash,
             "class_name": class_name,
             "is_settings": section.type == SectionType.SETTINGS,
             "description": f"Settings for the {section.name} section.",
@@ -228,7 +227,7 @@ class PydanticGenerator:
 
         for sect in sections:
             if sect.name != "General":
-                section_str = self.render_section(sect, yaml_hash)
+                section_str = self.render_section(sect)
                 sections_with_classes.append(sect)
                 module_name, _ = self.generate_module_class_name(sect)
 
