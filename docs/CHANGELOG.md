@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v0.5.3 (2026-04-26)
+
+### Bug Fixes
+
+- Remove comments
+  ([`b44b905`](https://github.com/pymodeller/PyModeller/commit/b44b905112ae3ba8c7113ec7121f9123fe1fce4c))
+
+- Remove hash file
+  ([`4800c19`](https://github.com/pymodeller/PyModeller/commit/4800c199ef4e0c408f321dc88d7c18a1abf9af1b))
+
+
 ## v0.5.2 (2026-04-26)
 
 ### Bug Fixes
