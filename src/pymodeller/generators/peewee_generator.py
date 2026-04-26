@@ -163,7 +163,6 @@ class PeeweeGenerator:
 
         out.mkdir(parents=True, exist_ok=True)
 
-        # 1. Generate Master (DB Config)
         db_config_code = self.env.get_template("peewee_db.jinja").render()
         master.parent.mkdir(parents=True, exist_ok=True)
         master.write_text(db_config_code, encoding="utf-8")
