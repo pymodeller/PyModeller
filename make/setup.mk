@@ -8,7 +8,7 @@ define prompt_and_store
         else \
             read value; \
         fi; \
-        echo "$(1)=$$value" >> $(ENV_FILE); \
+        printf "\n$(1)=%s" "$$value" >> $(ENV_FILE); \
         export $(1)="$$value"; \
     fi
 endef
@@ -25,7 +25,7 @@ setup: ## Execute project setup
 	fi
 	$(call prompt_and_store,GITHUB_USER,plain)
 	$(call prompt_and_store,GITHUB_TOKEN,secret)
-	@$(MAKE) configure-github
+	@$(MAKE) auth-github
 	@$(MAKE) doctor
 	@echo "✅ Setup completed successfully"
 
@@ -33,4 +33,3 @@ setup: ## Execute project setup
 doctor: ## Check uv-artifactory configuration
 	@echo "$(ARROW) Check environment..."
 	@$(MAKE) sync-all
-	@$(MAKE) env-drift
