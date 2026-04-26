@@ -25,7 +25,6 @@ class PydanticGenerator:
         if var.secret:
             return "SecretStr"
 
-        # Mapping simple
         base = YAML_TYPE_MAP.get(var.type, "str")
 
         if var.from_model:
@@ -73,7 +72,6 @@ class PydanticGenerator:
 
     def render_section(self, section: EnvSection) -> str:
         """Prepares context and renders the Jinja template."""
-        # Preparar variables para el template
         variables_context = []
 
         for var in section.variables:
@@ -86,7 +84,6 @@ class PydanticGenerator:
                 "description": var.description,
             })
 
-        # Preparar imports extra (modelos anidados)
         extra_imports = []
         for var in section.variables:
             if var.from_model:
@@ -96,7 +93,6 @@ class PydanticGenerator:
 
         _, class_name = self.generate_module_class_name(section)
 
-        # Contexto final
         context = {
             "class_name": class_name,
             "is_settings": section.type == SectionType.SETTINGS,
@@ -112,13 +108,10 @@ class PydanticGenerator:
 
     def generate_base_class(self, out_path: Path) -> None:
         """Generates the static base class needed for tracking."""
-        # Cargamos el template estático
         template = self.env.get_template("base_settings.jinja")
 
-        # Renderizamos sin variables (o con valores por defecto)
         rendered_code = template.render()
 
-        # Lo guardamos como base_settings.py en el destino
         file_path = out_path / "base_settings.py"
         file_path.write_text(rendered_code, encoding="utf-8")
 
@@ -160,7 +153,7 @@ class PydanticGenerator:
             })
 
         context = {
-            "models_import_path": self.generate_import(folder),  # O el path que corresponda
+            "models_import_path": self.generate_import(folder),
             "sections": sorted(sections_context, key=lambda x: x["class_name"]),
             "yaml_hash": yaml_hash,
         }
@@ -176,7 +169,7 @@ class PydanticGenerator:
         for var in general_section.variables:
             flat_vars.append({
                 "name": var.name,
-                "py_type": self.get_python_type(var),  # Usamos el método que ya definimos
+                "py_type": self.get_python_type(var),
                 "default_expr": self.get_default_expr(var),
                 "alias": var.alias,
                 "validation_alias": var.validation_alias,
@@ -197,7 +190,6 @@ class PydanticGenerator:
 
             imports.append(f"from .{module_name} import {class_name}")
 
-        # 3. Renderizar
         context = {
             "class_name": "GeneralSettings",
             "env_prefix": general_section.env_prefix,
