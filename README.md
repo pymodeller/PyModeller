@@ -225,7 +225,7 @@ sections:
 
  ---
 
- ## Contributing
+## Contributing
 
  Contributions are welcome! We value your help in making PyModeller better.
 
