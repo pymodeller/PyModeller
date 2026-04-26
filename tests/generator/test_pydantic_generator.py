@@ -77,7 +77,7 @@ class TestPydanticGenerator:
         var = EnvVarSpec(name="input", type="str", alias="in")
         section = EnvSection(name="test", type=SectionType.SETTINGS, variables=[var])
 
-        generator.render_section(section, yaml_hash="123")
+        generator.render_section(section)
 
         # Verify that the template.render was called
         generator.template.render.assert_called_once()
@@ -85,7 +85,6 @@ class TestPydanticGenerator:
         context = args[0]
 
         assert context["class_name"] == "TestSettings"
-        assert context["yaml_hash"] == "123"
         assert context["variables"][0]["name"] == "input"
 
     def test_generate_base_class(self, generator: PydanticGenerator, tmp_path: Path) -> None:
