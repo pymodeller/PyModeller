@@ -9,6 +9,7 @@ from pymodeller.loader import YAML_TYPE_MAP, EnvSection, EnvSpec, EnvVarSpec, Se
 from pymodeller.utils import to_snake_case
 
 _YAML_HASH_MARKER = "# YAML-SHA256: "
+GENERAL = "General"
 
 
 class PydanticGenerator:
@@ -46,8 +47,10 @@ class PydanticGenerator:
             return f"default={str(var.default).lower() == 'true'}"
         if isinstance(var.default, (int, float)):
             return f"default={var.default}"
+        if not var.default:
+            return "default=None"
 
-        return f'default="{var.default}"' if var.default is not None else "default=None"
+        return f"default={var.default}()" if var.from_model is not None else f'default="{var.default}"'
 
     @staticmethod
     def generate_module_class_name(section: EnvSection) -> tuple:
@@ -214,11 +217,11 @@ class PydanticGenerator:
         models_dir = Path(out)
         models_dir.mkdir(parents=True, exist_ok=True)
 
-        general_section: EnvSection = EnvSection("General")
+        general_section: EnvSection = EnvSection(GENERAL)
         sections_with_classes: list[EnvSection] = []
 
         for sect in sections:
-            if sect.name != "General":
+            if sect.name != GENERAL:
                 section_str = self.render_section(sect)
                 sections_with_classes.append(sect)
                 module_name, _ = self.generate_module_class_name(sect)
