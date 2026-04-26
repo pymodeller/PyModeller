@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.5.2 (2026-04-26)
+
+### Bug Fixes
+
+- Creating new version
+  ([`f03638e`](https://github.com/pymodeller/PyModeller/commit/f03638e42ce1d446e1784a557614b37a8ab9203d))
+
+### Documentation
+
+- Update docs
+  ([`e513746`](https://github.com/pymodeller/PyModeller/commit/e513746072145ce2327b1c5e7cc0e53127496218))
+
+
 ## v0.5.1 (2026-04-24)
 
 ### Bug Fixes
