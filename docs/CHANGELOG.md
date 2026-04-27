@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.5.4 (2026-04-27)
+
+### Bug Fixes
+
+- Update types mode default value
+  ([`3d52dfc`](https://github.com/pymodeller/PyModeller/commit/3d52dfcbbb67751cad2fd416a04e2acf6ac2def5))
+
+
 ## v0.5.3 (2026-04-26)
 
 ### Bug Fixes
