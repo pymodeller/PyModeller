@@ -44,6 +44,7 @@ YAML_TYPE_MAP: dict[str, str] = {
     "datetime": "datetime",
     "model": "model",
     "list": "list",
+    "dict": "dict",
     _STR: _STR,
     _INT: _INT,
     _FLOAT: _FLOAT,
