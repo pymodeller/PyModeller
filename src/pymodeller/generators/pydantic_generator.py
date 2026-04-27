@@ -48,7 +48,7 @@ class PydanticGenerator:
             return f"default={str(var.default).lower() == 'true'}"
         if isinstance(var.default, (int, float)):
             return f"default={var.default}"
-        if var.default in ['[]', 'set', '{}']:
+        if var.default in ["[]", "set", "{}"]:
             return f"default={var.default}"
         if not var.default:
             return "default=None"
