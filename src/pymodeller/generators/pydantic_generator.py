@@ -6,7 +6,7 @@ import typer
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 from pymodeller.loader import YAML_TYPE_MAP, EnvSection, EnvSpec, EnvVarSpec, SectionType
-from pymodeller.utils import to_snake_case
+from pymodeller.utils import to_pascal_case, to_snake_case
 
 _YAML_HASH_MARKER = "# YAML-SHA256: "
 GENERAL = "General"
@@ -29,7 +29,8 @@ class PydanticGenerator:
         base = YAML_TYPE_MAP.get(var.type, "str")
 
         if var.from_model:
-            model_name = f"{var.from_model.capitalize()}Model"
+            name = to_pascal_case(to_snake_case(var.from_model))
+            model_name = f"{name}Model"
             base = f"list[{model_name}]" if var.type == "list" else model_name
 
         return f"Optional[{base}]" if not var.required and var.default is None else base
@@ -47,6 +48,8 @@ class PydanticGenerator:
             return f"default={str(var.default).lower() == 'true'}"
         if isinstance(var.default, (int, float)):
             return f"default={var.default}"
+        if var.default in ['[]', 'set', '{}']:
+            return f"default={var.default}"
         if not var.default:
             return "default=None"
 
@@ -59,7 +62,7 @@ class PydanticGenerator:
         if section.type == SectionType.SETTINGS:
             module_name = "_".join([module_name, SectionType.SETTINGS.value])
 
-        class_name = "".join(word.title() for word in section.name.split()) + section.type.capitalize()
+        class_name = to_pascal_case(to_snake_case(section.name)) + section.type.capitalize()
 
         return module_name, class_name
 
@@ -90,11 +93,11 @@ class PydanticGenerator:
         extra_imports = []
         for var in section.variables:
             if var.from_model:
-                from pymodeller.utils import to_snake_case
-
-                extra_imports.append(f"from .{to_snake_case(var.from_model)} import {var.from_model.capitalize()}Model")
+                snake_case = to_snake_case(var.from_model)
+                extra_imports.append(f"from .{snake_case} import {to_pascal_case(snake_case)}Model")
 
         _, class_name = self.generate_module_class_name(section)
+        literal_name = to_pascal_case(to_snake_case(section.name))
 
         context = {
             "class_name": class_name,
@@ -104,7 +107,7 @@ class PydanticGenerator:
             "from_attributes": section.from_attributes,
             "variables": variables_context,
             "extra_imports": list(set(extra_imports)),
-            "literal_name": section.name if (section.include_literal and section.type == SectionType.MODEL) else None,
+            "literal_name": literal_name if (section.include_literal and section.type == SectionType.MODEL) else None,
         }
 
         return self.template.render(context)

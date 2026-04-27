@@ -24,6 +24,7 @@ def _read_yaml(config_path: Path) -> dict:
 @lru_cache(maxsize=1)
 def get_{{ section.func_name }}() -> {{ section.class_name }}:
     """Return the cached application settings instance for {{ section.class_name }}.
+
     {% if section.yaml_file %} Source: {{ section.yaml_file }}{% endif %}."""
     {% if section.yaml_file %}
     {% if "*" in section.yaml_file %}

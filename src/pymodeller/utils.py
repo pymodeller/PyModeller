@@ -57,6 +57,14 @@ def to_snake_case(name: str) -> str:
     return s2.replace(" ", "_").replace("-", "_").lower().replace("__", "_")
 
 
+def to_pascal_case(text: str) -> str:
+    """Generate class."""
+    camel = to_camel_case(text)
+    if not camel:
+        return ""
+    return camel[0].upper() + camel[1:]
+
+
 def get_variants(name: str) -> str:
     """Convert a string into snake_case, camelCase, and UPPER_CASE.
     Returns a list of unique values.

@@ -68,6 +68,7 @@ class BaseTraceableSettings(BaseSettings):
         file_secret_settings: PydanticBaseSettingsSource,
     ) -> tuple[PydanticBaseSettingsSource, ...]:
         """Define global source priority.
+
         Wrap each source to track where values come from.
         """
         return (
