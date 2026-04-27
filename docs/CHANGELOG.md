@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.6.0 (2026-04-27)
+
+### Features
+
+- Added parser default values
+  ([`33fef7f`](https://github.com/pymodeller/PyModeller/commit/33fef7f8a077d78d940d3e1220879a96381fde96))
+
+
 ## v0.5.5 (2026-04-27)
 
 ### Bug Fixes
