@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.5.5 (2026-04-27)
+
+### Bug Fixes
+
+- Update actions
+  ([`06d44b7`](https://github.com/pymodeller/PyModeller/commit/06d44b7d64135133fc56ef503b1623cc0541bc42))
+
+
 ## v0.5.4 (2026-04-27)
 
 ### Bug Fixes
