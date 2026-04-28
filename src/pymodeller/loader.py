@@ -176,6 +176,8 @@ class EnvSpec:
         seen_env: set[str] = set()
 
         for sec in self.sections:
+            if sec.type != SectionType.SETTINGS:
+                continue
             seen_alias: set[str] = set()
             for var in sec.variables:
                 if var.env_name in seen_env:
