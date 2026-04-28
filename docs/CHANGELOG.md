@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.6.2 (2026-04-28)
+
+### Bug Fixes
+
+- Update master_pydantic.jinja template
+  ([`67c5fbe`](https://github.com/pymodeller/PyModeller/commit/67c5fbe064dcf7cdb2eb30b27513455d68803de3))
+
+
 ## v0.6.1 (2026-04-28)
 
 ### Bug Fixes
