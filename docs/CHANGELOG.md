@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.6.1 (2026-04-28)
+
+### Bug Fixes
+
+- Update base_settings and loader check duplicates
+  ([`2a68251`](https://github.com/pymodeller/PyModeller/commit/2a682517c3dd6d51f521b14cf05e88b44924589b))
+
+
 ## v0.6.0 (2026-04-27)
 
 ### Features
