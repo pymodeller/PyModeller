@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.6.3 (2026-04-28)
+
+### Bug Fixes
+
+- Added include_init_settings option
+  ([`67316e4`](https://github.com/pymodeller/PyModeller/commit/67316e4ed69f2725985c2944aea9982f5ba17f7e))
+
+
 ## v0.6.2 (2026-04-28)
 
 ### Bug Fixes
