@@ -1,6 +1,6 @@
 [project]
 name = "pymodeller"
-version = "0.6.0"
+version = "0.6.1"
 description = "A package that reads models from YAML and creates Pydantic models"
 readme = "README.md"
 license = { file = "LICENSE" }
