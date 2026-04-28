@@ -156,7 +156,7 @@ class PydanticGenerator:
                 "class_name": class_name,
                 "func_name": master_,
                 "yaml_file": s.yaml_file,
-                "include_init_settings": s.include_init_settings
+                "include_init_settings": s.include_init_settings,
             })
 
         context = {
