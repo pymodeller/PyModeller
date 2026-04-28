@@ -52,3 +52,19 @@ def get_{{ section.func_name }}() -> {{ section.class_name }}:
     {% endif %}
 
 {% endfor %}
+
+
+def init_settings(force_reload: bool = False) -> None:
+    """Initialize all settings.
+
+    If force_reload is True, clears the lru_cache for each getter.
+    """
+    if force_reload:
+        {%- for section in sections %}
+        get_{{ section.func_name }}.cache_clear()
+        {%- endfor %}
+
+    # Initialize / Warm up cache
+    {%- for section in sections %}
+    get_{{ section.func_name }}()
+    {%- endfor %}
