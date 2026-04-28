@@ -61,10 +61,14 @@ def init_settings(force_reload: bool = False) -> None:
     """
     if force_reload:
         {%- for section in sections %}
+        {%- if section.include_init_settings %}
         get_{{ section.func_name }}.cache_clear()
+        {%- endif %}
         {%- endfor %}
 
     # Initialize / Warm up cache
     {%- for section in sections %}
+    {%- if section.include_init_settings %}
     get_{{ section.func_name }}()
+    {%- endif %}
     {%- endfor %}

@@ -151,6 +151,7 @@ class EnvSection:
     description: str = ""
     env_prefix: str = ""
     type: SectionType = SectionType.SETTINGS
+    include_init_settings: bool = True
     include_general: bool = True
     from_attributes: bool = True
     attr: str = ""
@@ -243,6 +244,7 @@ def load_env_spec(path: str | Path | None = None) -> EnvSpec:
             EnvSection(
                 name=sec_name,
                 description=raw_sec.get("description", "Auto-generated description"),
+                include_init_settings=raw_sec.get("include_init_settings", True),
                 include_general=raw_sec.get("include_general", True),
                 include_literal=raw_sec.get("include_literal", True),
                 yaml_file=raw_sec.get("yaml_file", None),
