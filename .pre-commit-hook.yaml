@@ -1,0 +1,27 @@
+-   id: env-check
+    name: 🔍 Validate .env against YAML spec
+    entry: uv run pymodeller check
+    language: system
+    pass_filenames: false
+    stages: [commit]
+
+-   id: codegen-drift
+    name: 🧬 Check drift between YAML and Pydantic models
+    entry: uv run pymodeller drift
+    language: system
+    pass_filenames: false
+    stages: [commit]
+
+-   id: env-example-gen
+    name: 📝 Update .env.example from YAML
+    entry: uv run pymodeller example
+    language: system
+    pass_filenames: false
+    files: ^py_modeller\.yaml$  # Only runs when the spec changes
+
+-   id: codegen-models
+    name: ⚙️ Auto-generate Pydantic models
+    entry: uv run pymodeller codegen
+    language: system
+    pass_filenames: false
+    files: ^py_modeller\.yaml$
