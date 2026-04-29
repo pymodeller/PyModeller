@@ -1,7 +1,7 @@
 # Local Development Standards
 
 Reference Guide for maintainable, type-safe development.
-See CONVENTIONS.md for the full architectural specification.
+See [CONVENTIONS.md](../../../CONVENTIONS.md) for the full architectural specification.
 
 ## Hard Constraints
 
