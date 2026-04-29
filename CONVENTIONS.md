@@ -42,11 +42,11 @@ src
     ├── __init__.py
     ├── cli                                 # CLI folder
     │     ├── __init__.py
-    │     ├── cli.py                        # CLI typer definition 
+    │     ├── cli.py                        # CLI typer definition
     │     ├── commands.py                   # Commands definitios to use in typer
-    │     └── dev_tools.py                  # Dev tools commands included in typer 
-    ├── config.py                           # General package configuration 
-    ├── generators                   
+    │     └── dev_tools.py                  # Dev tools commands included in typer
+    ├── config.py                           # General package configuration
+    ├── generators
     │     ├── __init__.py
     │     ├── enum_generator.py             # Generator of enum class
     │     ├── peewee_generator.py           # Generador peeweee models
@@ -56,11 +56,11 @@ src
     │     ├── __init__.py
     │     ├── base_settings.jinja           # Template for base settings with custom configuration
     │     ├── general_settings.jinja        # Template for others settings class with use base_settings
-    │     ├── init.jinja                    # Init template 
+    │     ├── init.jinja                    # Init template
     │     ├── master_pydantic.jinja         # Master pydantic definitio
     │     ├── peewee_db.jinja               # Definition of database connection
     │     ├── peewee_model.jinja            # Definition of peewee models
-    │     └── pydantic_template.jinja       # Template for basemodels from pydantic 
+    │     └── pydantic_template.jinja       # Template for basemodels from pydantic
     ├── tool_runner.py                      # Class that execute commands with uv or subprocess
     ├── utils.py                            # Group of useful function to execute the package
     └── validator.py                        # Validator, responsable of correct input
