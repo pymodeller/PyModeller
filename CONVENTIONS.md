@@ -1,4 +1,4 @@
-# MCP Framework - Tech Stack & Code Conventions
+# Tech Stack & Code Conventions
 
 This document is the technical reference for developers and AI agents working on this repository. It covers the stack, project structure, code conventions, and Makefile patterns. For workflows and architecture rules, see AGENTS.md.
 
@@ -10,7 +10,6 @@ This document is the technical reference for developers and AI agents working on
 
 | Library | Purpose | Usage |
 |---|---|---|
-| fastmcp | MCP server framework | Use FastMCP; tools are decorated with @mcp.tool() |
 | typer | CLI commands | Create sub-apps with typer.Typer(), register with app.add_typer() |
 | loguru | Logging | Use the internal get_logger factory — never print() or standard logging |
 | rich | Terminal output | Use rich.console.Console and rich.panel.Panel for panels/tables |
