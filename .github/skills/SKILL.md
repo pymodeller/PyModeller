@@ -28,38 +28,38 @@ To ensure environment consistency and local portability, the following prohibiti
 
 We prioritize readability and native protocols over legacy typing aliases.
 
-```python  
-from __future__ import annotations  
-# Only for forward references  
-from collections.abc import Callable, Sequence  # Avoid 'typing' aliases   
+```python
+from __future__ import annotations
+# Only for forward references
+from collections.abc import Callable, Sequence  # Avoid 'typing' aliases
 
-def fn(x: str, cb: Callable[[str], bool]) -> str | None:      
-    """Example of modern union types and abstract collections."""     
-    ... 
+def fn(x: str, cb: Callable[[str], bool]) -> str | None:
+    """Example of modern union types and abstract collections."""
+    ...
 ```
 ## Structured Logging
 
 Logs must be contextual and descriptive to facilitate efficient local debugging.
 
-```python  
-from loguru import get_logger  
-logger = get_logger(__name__)    
-logger.info("Starting process: {name}", name=value)  
-logger.warning("Condition met: {reason}", reason=details)  
-logger.error("Execution failed: {err}", err=exc)  
+```python
+from loguru import get_logger
+logger = get_logger(__name__)
+logger.info("Starting process: {name}", name=value)
+logger.warning("Condition met: {reason}", reason=details)
+logger.error("Execution failed: {err}", err=exc)
 ```
 ## CLI Command Pattern
 
 Commands are organized through sub-app composition to maintain scalability.
 
-```python  
-app = typer.Typer(name="sync-tool", help="Resource synchronization.")    
-@app.command()  
-def perform_sync(target: str = typer.Argument(..., help="Destination target.")) -> None:          
-    """Sync local state with a remote destination."""          
-    logger.info("Running sync for: {target}", target=target)   
-    # Sub-apps are registered in the main entry point: 
-    # main_app.add_typer(app) 
+```python
+app = typer.Typer(name="sync-tool", help="Resource synchronization.")
+@app.command()
+def perform_sync(target: str = typer.Argument(..., help="Destination target.")) -> None:
+    """Sync local state with a remote destination."""
+    logger.info("Running sync for: {target}", target=target)
+    # Sub-apps are registered in the main entry point:
+    # main_app.add_typer(app)
 ```
 ## Makefile Conventions
 
@@ -73,7 +73,7 @@ The Makefile serves as the primary developer interface:
 
 Before committing code, the local quality pipeline must pass:
 
-```bash  
-make ci   # Executes: checkmake + ruff + typecheck + pytest  
+```bash
+make ci   # Executes: checkmake + ruff + typecheck + pytest
 ```
 This ensures the codebase remains compliant with our strict linting and typing standards.

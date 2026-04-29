@@ -10,7 +10,7 @@ Fixes # (issue)
 - [ ] 📝 Documentation update
 
 ## How Has This Been Tested?
-Please describe the tests that you ran to verify your changes. 
+Please describe the tests that you ran to verify your changes.
 - [ ] **Unit Tests**: `pytest tests/unit`
 - [ ] **Integration Tests**: `pytest tests/integration`
 - [ ] **Manual Verification**: Verified via `make run-container` and `make simple-client`.
