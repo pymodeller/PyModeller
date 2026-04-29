@@ -1,4 +1,4 @@
-# MCP Framework — Local Development Standards
+# Local Development Standards
 
 Reference Guide for maintainable, type-safe development.
 See CONVENTIONS.md for the full architectural specification.
