@@ -40,30 +40,30 @@ src
 ├── __main__.py
 └── pymodeller
     ├── __init__.py
-    ├── cli
+    ├── cli                                 # CLI folder
     │     ├── __init__.py
-    │     ├── cli.py
-    │     ├── commands.py
-    │     └── dev_tools.py
-    ├── config.py
-    ├── generators
+    │     ├── cli.py                        # CLI typer definition 
+    │     ├── commands.py                   # Commands definitios to use in typer
+    │     └── dev_tools.py                  # Dev tools commands included in typer 
+    ├── config.py                           # General package configuration 
+    ├── generators                   
     │     ├── __init__.py
-    │     ├── enum_generator.py
-    │     ├── peewee_generator.py
-    │     └── pydantic_generator.py
+    │     ├── enum_generator.py             # Generator of enum class
+    │     ├── peewee_generator.py           # Generador peeweee models
+    │     └── pydantic_generator.py         # Generator of pydantic and pydantic_settings models
     ├── loader.py
-    ├── templates
+    ├── templates                           # Folder with differents templates of jinja
     │     ├── __init__.py
-    │     ├── base_settings.jinja
-    │     ├── general_settings.jinja
-    │     ├── init.jinja
-    │     ├── master_pydantic.jinja
-    │     ├── peewee_db.jinja
-    │     ├── peewee_model.jinja
-    │     └── pydantic_template.jinja
-    ├── tool_runner.py
-    ├── utils.py
-    └── validator.py
+    │     ├── base_settings.jinja           # Template for base settings with custom configuration
+    │     ├── general_settings.jinja        # Template for others settings class with use base_settings
+    │     ├── init.jinja                    # Init template 
+    │     ├── master_pydantic.jinja         # Master pydantic definitio
+    │     ├── peewee_db.jinja               # Definition of database connection
+    │     ├── peewee_model.jinja            # Definition of peewee models
+    │     └── pydantic_template.jinja       # Template for basemodels from pydantic 
+    ├── tool_runner.py                      # Class that execute commands with uv or subprocess
+    ├── utils.py                            # Group of useful function to execute the package
+    └── validator.py                        # Validator, responsable of correct input
 ```
 ---
 
