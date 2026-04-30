@@ -119,6 +119,7 @@ class EnvVarSpec:
     required: bool = False
     secret: bool = False
     from_model: str | None = None
+    exclude: bool = False
     section: str = ""
     alias: str = ""
     validation_alias: str = ""
@@ -231,6 +232,7 @@ def load_env_spec(path: str | Path | None = None) -> EnvSpec:
                     secret=bool(v.get("secret", False)),
                     section=sec_name,
                     alias=v.get("alias", ""),
+                    exclude=bool(v.get("exclude", False)),
                     db_spec=db_f_,
                     validation_alias=get_variants(raw_name),
                     env_name=env_name,

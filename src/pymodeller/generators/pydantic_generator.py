@@ -88,6 +88,7 @@ class PydanticGenerator:
                 "alias": var.alias,
                 "validation_alias": var.validation_alias,
                 "description": var.description,
+                "exclude": var.exclude
             })
 
         extra_imports = []
