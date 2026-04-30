@@ -50,6 +50,7 @@ class {{ class_name }}(BaseModel):
         {{ var.default_expr }},
         alias="{{ var.alias }}",
         validation_alias={{ var.validation_alias }},
-        description="{{ var.description }}"
+        description="{{ var.description }}"{% if var.exclude %},
+        exclude=True{% endif %}
     )
     {% endfor %}
