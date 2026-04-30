@@ -2,6 +2,37 @@
 
 <!-- version list -->
 
+## v0.7.0 (2026-04-30)
+
+### Bug Fixes
+
+- Added pre-hooks
+  ([`6217831`](https://github.com/pymodeller/PyModeller/commit/62178316059007e772ba4dc0d2fc16c8e30d056f))
+
+- Update CONVENTIONS.md
+  ([`ba8fc7f`](https://github.com/pymodeller/PyModeller/commit/ba8fc7f5f9ce10d364d249f77d9d2fe039fc6cad))
+
+- Update exclude value in fields
+  ([`af1ae01`](https://github.com/pymodeller/PyModeller/commit/af1ae01e4ab7512b9b4488ffcf7f9290a259322a))
+
+- Update pre-hook names
+  ([`11ed85b`](https://github.com/pymodeller/PyModeller/commit/11ed85b1936b7552d88eb5e2d5266aac596bc6f9))
+
+- Update skill conventions
+  ([`e80ee9b`](https://github.com/pymodeller/PyModeller/commit/e80ee9b3fee73697e3d11201805593d043c1f159))
+
+- Update style
+  ([`4450ebd`](https://github.com/pymodeller/PyModeller/commit/4450ebd0c7412c4bb8883ba15472d405d86cbfdf))
+
+### Features
+
+- Added agent files
+  ([`9a872ef`](https://github.com/pymodeller/PyModeller/commit/9a872ef1c99ba5c815b24559637751cca6ff967b))
+
+- Update files
+  ([`23b04aa`](https://github.com/pymodeller/PyModeller/commit/23b04aa8f7b6b1e6b51cc471880ba85a0370f3a5))
+
+
 ## v0.6.3 (2026-04-28)
 
 ### Bug Fixes
