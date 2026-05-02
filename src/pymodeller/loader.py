@@ -32,6 +32,7 @@ _FLOAT = "float"
 _INT = "int"
 _STR = "str"
 _BOOL = "bool"
+_ANY = "Any"
 
 # Single source of truth for YAML type -> Python type name normalization
 YAML_TYPE_MAP: dict[str, str] = {
@@ -45,6 +46,8 @@ YAML_TYPE_MAP: dict[str, str] = {
     "model": "model",
     "list": "list",
     "dict": "dict",
+    _ANY.lower(): _ANY,
+    _ANY: _ANY,
     _STR: _STR,
     _INT: _INT,
     _FLOAT: _FLOAT,
