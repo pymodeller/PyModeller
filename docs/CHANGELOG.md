@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.7.1 (2026-05-02)
+
+### Bug Fixes
+
+- Added any option and fix in source master_pydantic.jinja
+  ([`3ece8ec`](https://github.com/pymodeller/PyModeller/commit/3ece8ec7036fd343ca80c9c6ae528b5dfcedb4fb))
+
+
 ## v0.7.0 (2026-04-30)
 
 ### Bug Fixes
