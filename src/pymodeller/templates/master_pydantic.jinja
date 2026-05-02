@@ -22,14 +22,14 @@ def _read_yaml(config_path: Path) -> dict:
 
 {% for section in sections %}
 @lru_cache(maxsize=1)
-def get_{{ section.func_name }}() -> {{ section.class_name }}:
-    """Return the cached application settings instance for {{ section.class_name }}.
+def get_{{ section.func_name }}({% if section.yaml_file %}path: Path | None = None{% endif %}) -> {{ section.class_name }}:
+    """Return the cached application settings instance for {{ section.class_name }}.{% if section.yaml_file %}
 
-    {% if section.yaml_file %} Source: {{ section.yaml_file }}{% endif %}."""
+     Source: {{ section.yaml_file }}.{% endif %}"""
     {% if section.yaml_file %}
     {% if "*" in section.yaml_file %}
     # Glob pattern loading
-    path_obj = Path("{{ section.yaml_file }}")
+    path_obj = path if path else Path("{{ section.yaml_file }}")
     search_dir = path_obj.parent
     search_pattern = path_obj.name
 
@@ -43,7 +43,8 @@ def get_{{ section.func_name }}() -> {{ section.class_name }}:
     return {{ section.class_name }}.model_validate(values)
     {% else %}
     # Single file loading
-    values = _read_yaml(Path("{{ section.yaml_file }}"))
+    path = path if path else Path("{{ section.yaml_file }}")
+    values = _read_yaml(path)
     return {{ section.class_name }}.model_validate(values)
     {% endif %}
     {% else %}
