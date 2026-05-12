@@ -4,12 +4,16 @@ environments:
     config:
       device:
         name: DEVICE_BASE
+    path_input: /data/custom_mayor_base_yaml
+
 
   local:
     # Local development overrides
     config:
       device:
         name: DEVICE_LOCAL
+    # path_input: /data/custom_mayor_local_yaml
+    path_prefix_input: CHAnaaale_local_yaml
 
   ministack: {}
     # Ministack cluster profile — overrides go here
