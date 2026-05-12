@@ -122,6 +122,13 @@ class PydanticGenerator:
         file_path = out_path / "base_settings.py"
         file_path.write_text(rendered_code, encoding="utf-8")
 
+        template_yaml = self.env.get_template("yaml_env_source.jinja")
+
+        rendered_code_yaml = template_yaml.render()
+
+        file_path = out_path / "yaml_env_source.py"
+        file_path.write_text(rendered_code_yaml, encoding="utf-8")
+
     def generate_init(self, sections: list, out_path: Path) -> None:
         """sections_info debe ser una lista de dicts."""
         template = self.env.get_template("init.jinja")
