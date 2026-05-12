@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.7.3 (2026-05-12)
+
+### Bug Fixes
+
+- Update yaml env source template
+  ([`42e6976`](https://github.com/pymodeller/PyModeller/commit/42e6976f42b6b7dd397952f02a84151b28b4d26f))
+
+
 ## v0.7.2 (2026-05-12)
 
 ### Bug Fixes
