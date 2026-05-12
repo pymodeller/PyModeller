@@ -1,4 +1,4 @@
-from pymodeller.cli.commands import codegen
+from pymodeller.cli.commands import example
 
 if __name__ == "__main__":
-    codegen()
+    example()
