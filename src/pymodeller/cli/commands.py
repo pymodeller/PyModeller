@@ -93,7 +93,7 @@ class EnvManager:
 def example(
     spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.spec,
     out: Annotated[Path, typer.Option("--out", "-o", help="Output path for .env.example")] = code_gen_conf.env_example,
-    secrets_only: Annotated[bool, typer.Option("--secrets", "-", help="Output path for .env.example")] = False,
+    secrets_only: Annotated[bool, typer.Option("--secrets", "-ss", help="Output path for .env.example")] = False,
 ) -> typer.Exit:
     """Generate a template .env.example from the YAML spec."""
     s = load_env_spec(spec)
@@ -103,7 +103,8 @@ def example(
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(content, encoding="utf-8")
 
-    typer.echo(f"✅ Created {out} ({len(s.all_vars)} variables)")
+    extra_comments = "with only secrets" if secrets_only else ''
+    typer.echo(f" ✅ Created {out} {extra_comments}")
     return typer.Exit(code=0)
 
 
