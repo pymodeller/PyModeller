@@ -62,10 +62,7 @@ class EnvManager:
         ]
         settings = [s for s in spec.sections if s.type == SectionType.SETTINGS]
         for section in settings:
-            variables_to_show = [
-                v for v in section.variables
-                if not secrets_only or v.secret
-            ]
+            variables_to_show = [v for v in section.variables if not secrets_only or v.secret]
             if not variables_to_show:
                 continue
 
@@ -103,7 +100,7 @@ def example(
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(content, encoding="utf-8")
 
-    extra_comments = "with only secrets" if secrets_only else ''
+    extra_comments = "with only secrets" if secrets_only else ""
     typer.echo(f" ✅ Created {out} {extra_comments}")
     return typer.Exit(code=0)
 
