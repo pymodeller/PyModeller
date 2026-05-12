@@ -48,6 +48,24 @@ class EnvManager:
         return hashlib.sha256(path.read_bytes()).hexdigest()
 
     @staticmethod
+    def create_section(lines: list, section: Any, variables_to_show: list, extra: str = '') -> None:
+        """Create section for env file."""
+        lines.append(f"\n{extra}# {'─' * 20} {section.name} {'─' * 20}")
+        if section.description:
+            lines.append(f"{extra}# {section.description}")
+
+        for var in variables_to_show:
+            badges = []
+            if var.required:
+                badges.append("✱ required")
+            if var.secret:
+                badges.append("🔒 secret")
+            badge_str = f"  [{' | '.join(badges)}]" if badges else ""
+
+            lines.append(f"{extra}# {var.description} | type: {var.type}{badge_str}")
+            lines.append(f"{extra}{var.env_name.upper()}={var.display_value()}")
+
+    @staticmethod
     def generate_example_content(spec: Any, secrets_only: bool = False) -> str:
         """Build the content for the .env.example file."""
         lines = [
@@ -65,21 +83,31 @@ class EnvManager:
             variables_to_show = [v for v in section.variables if not secrets_only or v.secret]
             if not variables_to_show:
                 continue
+            EnvManager.create_section(lines, section, variables_to_show)
 
-            lines.append(f"\n# {'─' * 20} {section.name} {'─' * 20}")
-            if section.description:
-                lines.append(f"# {section.description}")
+        return "\n".join(lines)
 
-            for var in variables_to_show:
-                badges = []
-                if var.required:
-                    badges.append("✱ required")
-                if var.secret:
-                    badges.append("🔒 secret")
-                badge_str = f"  [{' | '.join(badges)}]" if badges else ""
-
-                lines.append(f"# {var.description} | type: {var.type}{badge_str}")
-                lines.append(f"{var.env_name.upper()}={var.display_value()}")
+    @staticmethod
+    def generate_environment_yaml(spec: Any) -> str:
+        """Build the content for the .env.example file."""
+        lines = [
+            "#" * _LINE_WIDTH,
+            "# ",
+            "# Source: py_modeller.yaml",
+            "# Legend: ✱ required | 🔒 secret",
+            "# Important notice! If the settings attribute is a Model and you want to designate a attribute from .env ",
+            "# use __ before the attribute's name. Example: CONFIG_DEVICE__NAME",
+            "#" * _LINE_WIDTH,
+            "",
+            "environments:",
+            "  base:"
+        ]
+        settings = [s for s in spec.sections if s.type == SectionType.SETTINGS]
+        for section in settings:
+            variables_to_show = [v for v in section.variables if not v.secret]
+            if not variables_to_show:
+                continue
+            EnvManager.create_section(lines, section, variables_to_show, extra="    ")
 
         return "\n".join(lines)
 
@@ -90,11 +118,29 @@ class EnvManager:
 def example(
     spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.spec,
     out: Annotated[Path, typer.Option("--out", "-o", help="Output path for .env.example")] = code_gen_conf.env_example,
-    secrets_only: Annotated[bool, typer.Option("--secrets", "-ss", help="Output path for .env.example")] = False,
+    secrets_only: Annotated[bool, typer.Option("--secrets", "-ss", help="Flag for only secrets in .env")] = False,
 ) -> typer.Exit:
     """Generate a template .env.example from the YAML spec."""
     s = load_env_spec(spec)
-    content = EnvManager.generate_example_content(s, secrets_only)
+    content = EnvManager.generate_example_content(spec=s, secrets_only=secrets_only)
+
+    out_path = Path(out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(content, encoding="utf-8")
+
+    extra_comments = "with only secrets" if secrets_only else ""
+    typer.echo(f" ✅ Created {out} {extra_comments}")
+    return typer.Exit(code=0)
+
+
+def yaml_file(
+    spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.spec,
+    out: Annotated[Path, typer.Option("--out", "-o", help="Output path for environment.yaml")] = code_gen_conf.environment_file,
+    secrets_only: Annotated[bool, typer.Option("--secrets", "-ss", help="Output path for .env.example")] = False,
+) -> typer.Exit:
+    """Generate environment.yaml from the YAML spec."""
+    s = load_env_spec(spec)
+    content = EnvManager.generate_environment_yaml(spec=s)
 
     out_path = Path(out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
