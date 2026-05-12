@@ -14,6 +14,8 @@ config:
     value: src/config_das/models/db_models.py
   - name: PEEWEE_FOLDER
     value: src/config_das/models/db
+  - name: ENVIRONMENTS_FILE
+    value: ./environments.yaml
 
 sections:
 
