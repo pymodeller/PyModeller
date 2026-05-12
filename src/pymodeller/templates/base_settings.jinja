@@ -74,9 +74,10 @@ class BaseTraceableSettings(BaseSettings):
 
         Wrap each source to track where values come from.
         """
+        env_prefix = settings_cls.model_config.get('env_prefix', '')
 
         current_env = os.getenv("APP_ENV", "base")
-        yaml_env_source = YamlEnvSource(settings_cls, current_env)
+        yaml_env_source = YamlEnvSource(settings_cls, current_env, env_prefix)
 
         return (
             track_source(env_settings, "env_var"),
