@@ -15,7 +15,7 @@ config:
   - name: PEEWEE_FOLDER
     value: src/config_das/models/db
   - name: ENVIRONMENTS_FILE
-    value: ./environments.yaml
+    value: ./environments_prueba.yaml
 
 sections:
 
