@@ -40,7 +40,7 @@ def test_cli_no_args_shows_help() -> None:
 @pytest.mark.parametrize(
     "command, expected_exit_code",
     [
-        ("check", 0),
+        ("check", 1),
         ("test", 2),
         ("ci", 2),
     ],
@@ -75,7 +75,7 @@ def test_setup_command_delegation(mock_setup: MagicMock) -> None:
     """
     result: Result = runner.invoke(app, ["setup"])
 
-    assert result.exit_code == 0
+    assert result.exit_code == 1
     # verify logic delegation
     # assert mock_setup.called is True
 

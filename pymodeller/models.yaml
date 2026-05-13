@@ -1,24 +1,3 @@
-# ==============================================================================
-#  py_modeller.yaml
-#  Source of truth for ALL environment variables used by PyModeller.
-#  This file is used to:
-#    - Generate .env.example  →  make env-generate
-#    - Validate .env at startup via core/env
-# ==============================================================================
-config:
-  - name: PYDANTIC_FOLDER
-    value: src/das_control/configuration_bis
-  - name: ENVIRONMENTS_FILE
-    value: ./environments_prueba.yaml
-  - name: GENERATE_INIT_MODELS
-    value: false
-  - name: IMPORT_SETTINGS_BASE_CLASS
-    value: from config_das.models.base_settings import BaseTraceableSettings
-  - name: EXCEPTIONS_FILE
-    value: ./config/exceptions.yaml
-  - name: EXCEPTIONS_FOLDER
-    value: src/das_control/exceptions
-
 sections:
   - name: General
     description: Top-level application flags
