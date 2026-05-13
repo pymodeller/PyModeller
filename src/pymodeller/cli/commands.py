@@ -23,6 +23,7 @@ from rich.text import Text
 
 from pymodeller import __version__
 from pymodeller.config import get_code_gen_config
+from pymodeller.generators.exception_generator import ExceptionGenerator
 from pymodeller.generators.env_generator import EnvGenerator
 from pymodeller.generators.peewee_generator import PeeweeGenerator
 from pymodeller.generators.pydantic_generator import _YAML_HASH_MARKER, PydanticGenerator
@@ -125,10 +126,12 @@ def codegen(
 
     if out_path:
         typer.secho("Step 1.A. Executing ruff commands over files generated", fg=typer.colors.BRIGHT_GREEN)
-        ToolRunner.run_with_uv("ruff", ["check", str(out_path), _CONFIG_TOML, "--fix"])
-        ToolRunner.run_with_uv("ruff", ["check", str(models_dir), _CONFIG_TOML, "--fix"])
-        ToolRunner.run_with_uv("ruff", ["format", str(out_path), _CONFIG_TOML])
-        ToolRunner.run_with_uv("ruff", ["format", str(models_dir), _CONFIG_TOML])
+
+        for p in [out_path, models_dir]:
+            if p and p.exists():
+                ToolRunner.run_with_uv("ruff", ["check", str(p), _CONFIG_TOML, "--fix"])
+                ToolRunner.run_with_uv("ruff", ["format", str(p), _CONFIG_TOML])
+
         typer.secho(
             f"      ✅ Pydantic models generated at {pydantic_out}",
             bold=True,
@@ -146,10 +149,11 @@ def codegen(
 
     if p_path:
         typer.secho("Step 2.A. Executing ruff commands over files generated", fg=typer.colors.BRIGHT_GREEN)
-        ToolRunner.run_with_uv("ruff", ["check", str(p_path), _CONFIG_TOML, "--fix"])
-        ToolRunner.run_with_uv("ruff", ["check", str(pm_dir), _CONFIG_TOML, "--fix"])
-        ToolRunner.run_with_uv("ruff", ["format", str(p_path), _CONFIG_TOML])
-        ToolRunner.run_with_uv("ruff", ["format", str(pm_dir), _CONFIG_TOML])
+        for p in [p_path, pm_dir]:
+            if p and p.exists():
+                ToolRunner.run_with_uv("ruff", ["check", str(p), _CONFIG_TOML, "--fix"])
+                ToolRunner.run_with_uv("ruff", ["format", str(p), _CONFIG_TOML])
+
         typer.secho(
             f"      ✅ Peewee models generated at {peewee_out}",
             bold=True,
@@ -161,6 +165,23 @@ def codegen(
             bold=True,
             fg=typer.colors.CYAN,
         )
+
+    if code_gen_conf.exceptions_file and code_gen_conf.exceptions_folder:
+        typer.secho(
+            f"Step 2: Creating exceptions class {code_gen_conf.exceptions_folder}",
+            bold=True,
+            fg=typer.colors.BRIGHT_GREEN,
+        )
+        content = ExceptionGenerator().generate(code_gen_conf.exceptions_file)
+        exception_dir = Path(code_gen_conf.exceptions_folder)
+        exception_dir.mkdir(parents=True, exist_ok=True)
+        file_path = exception_dir / "exceptions.py"
+        file_path.write_text(content, encoding="utf-8")
+        file_path = exception_dir / "__init__.py"
+        file_path.write_text("", encoding="utf-8")
+        ToolRunner.run_with_uv("ruff", ["check", str(file_path), _CONFIG_TOML, "--fix"])
+        ToolRunner.run_with_uv("ruff", ["format", str(file_path), _CONFIG_TOML])
+
     return typer.Exit(code=0)
 
 

@@ -6,8 +6,6 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 
 from pymodeller.loader import SectionType
 
-_LINE_WIDTH = 78
-
 
 class EnvGenerator:
     """Service class to handle core env-spec logic."""

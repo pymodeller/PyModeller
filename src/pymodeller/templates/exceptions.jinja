@@ -1,0 +1,56 @@
+"""AUTO-GENERATED EXCEPTIONS."""
+
+from collections.abc import Generator
+from typing import Any
+from starlette.exceptions import HTTPException
+
+
+def generate_dict(description: str, detail: str, code: int) -> dict:
+    """Generate dict."""
+    return {
+            "description": description,
+            "content": {
+                "application/json": {
+                    "example": {"detail": detail, "code": code}
+                }
+            },
+        }
+
+
+class CustomException(HTTPException):
+    """Custom exception."""
+
+    def __init__(
+        self,
+        status_code: int = 500,
+        detail: str = "General exception.",
+        description: str = "General exception raised.",
+    ) -> None:
+        """Initialize exception."""
+        super().__init__(status_code=status_code, detail=detail)
+        self.code = status_code
+        self.description = description
+
+    def __iter__(self) -> Generator[tuple[str, Any]]:
+        """Define iter method."""
+        dict_ = generate_dict(self.description, self.detail, self.code)
+
+        for key, value in dict_.items():
+            yield key, value
+
+
+{% for exc in exceptions %}
+class {{ exc.class_name }}Exception(CustomException):
+    """{{ exc.description }}"""
+
+    def __init__(
+        self,
+        status_code: int = {{ exc.status_code }},
+        detail: str = "{{ exc.detail }}",
+        description: str = "{{ exc.description }}",
+    ) -> None:
+        """Initialize exception."""
+        super().__init__(status_code=status_code, detail=detail, description=description)
+
+
+{% endfor %}
