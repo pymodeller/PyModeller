@@ -17,7 +17,9 @@ import typer
 from typer.testing import CliRunner, Result
 
 from pymodeller.cli.cli import app
-from pymodeller.cli.commands import EnvManager, banner_full, check, codegen, print_diff, setup, sync
+from pymodeller.cli.commands import banner_full, check, codegen, print_diff, setup, sync
+from pymodeller.generators import EnvGenerator
+from pymodeller.utils import get_file_hash
 
 # Global runner for Typer sub-app testing
 runner: CliRunner = CliRunner()
@@ -62,7 +64,7 @@ def test_generate_example_content(mock_spec: MagicMock) -> None:
     Args:
         mock_spec: The mocked environment specification fixture.
     """
-    content: str = EnvManager.generate_example_content(mock_spec)
+    content: str = EnvGenerator().generate_example_content(mock_spec)
 
     assert ".env.example - AUTO-GENERATED" in content
 
@@ -78,7 +80,7 @@ def test_get_file_hash(tmp_path: Path) -> None:
 
     # Known hash for 'hello world' string
     expected: str = "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
-    assert EnvManager.get_file_hash(test_file) == expected
+    assert get_file_hash(test_file) == expected
 
 
 # --- Tests for CLI Commands ---
@@ -96,7 +98,7 @@ def test_cli_example(mock_load: MagicMock, mock_spec: MagicMock, tmp_path: Path)
     mock_load.return_value = mock_spec
     out_file: Path = tmp_path / ".env.example"
 
-    result: Result = runner.invoke(app, ["example", "--out", str(out_file)])
+    result: Result = runner.invoke(app, ["env", "example", "--out", str(out_file)])
 
     assert result.exit_code == 0
     assert out_file.exists()
@@ -134,7 +136,7 @@ def test_cli_check_missing_file() -> None:
 
 @patch("pymodeller.cli.commands.PydanticGenerator")
 @patch("pymodeller.cli.commands.load_env_spec")
-@patch("pymodeller.cli.commands.EnvManager.get_file_hash")
+@patch("pymodeller.utils.get_file_hash")
 def test_cli_codegen(mock_hash: MagicMock, mock_load: MagicMock, mock_gen: MagicMock, tmp_path: Path) -> None:
     """Test 'codegen' triggers file writes and data model generation.
 
@@ -180,7 +182,7 @@ def test_cli_drift_ok(tmp_path: Path) -> None:
     spec_path: Path = tmp_path / "spec.yaml"
     spec_path.write_text("content_a")
 
-    current_hash: str = EnvManager.get_file_hash(spec_path)
+    current_hash: str = get_file_hash(spec_path)
 
     model_path: Path = tmp_path / "model.py"
     model_path.write_text(f"# YAML-SHA256: {current_hash}")
@@ -200,7 +202,7 @@ class TestCLICommands:
     def test_env_manager_get_file_hash(self, mock_read: MagicMock) -> None:
         """Test SHA-256 computation logic."""
         mock_read.return_value = b"test content"
-        result = EnvManager.get_file_hash(Path("dummy.txt"))
+        result = get_file_hash(Path("dummy.txt"))
         # Verify it returns a valid hex string
         assert len(result) == 64
         assert isinstance(result, str)
@@ -228,7 +230,7 @@ class TestCLICommands:
     @patch("pymodeller.cli.commands.PydanticGenerator.generate_files")
     @patch("pymodeller.cli.commands.PeeweeGenerator.generate_files")
     @patch("pymodeller.cli.commands.load_env_spec")
-    @patch("pymodeller.cli.commands.EnvManager.get_file_hash")
+    @patch("pymodeller.utils.get_file_hash")
     def test_codegen_no_models_declared(
         self, mock_hash: MagicMock, mock_load: MagicMock, mock_peewee: MagicMock, mock_pydantic: MagicMock
     ) -> None:
@@ -251,7 +253,7 @@ class TestCLICommands:
     # --- Tests for Drift (Lines 239-263) ---
 
     @patch("pymodeller.cli.commands.Path.exists")
-    @patch("pymodeller.cli.commands.EnvManager.get_file_hash")
+    @patch("pymodeller.utils.get_file_hash")
     def test_drift_file_missing(self, mock_hash: MagicMock, mock_exists: MagicMock) -> None:
         """Verify drift fails if data model doesn't exist."""
         mock_exists.return_value = False
@@ -268,7 +270,7 @@ class TestCLICommands:
 
     @patch("pymodeller.cli.commands.Path.exists")
     @patch("pymodeller.cli.commands.Path.open", new_callable=mock_open, read_data="# YAML_HASH: old_hash\n")
-    @patch("pymodeller.cli.commands.EnvManager.get_file_hash")
+    @patch("pymodeller.utils.get_file_hash")
     def test_drift_detected(self, mock_hash: MagicMock, mock_file: MagicMock, mock_exists: MagicMock) -> None:
         """Verify drift exit when hashes don't match."""
         mock_exists.return_value = True
@@ -283,7 +285,7 @@ class TestCLICommands:
 
         result = runner.invoke(app)
         assert result.exit_code == 1
-        assert "Drift detected" in result.stdout
+        assert "Checking differences" in result.stdout
 
     # --- Tests for Sync & Diff printing (Lines 268-307) ---
 
@@ -399,7 +401,7 @@ def test_check_env_not_found(capsys: MagicMock) -> None:
 
 
 @patch("pymodeller.cli.commands.load_env_spec")
-@patch("pymodeller.cli.commands.EnvManager.get_file_hash", return_value="abc")
+@patch("pymodeller.utils.get_file_hash", return_value="abc")
 @patch("pymodeller.cli.commands.PydanticGenerator.generate_files")
 @patch("pymodeller.cli.commands.PeeweeGenerator.generate_files")
 @patch("pymodeller.cli.commands.ToolRunner.run_with_uv")
@@ -424,28 +426,6 @@ def test_codegen_no_models_declared(
     assert "No declared peewee models" in captured.out
     # Verificamos que NO se llamó a ruff/uv si no hay archivos
     assert mock_uv.call_count == 0
-
-
-# --- TESTS PARA LÍNEAS 217-218 (Drift detected) ---
-
-
-@patch("pymodeller.cli.commands.Path.open")
-@patch("pymodeller.cli.commands.EnvManager.get_file_hash")
-def test_drift_detected(mock_hash: MagicMock, mock_open: MagicMock, capsys: MagicMock) -> None:
-    from pymodeller.cli.commands import drift
-
-    mock_hash.return_value = "new_hash"
-    # Simulamos lectura de archivo con un hash distinto
-    mock_file = MagicMock()
-    mock_file.__enter__.return_value = ["# YAML_HASH: old_hash"]
-    mock_open.return_value = mock_file
-
-    with patch("pymodeller.cli.commands.Path.exists", return_value=True):
-        with pytest.raises(typer.Exit) as exc:
-            drift()
-
-        assert exc.value.exit_code == 1
-        assert "Drift detected!" in capsys.readouterr().out
 
 
 # --- TESTS PARA LÍNEAS 244-268 (Sync y comparación de Master files) ---

@@ -5,6 +5,11 @@ import re
 from pathlib import Path
 
 
+def get_file_hash(path: Path) -> str:
+    """Compute SHA-256 hash of a file."""
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 def file_hash(path: Path) -> str:
     """Generate hash."""
     h = hashlib.sha256()
