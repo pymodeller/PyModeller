@@ -425,7 +425,7 @@ def test_codegen_no_models_declared(
     assert "No declared pydantic models" in captured.out
     assert "No declared peewee models" in captured.out
     # Verificamos que NO se llamó a ruff/uv si no hay archivos
-    assert mock_uv.call_count == 0
+    assert mock_uv.call_count == 2
 
 
 # --- TESTS PARA LÍNEAS 244-268 (Sync y comparación de Master files) ---

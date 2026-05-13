@@ -200,10 +200,21 @@ def load_env_spec(path: str | Path | None = None) -> EnvSpec:
     if not spec_path.exists():
         raise FileNotFoundError(f"Spec file not found: {spec_path.absolute()}")
 
-    with spec_path.open(encoding="utf-8") as f:
-        raw_data = yaml.safe_load(f) or {}
+    raw_sections = []
 
-    raw_sections: list | None = raw_data.get("sections", None)
+    if spec_path.is_dir():
+        yaml_files = list(spec_path.glob("*.yaml")) + list(spec_path.glob("*.yml"))
+
+        for file in yaml_files:
+            with file.open(encoding="utf-8") as f:
+                data = yaml.safe_load(f) or {}
+                sections = data.get("sections", [])
+                if isinstance(sections, list):
+                    raw_sections.extend(sections)
+    else:
+        with spec_path.open(encoding="utf-8") as f:
+            data = yaml.safe_load(f) or {}
+            raw_sections = data.get("sections", [])
 
     if not raw_sections:
         raise ValueError("Empty sections")

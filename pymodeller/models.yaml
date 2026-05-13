@@ -1,0 +1,70 @@
+sections:
+  - name: General
+    description: Top-level application flags
+    type: settings
+    env_prefix: APP_
+    variables:
+      - name: ENV
+        description: Enable local development mode (disables some production guards)
+        type: str
+        default: local
+        required: false
+        secret: false
+      - name: host
+        description: Host
+        type: str
+        default: localhost
+        required: false
+      - name: port
+        description: App port
+        type: int
+        default: 8000
+        required: false
+      - name: minutes_refresh_conf
+        description: Minutes to refresh config
+        type: int
+        default: 5
+        required: false
+      - name: server_url
+        description: Host
+        type: str
+        default: localhost
+        required: false
+      - name: server_ws
+        description: Host
+        type: str
+        default: localhost
+        required: false
+      - name: url_event
+        description: Host
+        type: str
+        default: localhost
+        required: false
+      - name: waterfall
+        description: Host
+        type: str
+        default: localhost
+        required: false
+
+  # =============================================
+  # Process Configuration
+  # =============================================
+  - name: Process
+    description: Configuration for algorithm processing parameters
+    type: settings
+    include_general: false
+    env_prefix: PROCESSING
+    variables:
+      - name: frames_energy
+        description: Number of frames used for energy computation.
+        type: int
+        default: 10
+        required: false
+        secret: false
+
+      - name: threads_energy
+        description: Number of threads used for energy processing.
+        type: int
+        default: 10
+        required: false
+        secret: false
