@@ -149,8 +149,9 @@ class PydanticGenerator:
         context = {"models": sorted_models}
         rendered_code = template.render(context)
 
-        file_path = out_path / "__init__.py"
-        file_path.write_text(rendered_code, encoding="utf-8")
+        if code_gen_conf.generate_init_models:
+            file_path = out_path / "__init__.py"
+            file_path.write_text(rendered_code, encoding="utf-8")
 
     def generate_master(self, sections: list, folder: Path, out_path: Path, yaml_hash: str) -> None:
         """Generate master file."""
@@ -222,7 +223,7 @@ class PydanticGenerator:
 
         file_path.write_text(rendered_code, encoding="utf-8")
 
-    def generate_files(self, yaml_hash: str, s: EnvSpec, out: Path, master: Path) -> tuple:
+    def generate_files(self, yaml_hash: str, s: EnvSpec, out: Path, master: Path | None) -> tuple:
         """Generate pydantic files."""
         sections = [s for s in s.sections if s.type != SectionType.PEEWEE]
 
@@ -252,8 +253,11 @@ class PydanticGenerator:
         self.generate_init(sections, out)
         if not code_gen_conf.import_settings_base_class:
             self.generate_base_class(out)
-        self.generate_master(sections, out, master, yaml_hash)
+
+        if master:
+            self.generate_master(sections, out, master, yaml_hash)
+            typer.echo(f"   Out: {master}")
 
         typer.echo(f"   Out: {out}")
-        typer.echo(f"   Out: {master}")
+
         return out, master

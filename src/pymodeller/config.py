@@ -44,8 +44,8 @@ class CodegenConfig(BaseModel):
         alias="SPEC",
         description="Input file for generated models.",
     )
-    pydantic_out: Path = Field(
-        default=Path("./models/data_models.py"),
+    pydantic_out: Path | None = Field(
+        default=None,
         alias="PYDANTIC_OUT",
         description="Output file for generated models.",
     )
@@ -69,10 +69,25 @@ class CodegenConfig(BaseModel):
         alias="ENVIRONMENTS_FILE",
         description="Path to environment file.",
     )
+    exceptions_file: Path | None = Field(
+        default=None,
+        alias="EXCEPTIONS_FILE",
+        description="Path to exception file.",
+    )
+    exceptions_folder: Path | None = Field(
+        default=None,
+        alias="EXCEPTIONS_FOLDER",
+        description="Path to exception file.",
+    )
     import_settings_base_class: str | None = Field(
         default=None,
         alias="IMPORT_SETTINGS_BASE_CLASS",
         description="Import to base class.",
+    )
+    generate_init_models: bool = Field(
+        default=True,
+        alias="GENERATE_INIT_MODELS",
+        description="Generate init models.",
     )
     env: Path = Field(
         default=Path(".env"),

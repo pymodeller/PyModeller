@@ -6,18 +6,18 @@
 #    - Validate .env at startup via core/env
 # ==============================================================================
 config:
-  - name: PYDANTIC_OUT
-    value: src/das_control/configuration_bis/init_settings.py
   - name: PYDANTIC_FOLDER
     value: src/das_control/configuration_bis
-  - name: PEEWEE_OUT
-    value: src/config_das/models/db_models.py
-  - name: PEEWEE_FOLDER
-    value: src/config_das/models/db
   - name: ENVIRONMENTS_FILE
     value: ./environments_prueba.yaml
+  - name: GENERATE_INIT_MODELS
+    value: false
   - name: IMPORT_SETTINGS_BASE_CLASS
     value: from config_das.models.base_settings import BaseTraceableSettings
+  - name: EXCEPTIONS_FILE
+    value: ./config/exceptions.yaml
+  - name: EXCEPTIONS_FOLDER
+    value: src/das_control/exceptions
 
 sections:
   - name: General
