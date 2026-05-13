@@ -1,37 +1,24 @@
 """Load configuration."""
 
+import tomllib
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-import yaml
 from pydantic import BaseModel, Field
 
 
-def load_codegen_config(yaml_path: str | Path) -> dict[str, Any]:
-    """Load configuration values from a YAML file into a dictionary.
+def load_codegen_config(toml_path: str | Path = Path("pyproject.toml")) -> dict[str, Any]:
+    """Load values from section [tool.pymodeller] pyproject.toml."""
+    toml_path = Path(toml_path)
 
-    Expected YAML structure:
-        config:
-          - name: CODEGEN_OUT
-            value: ./data_models.py
-          - name: MODEL_FOLDER
-            value: models
-    """
-    yaml_path = Path(yaml_path)
+    if not toml_path.exists():
+        raise FileNotFoundError(f"File TOML not found: {toml_path}")
 
-    if not yaml_path.exists():
-        raise FileNotFoundError(f"YAML file not found: {yaml_path}")
+    with toml_path.open("rb") as f:
+        data = tomllib.load(f)
 
-    with yaml_path.open("r", encoding="utf-8") as f:
-        data = yaml.safe_load(f) or {}
-
-    config_list = data.get("config", [])
-
-    if not isinstance(config_list, list):
-        raise ValueError("The 'config' section must be a list of name/value pairs.")
-
-    config_dict = {item["name"]: item.get("value") for item in config_list if "name" in item}
+    config_dict = data.get("tool", {}).get("pymodeller", {})
 
     return config_dict
 
@@ -41,52 +28,52 @@ class CodegenConfig(BaseModel):
 
     spec: Path = Field(
         default=Path("py_modeller.yaml"),
-        alias="SPEC",
+        alias="spec",
         description="Input file for generated models.",
     )
     pydantic_out: Path | None = Field(
         default=None,
-        alias="PYDANTIC_OUT",
+        alias="pydantic_out",
         description="Output file for generated models.",
     )
     peewee_out: Path = Field(
         default=Path("./models/db_models.py"),
-        alias="PEEWEE_OUT",
+        alias="peewee_out",
         description="Output file for generated models.",
     )
     pydantic_folder: Path = Field(
         default=Path("models/schemas"),
-        alias="PYDANTIC_FOLDER",
+        alias="pydantic_folder",
         description="Directory where models will be stored.",
     )
     peewee_folder: Path = Field(
         default=Path("models/db"),
-        alias="PEEWEE_FOLDER",
+        alias="peewee_folder",
         description="Directory where models will be stored.",
     )
     environment_file: Path = Field(
         default=Path("environment.yaml"),
-        alias="ENVIRONMENTS_FILE",
+        alias="environment_file",
         description="Path to environment file.",
     )
     exceptions_file: Path | None = Field(
         default=None,
-        alias="EXCEPTIONS_FILE",
+        alias="exceptions_file",
         description="Path to exception file.",
     )
     exceptions_folder: Path | None = Field(
         default=None,
-        alias="EXCEPTIONS_FOLDER",
+        alias="exceptions_folder",
         description="Path to exception file.",
     )
     import_settings_base_class: str | None = Field(
         default=None,
-        alias="IMPORT_SETTINGS_BASE_CLASS",
+        alias="import_settings_base_class",
         description="Import to base class.",
     )
     generate_init_models: bool = Field(
         default=True,
-        alias="GENERATE_INIT_MODELS",
+        alias="generate_init_models",
         description="Generate init models.",
     )
     env: Path = Field(
@@ -99,10 +86,15 @@ class CodegenConfig(BaseModel):
         alias="env",
         description="Env example name.",
     )
+    pymodeller_models: Path = Field(
+        default=Path("./pymodeller/models.yml"),
+        alias="pymodeller_models",
+        description="Pymodeller models",
+    )
 
 
 @lru_cache(maxsize=1)
 def get_code_gen_config() -> CodegenConfig:
     """Get code gen config."""
-    config_dict = load_codegen_config("py_modeller.yaml")
+    config_dict = load_codegen_config()
     return CodegenConfig(**config_dict)

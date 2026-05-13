@@ -13,6 +13,7 @@ _YAML_HASH_MARKER = "# YAML-SHA256: "
 GENERAL = "General"
 code_gen_conf = get_code_gen_config()
 
+
 class PydanticGenerator:
     """Handles Pydantic model generation using Jinja2 templates."""
 

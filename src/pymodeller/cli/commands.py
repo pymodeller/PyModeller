@@ -23,8 +23,8 @@ from rich.text import Text
 
 from pymodeller import __version__
 from pymodeller.config import get_code_gen_config
-from pymodeller.generators.exception_generator import ExceptionGenerator
 from pymodeller.generators.env_generator import EnvGenerator
+from pymodeller.generators.exception_generator import ExceptionGenerator
 from pymodeller.generators.peewee_generator import PeeweeGenerator
 from pymodeller.generators.pydantic_generator import _YAML_HASH_MARKER, PydanticGenerator
 from pymodeller.loader import load_env_spec
@@ -103,7 +103,7 @@ def check(
 
 
 def codegen(
-    spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.spec,
+    spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.pymodeller_models,
     pydantic_out: Annotated[
         Path, typer.Option("--pydantic-out", "-pyo", help="Path for the generated Pydantic models")
     ] = code_gen_conf.pydantic_folder,
@@ -111,7 +111,7 @@ def codegen(
         Path, typer.Option("--peewee-out", "-pwo", help="Path for the generated Peewee models")
     ] = code_gen_conf.peewee_folder,
     pydantic_master: Annotated[
-        Path, typer.Option("--pydantic-master", "-pym", help="Path for the generated main Pydantic module")
+        Path | None, typer.Option("--pydantic-master", "-pym", help="Path for the generated main Pydantic module")
     ] = code_gen_conf.pydantic_out,
     peewee_master: Annotated[
         Path, typer.Option("--peewee-master", "-pem", help="Path for the generated main Peewee module")
@@ -188,11 +188,15 @@ def codegen(
 def drift(
     spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.spec,
     data_model: Annotated[
-        Path, typer.Option("--data-model", "-d", help="Path for the generated settings module")
+        Path | None, typer.Option("--data-model", "-d", help="Path for the generated settings module")
     ] = code_gen_conf.pydantic_out,
 ) -> typer.Exit:
     """Check drift between YAML spec and generated code."""
     spec_path = Path(spec)
+    if not data_model:
+        typer.secho("❌ Data model path needed.", fg=typer.colors.RED)
+        raise typer.Exit(1)
+
     dm_path = Path(data_model)
     banner_full("Checking differences between YAML and models.")
     if not dm_path.exists():
@@ -234,7 +238,7 @@ def sync(
     with tempfile.TemporaryDirectory(dir=".") as tmpdir:
         tmpdir = Path(tmpdir).relative_to(Path.cwd())
 
-        tmp_pydantic_master = tmpdir / code_gen_conf.pydantic_out
+        tmp_pydantic_master = tmpdir / code_gen_conf.pydantic_out if code_gen_conf.pydantic_out else None
         tmp_peewee_master = tmpdir / code_gen_conf.peewee_out
         tmp_pydantic_folder = tmpdir / code_gen_conf.pydantic_folder
         tmp_peewee_folder = tmpdir / code_gen_conf.peewee_folder
@@ -261,7 +265,12 @@ def sync(
 
         master_diff = {}
 
-        if tmp_peewee_master.exists() and code_gen_conf.peewee_out.exists():
+        if (
+            tmp_pydantic_master
+            and tmp_pydantic_master.exists()
+            and code_gen_conf.pydantic_out
+            and code_gen_conf.pydantic_out.exists()
+        ):
             master_diff.setdefault(
                 "pydantic_master", file_hash(tmp_pydantic_master) != file_hash(code_gen_conf.pydantic_out)
             )
