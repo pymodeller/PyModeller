@@ -11,10 +11,9 @@ Copyright ©2026 PyModeller. All rights reserved.
 
 from __future__ import annotations
 
-import hashlib
 import tempfile
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated
 
 import typer
 from dotenv import dotenv_values
@@ -24,64 +23,20 @@ from rich.text import Text
 
 from pymodeller import __version__
 from pymodeller.config import get_code_gen_config
+from pymodeller.generators.env_generator import EnvGenerator
 from pymodeller.generators.peewee_generator import PeeweeGenerator
 from pymodeller.generators.pydantic_generator import _YAML_HASH_MARKER, PydanticGenerator
-from pymodeller.loader import SectionType, load_env_spec
+from pymodeller.loader import load_env_spec
 from pymodeller.tool_runner import ToolRunner
-from pymodeller.utils import compare_dirs, file_hash
+from pymodeller.utils import compare_dirs, file_hash, get_file_hash
 from pymodeller.validator import validate_env
 
 # --- Constants & Defaults ---
 
 code_gen_conf = get_code_gen_config()
 console = Console()
-_LINE_WIDTH = 78
+
 _CONFIG_TOML = "--config=pyproject.toml"
-
-
-class EnvManager:
-    """Service class to handle core env-spec logic."""
-
-    @staticmethod
-    def get_file_hash(path: Path) -> str:
-        """Compute SHA-256 hash of a file."""
-        return hashlib.sha256(path.read_bytes()).hexdigest()
-
-    @staticmethod
-    def generate_example_content(spec: Any, secrets_only: bool = False) -> str:
-        """Build the content for the .env.example file."""
-        lines = [
-            "#" * _LINE_WIDTH,
-            "# .env.example - AUTO-GENERATED",
-            "# Source: py_modeller.yaml",
-            "# Legend: ✱ required | 🔒 secret",
-            "# Important notice! If the settings attribute is a Model and you want to designate a attribute from .env ",
-            "# use __ before the attribute's name. Example: CONFIG_DEVICE__NAME",
-            "#" * _LINE_WIDTH,
-            "",
-        ]
-        settings = [s for s in spec.sections if s.type == SectionType.SETTINGS]
-        for section in settings:
-            variables_to_show = [v for v in section.variables if not secrets_only or v.secret]
-            if not variables_to_show:
-                continue
-
-            lines.append(f"\n# {'─' * 20} {section.name} {'─' * 20}")
-            if section.description:
-                lines.append(f"# {section.description}")
-
-            for var in variables_to_show:
-                badges = []
-                if var.required:
-                    badges.append("✱ required")
-                if var.secret:
-                    badges.append("🔒 secret")
-                badge_str = f"  [{' | '.join(badges)}]" if badges else ""
-
-                lines.append(f"# {var.description} | type: {var.type}{badge_str}")
-                lines.append(f"{var.env_name.upper()}={var.display_value()}")
-
-        return "\n".join(lines)
 
 
 # --- CLI Commands ---
@@ -90,11 +45,11 @@ class EnvManager:
 def example(
     spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.spec,
     out: Annotated[Path, typer.Option("--out", "-o", help="Output path for .env.example")] = code_gen_conf.env_example,
-    secrets_only: Annotated[bool, typer.Option("--secrets", "-ss", help="Output path for .env.example")] = False,
+    secrets_only: Annotated[bool, typer.Option("--secrets", "-ss", help="Flag for only secrets in .env")] = False,
 ) -> typer.Exit:
     """Generate a template .env.example from the YAML spec."""
     s = load_env_spec(spec)
-    content = EnvManager.generate_example_content(s, secrets_only)
+    content = EnvGenerator().generate_example_content(spec=s, secrets_only=secrets_only)
 
     out_path = Path(out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -102,6 +57,24 @@ def example(
 
     extra_comments = "with only secrets" if secrets_only else ""
     typer.echo(f" ✅ Created {out} {extra_comments}")
+    return typer.Exit(code=0)
+
+
+def yaml_file(
+    spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.spec,
+    out: Annotated[
+        Path, typer.Option("--out", "-o", help="Output path for environment.yaml")
+    ] = code_gen_conf.environment_file,
+) -> typer.Exit:
+    """Generate environment.yaml from the YAML spec."""
+    s = load_env_spec(spec)
+    content = EnvGenerator().generate_environment_yaml(spec=s)
+
+    out_path = Path(out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(content, encoding="utf-8")
+
+    typer.echo(f" ✅ Created {out}.")
     return typer.Exit(code=0)
 
 
@@ -145,7 +118,7 @@ def codegen(
 ) -> typer.Exit:
     """Generate typed Pydantic models for the environment."""
     s = load_env_spec(spec)
-    yaml_hash = EnvManager.get_file_hash(Path(spec))
+    yaml_hash = get_file_hash(Path(spec))
 
     typer.secho(" Step 1: Generating Pydantic Models", bold=True)
     out_path, models_dir = PydanticGenerator().generate_files(yaml_hash, s, pydantic_out, pydantic_master)
@@ -205,7 +178,7 @@ def drift(
         typer.secho("❌ Data model file missing. Run codegen first.", fg=typer.colors.RED)
         raise typer.Exit(1)
 
-    current_hash = EnvManager.get_file_hash(spec_path)
+    current_hash = get_file_hash(spec_path)
 
     stored_hash = None
     with dm_path.open() as f:
@@ -240,7 +213,6 @@ def sync(
     with tempfile.TemporaryDirectory(dir=".") as tmpdir:
         tmpdir = Path(tmpdir).relative_to(Path.cwd())
 
-        # recreas la misma estructura pero dentro de tmp
         tmp_pydantic_master = tmpdir / code_gen_conf.pydantic_out
         tmp_peewee_master = tmpdir / code_gen_conf.peewee_out
         tmp_pydantic_folder = tmpdir / code_gen_conf.pydantic_folder
@@ -266,7 +238,6 @@ def sync(
         print_diff("Pydantic", result_pydantic)
         print_diff("Peewee", result_peewee)
 
-        # comparar archivos "master"
         master_diff = {}
 
         if tmp_peewee_master.exists() and code_gen_conf.peewee_out.exists():

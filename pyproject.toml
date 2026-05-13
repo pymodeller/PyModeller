@@ -1,6 +1,6 @@
 [project]
 name = "pymodeller"
-version = "0.7.1"
+version = "0.7.3"
 description = "A package that reads models from YAML and creates Pydantic models"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -28,6 +28,7 @@ dependencies = [
     "python-dotenv>=1.2.1",
     "pyyaml>=6.0.3",
     "jinja2==3.1.6",
+    "pyfiglet>=1.0.4",
 ]
 
 [project.urls]
