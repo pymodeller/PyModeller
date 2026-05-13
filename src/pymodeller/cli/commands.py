@@ -62,7 +62,7 @@ def example(
 
 
 def yaml_file(
-    spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.spec,
+    spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.pymodeller_models,
     out: Annotated[
         Path, typer.Option("--out", "-o", help="Output path for environment.yaml")
     ] = code_gen_conf.environment_file,
