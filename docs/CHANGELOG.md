@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.8.1 (2026-05-13)
+
+### Bug Fixes
+
+- Update configuration toml
+  ([`dd65640`](https://github.com/pymodeller/PyModeller/commit/dd65640d9430af4a485f7cc32ca74df41edebabd))
+
+
 ## v0.8.0 (2026-05-13)
 
 ### Bug Fixes
