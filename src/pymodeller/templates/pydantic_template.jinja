@@ -12,7 +12,11 @@ import pydantic_numpy.typing as pnd
 {% endfor %}
 
 {% if is_settings %}
+{% if import_pydantic_base is none %}
 from .base_settings import BaseTraceableSettings
+{% else %}
+{{ import_pydantic_base }}
+{% endif %}
 
 class {{ class_name }}(BaseTraceableSettings):
 {% else %}

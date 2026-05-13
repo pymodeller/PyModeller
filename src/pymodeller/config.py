@@ -69,6 +69,11 @@ class CodegenConfig(BaseModel):
         alias="ENVIRONMENTS_FILE",
         description="Path to environment file.",
     )
+    import_settings_base_class: str | None = Field(
+        default=None,
+        alias="IMPORT_SETTINGS_BASE_CLASS",
+        description="Import to base class.",
+    )
     env: Path = Field(
         default=Path(".env"),
         alias="env",
