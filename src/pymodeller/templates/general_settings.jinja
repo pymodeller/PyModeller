@@ -1,7 +1,11 @@
 """AUTO-GENERATED ROOT SETTINGS. """
 
 from pathlib import Path
+{% if import_pydantic_base is none %}
 from .base_settings import BaseTraceableSettings
+{% else %}
+{{ import_pydantic_base }}
+{% endif %}
 from typing import Any, Literal, Callable, Dict, Tuple, Type, Optional, List
 from pydantic import AliasChoices, Field, SecretStr, BaseModel, ConfigDict, PrivateAttr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict, PydanticBaseSettingsSource

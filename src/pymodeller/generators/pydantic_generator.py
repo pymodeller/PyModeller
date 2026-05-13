@@ -5,12 +5,13 @@ from pathlib import Path
 import typer
 from jinja2 import Environment, PackageLoader, select_autoescape
 
+from pymodeller.config import get_code_gen_config
 from pymodeller.loader import YAML_TYPE_MAP, EnvSection, EnvSpec, EnvVarSpec, SectionType
 from pymodeller.utils import to_pascal_case, to_snake_case
 
 _YAML_HASH_MARKER = "# YAML-SHA256: "
 GENERAL = "General"
-
+code_gen_conf = get_code_gen_config()
 
 class PydanticGenerator:
     """Handles Pydantic model generation using Jinja2 templates."""
@@ -102,6 +103,7 @@ class PydanticGenerator:
 
         context = {
             "class_name": class_name,
+            "import_pydantic_base": code_gen_conf.import_settings_base_class,
             "is_settings": section.type == SectionType.SETTINGS,
             "description": f"Settings for the {section.name} section.",
             "env_prefix": section.env_prefix,
@@ -207,6 +209,7 @@ class PydanticGenerator:
 
         context = {
             "class_name": "GeneralSettings",
+            "import_pydantic_base": code_gen_conf.import_settings_base_class,
             "env_prefix": general_section.env_prefix,
             "from_attributes": general_section.from_attributes,
             "flat_variables": flat_vars,
@@ -247,7 +250,8 @@ class PydanticGenerator:
 
         self.generate_general_settings(general_section, sections_with_classes, out)
         self.generate_init(sections, out)
-        self.generate_base_class(out)
+        if not code_gen_conf.import_settings_base_class:
+            self.generate_base_class(out)
         self.generate_master(sections, out, master, yaml_hash)
 
         typer.echo(f"   Out: {out}")
