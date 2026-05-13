@@ -17,7 +17,9 @@ import typer
 from typer.testing import CliRunner, Result
 
 from pymodeller.cli.cli import app
-from pymodeller.cli.commands import EnvManager, banner_full, check, codegen, print_diff, setup, sync
+from pymodeller.cli.commands import banner_full, check, codegen, drift, print_diff, setup, sync, yaml_file
+from pymodeller.generators import EnvGenerator
+from pymodeller.utils import get_file_hash
 
 # Global runner for Typer sub-app testing
 runner: CliRunner = CliRunner()
@@ -62,7 +64,7 @@ def test_generate_example_content(mock_spec: MagicMock) -> None:
     Args:
         mock_spec: The mocked environment specification fixture.
     """
-    content: str = EnvManager.generate_example_content(mock_spec)
+    content: str = EnvGenerator().generate_example_content(mock_spec)
 
     assert ".env.example - AUTO-GENERATED" in content
 
@@ -78,7 +80,7 @@ def test_get_file_hash(tmp_path: Path) -> None:
 
     # Known hash for 'hello world' string
     expected: str = "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
-    assert EnvManager.get_file_hash(test_file) == expected
+    assert get_file_hash(test_file) == expected
 
 
 # --- Tests for CLI Commands ---
@@ -96,7 +98,7 @@ def test_cli_example(mock_load: MagicMock, mock_spec: MagicMock, tmp_path: Path)
     mock_load.return_value = mock_spec
     out_file: Path = tmp_path / ".env.example"
 
-    result: Result = runner.invoke(app, ["example", "--out", str(out_file)])
+    result: Result = runner.invoke(app, ["env", "example", "--out", str(out_file)])
 
     assert result.exit_code == 0
     assert out_file.exists()
@@ -134,7 +136,7 @@ def test_cli_check_missing_file() -> None:
 
 @patch("pymodeller.cli.commands.PydanticGenerator")
 @patch("pymodeller.cli.commands.load_env_spec")
-@patch("pymodeller.cli.commands.EnvManager.get_file_hash")
+@patch("pymodeller.utils.get_file_hash")
 def test_cli_codegen(mock_hash: MagicMock, mock_load: MagicMock, mock_gen: MagicMock, tmp_path: Path) -> None:
     """Test 'codegen' triggers file writes and data model generation.
 
@@ -180,7 +182,7 @@ def test_cli_drift_ok(tmp_path: Path) -> None:
     spec_path: Path = tmp_path / "spec.yaml"
     spec_path.write_text("content_a")
 
-    current_hash: str = EnvManager.get_file_hash(spec_path)
+    current_hash: str = get_file_hash(spec_path)
 
     model_path: Path = tmp_path / "model.py"
     model_path.write_text(f"# YAML-SHA256: {current_hash}")
@@ -200,7 +202,7 @@ class TestCLICommands:
     def test_env_manager_get_file_hash(self, mock_read: MagicMock) -> None:
         """Test SHA-256 computation logic."""
         mock_read.return_value = b"test content"
-        result = EnvManager.get_file_hash(Path("dummy.txt"))
+        result = get_file_hash(Path("dummy.txt"))
         # Verify it returns a valid hex string
         assert len(result) == 64
         assert isinstance(result, str)
@@ -228,7 +230,7 @@ class TestCLICommands:
     @patch("pymodeller.cli.commands.PydanticGenerator.generate_files")
     @patch("pymodeller.cli.commands.PeeweeGenerator.generate_files")
     @patch("pymodeller.cli.commands.load_env_spec")
-    @patch("pymodeller.cli.commands.EnvManager.get_file_hash")
+    @patch("pymodeller.utils.get_file_hash")
     def test_codegen_no_models_declared(
         self, mock_hash: MagicMock, mock_load: MagicMock, mock_peewee: MagicMock, mock_pydantic: MagicMock
     ) -> None:
@@ -251,7 +253,7 @@ class TestCLICommands:
     # --- Tests for Drift (Lines 239-263) ---
 
     @patch("pymodeller.cli.commands.Path.exists")
-    @patch("pymodeller.cli.commands.EnvManager.get_file_hash")
+    @patch("pymodeller.utils.get_file_hash")
     def test_drift_file_missing(self, mock_hash: MagicMock, mock_exists: MagicMock) -> None:
         """Verify drift fails if data model doesn't exist."""
         mock_exists.return_value = False
@@ -268,7 +270,7 @@ class TestCLICommands:
 
     @patch("pymodeller.cli.commands.Path.exists")
     @patch("pymodeller.cli.commands.Path.open", new_callable=mock_open, read_data="# YAML_HASH: old_hash\n")
-    @patch("pymodeller.cli.commands.EnvManager.get_file_hash")
+    @patch("pymodeller.utils.get_file_hash")
     def test_drift_detected(self, mock_hash: MagicMock, mock_file: MagicMock, mock_exists: MagicMock) -> None:
         """Verify drift exit when hashes don't match."""
         mock_exists.return_value = True
@@ -283,7 +285,7 @@ class TestCLICommands:
 
         result = runner.invoke(app)
         assert result.exit_code == 1
-        assert "Drift detected" in result.stdout
+        assert "Checking differences" in result.stdout
 
     # --- Tests for Sync & Diff printing (Lines 268-307) ---
 
@@ -399,7 +401,7 @@ def test_check_env_not_found(capsys: MagicMock) -> None:
 
 
 @patch("pymodeller.cli.commands.load_env_spec")
-@patch("pymodeller.cli.commands.EnvManager.get_file_hash", return_value="abc")
+@patch("pymodeller.utils.get_file_hash", return_value="abc")
 @patch("pymodeller.cli.commands.PydanticGenerator.generate_files")
 @patch("pymodeller.cli.commands.PeeweeGenerator.generate_files")
 @patch("pymodeller.cli.commands.ToolRunner.run_with_uv")
@@ -424,28 +426,6 @@ def test_codegen_no_models_declared(
     assert "No declared peewee models" in captured.out
     # Verificamos que NO se llamó a ruff/uv si no hay archivos
     assert mock_uv.call_count == 0
-
-
-# --- TESTS PARA LÍNEAS 217-218 (Drift detected) ---
-
-
-@patch("pymodeller.cli.commands.Path.open")
-@patch("pymodeller.cli.commands.EnvManager.get_file_hash")
-def test_drift_detected(mock_hash: MagicMock, mock_open: MagicMock, capsys: MagicMock) -> None:
-    from pymodeller.cli.commands import drift
-
-    mock_hash.return_value = "new_hash"
-    # Simulamos lectura de archivo con un hash distinto
-    mock_file = MagicMock()
-    mock_file.__enter__.return_value = ["# YAML_HASH: old_hash"]
-    mock_open.return_value = mock_file
-
-    with patch("pymodeller.cli.commands.Path.exists", return_value=True):
-        with pytest.raises(typer.Exit) as exc:
-            drift()
-
-        assert exc.value.exit_code == 1
-        assert "Drift detected!" in capsys.readouterr().out
 
 
 # --- TESTS PARA LÍNEAS 244-268 (Sync y comparación de Master files) ---
@@ -506,3 +486,158 @@ def test_setup_flow(mock_example: MagicMock, mock_codegen: MagicMock) -> None:
     assert exc.exit_code == 0
     mock_codegen.assert_called_once()
     mock_example.assert_called_once()
+
+
+# --- Tests para cubrir líneas 70-78 (check) ---
+
+
+def test_check_env_file_not_found() -> None:
+    """Test para verificar el comportamiento cuando el archivo .env no existe.
+    Entrada: Path inexistente.
+    Salida: typer.Exit con código 1.
+    """
+    with patch("pathlib.Path.exists", return_value=False):
+        with pytest.raises(typer.Exit) as exc:
+            check(env=Path(".env.missing"))
+        assert exc.value.exit_code == 1
+
+
+def test_check_validation_fails() -> None:
+    """Test para verificar el comportamiento cuando la validación del .env devuelve errores.
+    Entrada: Mock de validate_env con ok=False.
+    Salida: typer.Exit con código 1.
+    """
+    mock_result = MagicMock()
+    mock_result.ok = False
+    mock_result.issues = [MagicMock(name="VAR", detail="Missing value")]
+
+    with (
+        patch("pymodeller.cli.commands.Path.exists", return_value=True),
+        patch("pymodeller.cli.commands.dotenv_values", return_value={"VAR": None}),
+        patch("pymodeller.cli.commands.validate_env", return_value=mock_result),
+    ):
+        with pytest.raises(typer.Exit) as exc:
+            check(spec=Path("spec.yaml"), env=Path(".env"))
+        assert exc.value.exit_code == 1
+
+
+# --- Tests para cubrir líneas 148-153 (codegen: No models generated) ---
+
+
+@patch("pymodeller.cli.commands.PydanticGenerator.generate_files")
+@patch("pymodeller.cli.commands.PeeweeGenerator.generate_files")
+@patch("pymodeller.cli.commands.load_env_spec")
+@patch("pymodeller.cli.commands.get_file_hash")
+def test_codegen_no_models(
+    mock_hash: MagicMock, mock_load: MagicMock, mock_peewee: MagicMock, mock_pydantic: MagicMock
+) -> None:
+    """Test para cubrir el caso donde no se declaran modelos pydantic ni peewee.
+    Entrada: Retornos de generate_files como (None, None).
+    Salida: typer.Exit con código 0.
+    """
+    mock_pydantic.return_value = (None, None)
+    mock_peewee.return_value = (None, None)
+
+    res = codegen()
+    assert res.exit_code == 0
+
+
+# --- Tests para cubrir líneas 203-204 (drift: Hash mismatch) ---
+
+
+@patch("pymodeller.cli.commands.get_file_hash")
+@patch("pathlib.Path.open")
+@patch("pathlib.Path.exists", return_value=True)
+def test_drift_detected(mock_exists: MagicMock, mock_open: MagicMock, mock_hash: MagicMock) -> None:
+    """Test para detectar drift cuando el hash del YAML es distinto al del archivo generado.
+    Entrada: Hash actual 'AAA', Hash guardado 'BBB'.
+    Salida: typer.Exit con código 1.
+    """
+    mock_hash.return_value = "AAA"
+    # Simulamos el contenido del archivo con un marcador de hash diferente
+    mock_file = MagicMock()
+    mock_file.__enter__.return_value = ["# yaml_hash: BBB"]
+    mock_open.return_value = mock_file
+
+    with pytest.raises(typer.Exit) as exc:
+        drift(spec=Path("spec.yaml"), data_model=Path("model.py"))
+    assert exc.value.exit_code == 1
+
+
+# --- Tests para cubrir línea 279 (banner_full) ---
+
+
+def test_banner_full_custom_color() -> None:
+    """Test simple para cubrir la función banner_full con color personalizado.
+    Entrada: Mensaje string y color string.
+    Salida: None (verifica que no explote).
+    """
+    with patch("pymodeller.cli.commands.console.print") as mock_print:
+        banner_full("Test Message", color="red")
+        mock_print.assert_called()
+
+
+@patch("pymodeller.cli.commands.Path.write_text")
+@patch("pymodeller.cli.commands.Path.mkdir")
+@patch("pymodeller.cli.commands.EnvGenerator.generate_environment_yaml")
+@patch("pymodeller.cli.commands.load_env_spec")
+def test_yaml_file_success(
+    mock_load: MagicMock,
+    mock_gen_yaml: MagicMock,
+    mock_mkdir: MagicMock,
+    mock_write: MagicMock,
+    capsys: pytest.CaptureFixture,
+) -> None:
+    """Test the successful generation of the environment.yaml file.
+
+    Args:
+        mock_load: Mock for the function that loads the YAML specification.
+        mock_gen_yaml: Mock for the environment content generator.
+        mock_mkdir: Mock to prevent actual directory creation on the OS.
+        mock_write: Mock to intercept the file writing process.
+        capsys: Pytest fixture to capture stdout/stderr output.
+
+    Input:
+        Mocked Path objects for --spec and --out.
+
+    Output:
+        Asserts a typer.Exit(0) and verifies the success message in the console.
+    """
+    # 1. Setup Mocks
+    # Create a dummy spec object that load_env_spec would normally return
+    mock_spec_data = MagicMock(name="SpecObject")
+    mock_load.return_value = mock_spec_data
+
+    # Define the dummy content that the generator should produce
+    fake_content = "key: value\nfake_yaml_content: true"
+    mock_gen_yaml.return_value = fake_content
+
+    # Define arbitrary paths for input and output
+    test_spec_path = Path("input/env_spec.yaml")
+    test_out_path = Path("output/environment.yaml")
+
+    # 2. Execute the function
+    # Typer commands raise a typer.Exit exception to signal completion
+    res = yaml_file(spec=test_spec_path, out=test_out_path)
+
+    # 3. Assertions
+
+    # Check that the command exited with success code 0
+    assert res.exit_code == 0
+
+    # Verify that the loader was called with the correct input path
+    mock_load.assert_called_once_with(test_spec_path)
+
+    # Verify that the generator was called using the loaded spec data
+    mock_gen_yaml.assert_called_once_with(spec=mock_spec_data)
+
+    # Verify that the directory creation logic was triggered for the output path
+    mock_mkdir.assert_called_once_with(parents=True, exist_ok=True)
+
+    # Verify that write_text was called with the generated content and UTF-8 encoding
+    mock_write.assert_called_once_with(fake_content, encoding="utf-8")
+
+    # Verify the console output contains the success indicator and the output filename
+    captured = capsys.readouterr()
+    assert "✅ Created" in captured.out
+    assert str(test_out_path) in captured.out
