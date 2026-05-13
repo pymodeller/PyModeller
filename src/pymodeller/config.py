@@ -64,6 +64,11 @@ class CodegenConfig(BaseModel):
         alias="PEEWEE_FOLDER",
         description="Directory where models will be stored.",
     )
+    environment_file: Path = Field(
+        default=Path("environment.yaml"),
+        alias="ENVIRONMENTS_FILE",
+        description="Path to environment file.",
+    )
     env: Path = Field(
         default=Path(".env"),
         alias="env",

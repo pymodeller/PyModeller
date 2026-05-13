@@ -2,6 +2,43 @@
 
 <!-- version list -->
 
+## v0.7.3 (2026-05-12)
+
+### Bug Fixes
+
+- Update yaml env source template
+  ([`42e6976`](https://github.com/pymodeller/PyModeller/commit/42e6976f42b6b7dd397952f02a84151b28b4d26f))
+
+
+## v0.7.2 (2026-05-12)
+
+### Bug Fixes
+
+- Added environments yaml reading & setting
+  ([`6dc2757`](https://github.com/pymodeller/PyModeller/commit/6dc27576d04fe64b6a5c77bcb0ae4773437991ac))
+
+- Added source env jinja
+  ([`0c2b8db`](https://github.com/pymodeller/PyModeller/commit/0c2b8db8f0716047dd482f9412beef54571b8531))
+
+- Added source env jinja
+  ([`e41821e`](https://github.com/pymodeller/PyModeller/commit/e41821eed6ec15d1a801e31ba56b750d52d00f6e))
+
+- Ignore __main__ in sonar
+  ([`4b227ac`](https://github.com/pymodeller/PyModeller/commit/4b227acbd4c21694c3fe3317d09bc342567efb85))
+
+- Pretty qa
+  ([`1d85787`](https://github.com/pymodeller/PyModeller/commit/1d85787a511c14576c888add2810fd31aa59295b))
+
+- Pretty qa
+  ([`a2de471`](https://github.com/pymodeller/PyModeller/commit/a2de47114ec63a3ec9ae66d5bd7a695f17c2f498))
+
+- Pretty qa
+  ([`5231516`](https://github.com/pymodeller/PyModeller/commit/523151621b811499e0abee9b4b8ceda3df09dd0e))
+
+- Update generate vars in .env.example
+  ([`7b19c57`](https://github.com/pymodeller/PyModeller/commit/7b19c57762f08f62aeb9c9f5ac0b7af960836e00))
+
+
 ## v0.7.1 (2026-05-02)
 
 ### Bug Fixes
