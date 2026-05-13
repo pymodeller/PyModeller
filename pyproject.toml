@@ -185,7 +185,7 @@ pythonpath = [
 addopts = [
     "-n",
     "auto",
-    "--cov=pymodeller",
+    "--cov=src/pymodeller",
     "--cov-report=xml",
     "--cov-report=json",
     "--cov-report=html",
