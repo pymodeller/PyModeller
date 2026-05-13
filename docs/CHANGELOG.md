@@ -2,6 +2,25 @@
 
 <!-- version list -->
 
+## v0.8.0 (2026-05-13)
+
+### Bug Fixes
+
+- Update configuration toml
+  ([`501afee`](https://github.com/pymodeller/PyModeller/commit/501afee94681470495936efb7c6523f377c580d3))
+
+- Update template
+  ([`c0aea85`](https://github.com/pymodeller/PyModeller/commit/c0aea8545d2048ecd3cee97084ec61ed295ae7e1))
+
+### Features
+
+- Added exception generator
+  ([`201b000`](https://github.com/pymodeller/PyModeller/commit/201b000372b2f39f3576e83b20594f1a7885c5df))
+
+- Reading configuration from tool.pymodeller -> pyproject.toml
+  ([`d07f0ac`](https://github.com/pymodeller/PyModeller/commit/d07f0acedc797a3757df2d363f1ca5059af0531d))
+
+
 ## v0.7.4 (2026-05-13)
 
 ### Bug Fixes
