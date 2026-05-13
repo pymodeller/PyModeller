@@ -2,6 +2,22 @@
 
 <!-- version list -->
 
+## v0.7.4 (2026-05-13)
+
+### Bug Fixes
+
+- Added feature generate environment yaml
+  ([`b35c2c3`](https://github.com/pymodeller/PyModeller/commit/b35c2c32e620dcbb0983f5c62d3a832230cebf42))
+
+- Added feature generate environment yaml and fix tests
+  ([`4d8f84c`](https://github.com/pymodeller/PyModeller/commit/4d8f84c1a4b89732b3f8a3dad6fcab469d38b0a8))
+
+### Testing
+
+- Update tests
+  ([`d5aa29e`](https://github.com/pymodeller/PyModeller/commit/d5aa29e56077af1e1d81fb976916b5930981ae6e))
+
+
 ## v0.7.3 (2026-05-12)
 
 ### Bug Fixes
