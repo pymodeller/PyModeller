@@ -87,7 +87,7 @@ def check(
     env_path = Path(env)
     if not env_path.exists():
         typer.echo(f"❌ {env} not found.")
-        return typer.Exit(1)
+        raise typer.Exit(1)
 
     values = {k: v for k, v in dotenv_values(env_path).items() if v is not None}
     result = validate_env(spec_path=spec, env=values)
@@ -96,7 +96,7 @@ def check(
         typer.echo(f"❌ Issues found in {env}:")
         for issue in result.issues:
             typer.echo(f"  - {issue.name}: {issue.detail}")
-        return typer.Exit(1)
+        raise typer.Exit(1)
 
     typer.echo(f"✅ {env} is valid.")
     return typer.Exit(code=0)
@@ -195,13 +195,13 @@ def drift(
     spec_path = Path(spec)
     if not data_model:
         typer.secho("❌ Data model path needed.", fg=typer.colors.RED)
-        return typer.Exit(1)
+        raise typer.Exit(1)
 
     dm_path = Path(data_model)
     banner_full("Checking differences between YAML and models.")
     if not dm_path.exists():
         typer.secho("❌ Data model file missing. Run codegen first.", fg=typer.colors.RED)
-        return typer.Exit(1)
+        raise typer.Exit(1)
 
     current_hash = get_file_hash(spec_path)
 
@@ -214,7 +214,7 @@ def drift(
 
     if current_hash != stored_hash:
         typer.secho("❌ Drift detected! YAML spec has changed. Please run codegen.", fg=typer.colors.RED)
-        return typer.Exit(1)
+        raise typer.Exit(1)
     typer.secho(" No differences found. ", fg=typer.colors.CYAN)
 
     banner_full("Checking differences between models and yaml.")

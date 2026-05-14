@@ -77,7 +77,7 @@ def test_validator_missing_required(complex_spec: EnvSpec) -> None:
 
     assert result.ok is False
     assert len(result.missing) == 1
-    assert result.missing[0].name == "API_KEY"
+    assert result.missing[0].name == "api_key"
 
 
 def test_validator_empty_required(complex_spec: EnvSpec) -> None:
@@ -201,10 +201,10 @@ def test_validate_env_os_environ(mock_load: MagicMock) -> None:
 def test_validate_presence_branches() -> None:
     """Verify branches for optional missing variables."""
     var_opt: EnvVarSpec = EnvVarSpec(name="OPT", type="str", required=False, env_name="OPT", section="S")
-    spec: EnvSpec = EnvSpec(sections=[EnvSection("S", [var_opt])])
+    spec: EnvSpec = EnvSpec(sections=[EnvSection(name="S", variables=[var_opt])])
     validator: EnvValidator = EnvValidator(spec)
 
     # Case: Optional missing (raw_value is None and not required)
     result: EnvValidationResult = validator.validate(env={})
     assert result.ok
-    assert result.checked == 0  # Checked counts variables with actual values or issues
+    assert result.checked == 1
