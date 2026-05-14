@@ -1,6 +1,6 @@
 [project]
 name = "pymodeller"
-version = "0.9.0"
+version = "0.9.1"
 description = "A CLI tool designed to synchronize infrastructure requirements with Python application code"
 readme = "README.md"
 license = { file = "LICENSE" }

@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v0.9.1 (2026-05-14)
+
+### Bug Fixes
+
+- Update settings.json
+  ([`45fd25d`](https://github.com/pymodeller/PyModeller/commit/45fd25d24564c2ef65ac1bc66e9bbb0388eaa13c))
+
+- Update settings.json
+  ([`58f8b63`](https://github.com/pymodeller/PyModeller/commit/58f8b63f042879dcd1016c1f4870088acd237063))
+
+
 ## v0.9.0 (2026-05-14)
 
 ### Bug Fixes
