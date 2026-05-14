@@ -1,3 +1,11 @@
+#######################################################################################################################
+# environment.yaml - AUTO-GENERATED
+# Source: py_modeller.yaml
+# Legend: ✱ required | 🔒 secret
+# Important notice! If the settings attribute is a Model and you want to designate a attribute from .env
+# use __ before the attribute's name. Example: CONFIG_DEVICE__NAME
+#######################################################################################################################
+
 environments:
   base:
     # default vars
@@ -16,10 +24,10 @@ environments:
     path_prefix_input: CHAnaaale_local_yaml
 
   ministack: {}
-    # Ministack cluster profile — overrides go here
+      # Ministack cluster profile — overrides go here
 
   kubernetes: {}
-    # kubernetes cluster profile — overrides go here
+      # kubernetes cluster profile — overrides go here
 
   aws: {}
-    # aws cluster profile — overrides go here
+      # aws cluster profile — overrides go here
