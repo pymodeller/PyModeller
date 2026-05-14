@@ -1,7 +1,7 @@
 [project]
 name = "pymodeller"
 version = "0.8.1"
-description = "A package that reads models from YAML and creates Pydantic models"
+description = "A CLI tool designed to synchronize infrastructure requirements with Python application code"
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [

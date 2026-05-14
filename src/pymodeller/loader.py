@@ -11,12 +11,13 @@ Copyright ©2026 PyModeller. All rights reserved.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from enum import StrEnum
 from logging import getLogger
 from pathlib import Path
+from typing import Any
 
 import yaml
+from pydantic import BaseModel, Field, model_validator
 
 from pymodeller.utils import get_variants, to_camel_case, to_snake_case
 
@@ -75,70 +76,84 @@ class SectionType(StrEnum):
     PEEWEE = "peewee"
 
 
-@dataclass(frozen=True)
-class DBSpec:
-    """Configuración específica para Peewee/DB."""
+class ValidationSpec(BaseModel):
+    """Validation spec."""
 
-    primary_key: list[str] | None = None  # Lista de nombres de campos
+    min_value: float | int | None = None
+    max_value: float | int | None = None
+    pattern: str | None = None
+    min_length: int | None = None
+    max_length: int | None = None
+    enum: list[str] | None = None
+    error_message: str = "Error message"
+
+
+class DBSpec(BaseModel):
+    """Configuration for Peewee/DB."""
+
+    primary_key: list[str] | None = None
     table_name: str | None = None
-    schema: str | None = None
+    schema_name: str | None = Field(None, alias="schema")
     indexes: list[dict] | None = None
     constraints: list[str] | None = None
 
 
-@dataclass(frozen=True)
-class DBField:
-    """Configuración específica para entrada."""
+class DBField(BaseModel):
+    """Configuration for para entrada."""
 
     max_length: int | None = None
     allow_null: bool = False
     index: bool = False
     unique: bool = False
     column_name: str | None = None
-
     primary_key: bool = False
     constraints: list[str] | None = None
-
     foreign_key: str | None = None
     backref: str | None = None
     on_delete: str | None = None
-
     choices: list[str] | None = None
-
     max_digits: int | None = None
     decimal_places: int | None = None
-
     default_callable: str | None = None
 
 
-@dataclass(frozen=True)
-class EnvVarSpec:
-    """Specification for a single environment variable."""
+class EnvVarSpec(BaseModel):
+    """Env vars spec."""
 
     name: str
     description: str = ""
     type: str = "str"
-    default: str | None = None
+    default: Any = None
     required: bool = False
     secret: bool = False
     from_model: str | None = None
     exclude: bool = False
     section: str = ""
     alias: str = ""
-    validation_alias: str = ""
-    env_name: str = ""  # Final ENV var name (e.g., SERVER__HOST)
+    validation_alias: Any = None
+    env_name: str = ""
     db_spec: DBField | None = None
+    validation: ValidationSpec | None = None
 
-    def __post_init__(self) -> None:
-        """Derive alias and handle secret type sugar."""
-        # Auto-generate camelCase alias if not provided
-        if not self.alias:
-            object.__setattr__(self, "alias", to_camel_case(self.name))
+    @model_validator(mode="before")
+    @classmethod
+    def pre_process_names(cls, data: dict) -> dict:
+        """Preprocess names."""
+        raw_name = data.get("name")
+        if raw_name:
+            data["name"] = to_snake_case(raw_name)
+            if not data.get("alias"):
+                data["alias"] = to_camel_case(raw_name)
+            if not data.get("validation_alias"):
+                data["validation_alias"] = get_variants(raw_name)
 
-        # 'secret' type is a shortcut for type: str + secret: true
-        if self.type == "secret":
-            object.__setattr__(self, "type", "str")
-            object.__setattr__(self, "secret", True)
+        if data.get("type") == "secret":
+            data["type"] = "str"
+            data["secret"] = True
+
+        data["type"] = YAML_TYPE_MAP.get(str(data.get("type", "str")).lower(), "str")
+
+        return data
 
     def display_value(self) -> str:
         """Return a masked or real default value for documentation purposes."""
@@ -147,131 +162,77 @@ class EnvVarSpec:
         return str(self.default) if self.default is not None else ""
 
 
-@dataclass
-class EnvSection:
+class EnvSection(BaseModel):
     """A named group of environment variables."""
 
-    name: str
-    description: str = ""
+    name: str = "Default"
+    description: str = "Auto-generated description"
     env_prefix: str = ""
-    type: SectionType = SectionType.SETTINGS
+    type: SectionType = SectionType.MODEL
     include_init_settings: bool = True
     include_general: bool = True
-    from_attributes: bool = True
     attr: str = ""
+    from_attributes: bool = True
     database: DBSpec | None = None
     yaml_file: Path | None = None
-    include_literal: bool = False  # This is for fastapi
-    variables: list[EnvVarSpec] = field(default_factory=list)
+    include_literal: bool = True
+    variables: list[EnvVarSpec] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def propagate_section_context(self) -> EnvSection:
+        """Name and prefix injection."""
+        prefix = self.env_prefix.upper()
+        for var in self.variables:
+            var.section = self.name
+            if not var.env_name:
+                var.env_name = f"{prefix}_{var.name.upper()}" if prefix else var.name.upper()
+        return self
 
 
-@dataclass
-class EnvSpec:
+class EnvSpec(BaseModel):
     """Full specification parsed from the YAML file."""
 
-    sections: list[EnvSection] = field(default_factory=list)
+    sections: list[EnvSection] = Field(default_factory=list)
 
     @property
     def all_vars(self) -> list[EnvVarSpec]:
         """Flat list of all variable specifications."""
         return [var for section in self.sections for var in section.variables]
 
-    def validate_no_duplicates(self) -> None:
-        """Ensure no collisions between environment names or Python aliases."""
+    @model_validator(mode="after")
+    def validate_no_duplicates(self) -> EnvSpec:
+        """Validation."""
         seen_env: set[str] = set()
-
         for sec in self.sections:
             if sec.type != SectionType.SETTINGS:
                 continue
             seen_alias: set[str] = set()
             for var in sec.variables:
                 if var.env_name in seen_env:
-                    raise ValueError(f"Duplicate environment variable name: {var.env_name}")
+                    raise ValueError(f"Duplicate env: {var.env_name}")
                 if var.alias in seen_alias:
-                    raise ValueError(f"Duplicate Python alias: {var.alias}")
+                    raise ValueError(f"Duplicate alias: {var.alias}")
                 seen_env.add(var.env_name)
                 seen_alias.add(var.alias)
+        return self
 
 
 def load_env_spec(path: str | Path | None = None) -> EnvSpec:
-    """Load and parse the env_spec YAML file."""
-    spec_path = Path(path or DEFAULT_SPEC_PATH)
+    """Load env spec."""
+    spec_path = Path(path or "models.yaml")
 
     if not spec_path.exists():
         raise FileNotFoundError(f"Spec file not found: {spec_path.absolute()}")
 
-    raw_sections = []
+    files = [spec_path] if spec_path.is_file() else spec_path.glob("*.yaml")
+    raw_data = {"sections": []}
 
-    if spec_path.is_dir():
-        yaml_files = list(spec_path.glob("*.yaml")) + list(spec_path.glob("*.yml"))
+    for f in files:
+        with f.open(encoding="utf-8") as stream:
+            data = yaml.safe_load(stream) or {}
+            raw_data["sections"].extend(data.get("sections", []))
 
-        for file in yaml_files:
-            with file.open(encoding="utf-8") as f:
-                data = yaml.safe_load(f) or {}
-                sections = data.get("sections", [])
-                if isinstance(sections, list):
-                    raw_sections.extend(sections)
-    else:
-        with spec_path.open(encoding="utf-8") as f:
-            data = yaml.safe_load(f) or {}
-            raw_sections = data.get("sections", [])
+    if not raw_data["sections"]:
+        raise ValueError("No sections found in YAML")
 
-    if not raw_sections:
-        raise ValueError("Empty sections")
-
-    parsed_sections = []
-
-    for raw_sec in raw_sections:
-        sec_name = raw_sec.get("name", "Default")
-        prefix = raw_sec.get("env_prefix", "").upper()
-
-        # Parse variables within the section
-        vars_list = []
-        for v in raw_sec.get("variables", []):
-            raw_name = v["name"]
-            env_name = f"{prefix}_{raw_name}" if prefix else raw_name
-
-            db_finfo = v.get("db_spec", None)
-            db_f_ = DBField(**db_finfo) if db_finfo else None
-
-            type_ = YAML_TYPE_MAP.get(str(v.get("type", "str")).lower(), "str")
-            vars_list.append(
-                EnvVarSpec(
-                    name=to_snake_case(raw_name),
-                    description=v.get("description", ""),
-                    from_model=v.get("from_model", None),
-                    type=type_,
-                    default=v.get("default"),
-                    required=bool(v.get("required", False)),
-                    secret=bool(v.get("secret", False)),
-                    section=sec_name,
-                    alias=v.get("alias", ""),
-                    exclude=bool(v.get("exclude", False)),
-                    db_spec=db_f_,
-                    validation_alias=get_variants(raw_name),
-                    env_name=env_name,
-                )
-            )
-
-        db_info = raw_sec.get("database", None)
-        db_ = DBSpec(**db_info) if db_info else None
-
-        parsed_sections.append(
-            EnvSection(
-                name=sec_name,
-                description=raw_sec.get("description", "Auto-generated description"),
-                include_init_settings=raw_sec.get("include_init_settings", True),
-                include_general=raw_sec.get("include_general", True),
-                include_literal=raw_sec.get("include_literal", True),
-                yaml_file=raw_sec.get("yaml_file", None),
-                from_attributes=raw_sec.get("from_attributes", True),
-                env_prefix=prefix,
-                variables=vars_list,
-                type=SectionType(raw_sec.get("type", SectionType.MODEL.value)),
-                database=db_,
-            )
-        )
-
-    spec = EnvSpec(sections=parsed_sections)
-    spec.validate_no_duplicates()
-    return spec
+    return EnvSpec(**raw_data)
