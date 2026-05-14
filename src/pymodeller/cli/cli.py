@@ -13,7 +13,7 @@ import pyfiglet
 import typer
 from rich.console import Console
 
-from pymodeller.cli.commands import check, codegen, drift, example, setup, show_version, yaml_file
+from pymodeller.cli.commands import check, codegen, drift, example, setup, show_version, yaml_file, generate_env
 from pymodeller.cli.dev_tools import main_check, main_ci, main_test
 
 epilog = (
@@ -50,6 +50,7 @@ env_app = typer.Typer(
 )
 env_app.command()(example)
 env_app.command(name="yaml")(yaml_file)
+env_app.command()(generate_env)
 
 
 app.add_typer(dev_app, name="dev", help="Development and CI/CD tools for PyModeller")

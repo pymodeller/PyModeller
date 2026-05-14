@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
+import yaml
 from dotenv import dotenv_values
 from rich.console import Console
 from rich.panel import Panel
@@ -29,7 +30,7 @@ from pymodeller.generators.peewee_generator import PeeweeGenerator
 from pymodeller.generators.pydantic_generator import _YAML_HASH_MARKER, PydanticGenerator
 from pymodeller.loader import load_env_spec
 from pymodeller.tool_runner import ToolRunner
-from pymodeller.utils import compare_dirs, file_hash, get_file_hash
+from pymodeller.utils import compare_dirs, file_hash, get_file_hash, deep_merge, write_env_file
 from pymodeller.validator import validate_env
 
 # --- Constants & Defaults ---
@@ -78,6 +79,37 @@ def yaml_file(
     typer.echo(f" ✅ Created {out}.")
     return typer.Exit(code=0)
 
+
+def generate_env(
+    env_name: Annotated[str, typer.Argument(help="Env to generate (local, aws, etc.)")],
+    spec_path: Annotated[Path, typer.Option("--spec", "-s", help="Path to environments.yaml")] = code_gen_conf.environment_file,
+) -> typer.Exit:
+    """Generate .env and env.<environment_name> files from the YAML spec."""
+    # 1. Cargar y validar el YAML
+    if not spec_path.exists():
+        typer.echo(f"Error: Not found {spec_path}")
+        raise typer.Exit(1)
+
+    with open(spec_path, "r") as f:
+        env_data = yaml.safe_load(f)
+
+    envs = env_data["environments"]
+
+    if env_name not in envs:
+        valid_envs = ", ".join(envs.keys())
+        typer.echo(f"Error: Environment '{env_name}' no valid. Options: {valid_envs}")
+        raise typer.Exit(1)
+
+    base_vars = envs.get("base", {}).copy()
+    target_vars = envs.get(env_name, {})
+
+    final_config = deep_merge(base_vars, target_vars)
+
+    write_env_file(Path(f".env.{env_name}"), final_config)
+    write_env_file(Path(".env"), final_config)
+
+    typer.echo(f" ✅ Files .env y .env.{env_name} generated.")
+    return typer.Exit(0)
 
 def check(
     spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.pymodeller_models,

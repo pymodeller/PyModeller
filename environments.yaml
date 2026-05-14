@@ -7,27 +7,37 @@
 #######################################################################################################################
 
 environments:
-  base:
-    # default vars
-    config:
-      device:
-        name: DEVICE_BASE
-    path_input: /data/custom_mayor_base_yaml
+    base:
+        # ──────────────────── General ────────────────────
+        # Top-level application flags
+        # Enable local development mode (disables some production guards) | type: str
+        APP__ENV: local
+        # Host | type: str
+        APP__HOST: localhost
+        # App port | type: int
+        APP__PORT: 8000
+        # Minutes to refresh config | type: int
+        APP__MINUTES_REFRESH_CONF: 5
+        # Host | type: str
+        APP__SERVER_URL: localhost
+        # Host | type: str
+        APP__SERVER_WS: localhost
+        # Host | type: str
+        APP__URL_EVENT: localhost
+        # Host | type: str
+        APP__WATERFALL: localhost
+        # ──────────────────── Process ────────────────────
+        # Configuration for algorithm processing parameters
+        # Number of frames used for energy computation. | type: int
+        PROCESSING_FRAMES_ENERGY: 10
+        # Number of threads used for energy processing. | type: int
+        PROCESSING_THREADS_ENERGY: 10
 
+    ministack: {}
+        # Ministack cluster profile — overrides go here
 
-  local:
-    # Local development overrides
-    config:
-      device:
-        name: DEVICE_LOCAL
-    # path_input: /data/custom_mayor_local_yaml
-    path_prefix_input: CHAnaaale_local_yaml
+    kubernetes: {}
+        # kubernetes cluster profile — overrides go here
 
-  ministack: {}
-      # Ministack cluster profile — overrides go here
-
-  kubernetes: {}
-      # kubernetes cluster profile — overrides go here
-
-  aws: {}
-      # aws cluster profile — overrides go here
+    aws: {}
+        # aws cluster profile — overrides go here
