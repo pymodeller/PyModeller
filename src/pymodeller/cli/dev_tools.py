@@ -39,7 +39,7 @@ def main_check() -> typer.Exit:
     ToolRunner.run_with_uv("pyrefly", ["check", "src"])
 
     logger.info("Static checks completed successfully ✅")
-
+    return typer.Exit(code=0)
 
 
 def main_test() -> typer.Exit:
