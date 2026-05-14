@@ -13,7 +13,7 @@ import pyfiglet
 import typer
 from rich.console import Console
 
-from pymodeller.cli.commands import check, codegen, drift, example, setup, show_version, yaml_file, generate_env
+from pymodeller.cli.commands import check, codegen, drift, example, generate_env, setup, show_version, yaml_file
 from pymodeller.cli.dev_tools import main_check, main_ci, main_test
 
 epilog = (

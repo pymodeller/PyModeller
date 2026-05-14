@@ -30,7 +30,7 @@ from pymodeller.generators.peewee_generator import PeeweeGenerator
 from pymodeller.generators.pydantic_generator import _YAML_HASH_MARKER, PydanticGenerator
 from pymodeller.loader import load_env_spec
 from pymodeller.tool_runner import ToolRunner
-from pymodeller.utils import compare_dirs, file_hash, get_file_hash, deep_merge, write_env_file
+from pymodeller.utils import compare_dirs, deep_merge, file_hash, get_file_hash, write_env_file
 from pymodeller.validator import validate_env
 
 # --- Constants & Defaults ---
@@ -82,7 +82,9 @@ def yaml_file(
 
 def generate_env(
     env_name: Annotated[str, typer.Argument(help="Env to generate (local, aws, etc.)")],
-    spec_path: Annotated[Path, typer.Option("--spec", "-s", help="Path to environments.yaml")] = code_gen_conf.environment_file,
+    spec_path: Annotated[
+        Path, typer.Option("--spec", "-s", help="Path to environments.yaml")
+    ] = code_gen_conf.environment_file,
 ) -> typer.Exit:
     """Generate .env and env.<environment_name> files from the YAML spec."""
     # 1. Cargar y validar el YAML
@@ -90,7 +92,7 @@ def generate_env(
         typer.echo(f"Error: Not found {spec_path}")
         raise typer.Exit(1)
 
-    with open(spec_path, "r") as f:
+    with open(spec_path) as f:
         env_data = yaml.safe_load(f)
 
     envs = env_data["environments"]
@@ -110,6 +112,7 @@ def generate_env(
 
     typer.echo(f" ✅ Files .env y .env.{env_name} generated.")
     return typer.Exit(0)
+
 
 def check(
     spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.pymodeller_models,

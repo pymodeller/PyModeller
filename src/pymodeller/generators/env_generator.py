@@ -15,7 +15,7 @@ class EnvGenerator:
         self.env = Environment(loader=PackageLoader("pymodeller", "templates"), autoescape=select_autoescape())
 
     @staticmethod
-    def create_section(lines: list, section: Any, variables_to_show: list, separator: str = '=') -> None:
+    def create_section(lines: list, section: Any, variables_to_show: list, separator: str = "=") -> None:
         """Create section for env file."""
         lines.append(f"# {'─' * 20} {section.name} {'─' * 20}")
         if section.description:
@@ -54,6 +54,6 @@ class EnvGenerator:
             variables_to_show = [v for v in section.variables if not v.secret]
             if not variables_to_show:
                 continue
-            self.create_section(lines, section, variables_to_show, separator=': ')
+            self.create_section(lines, section, variables_to_show, separator=": ")
 
         return template.render(env_lines=lines)

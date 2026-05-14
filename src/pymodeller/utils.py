@@ -103,7 +103,8 @@ def write_env_file(path: Path, data: dict, prefix: str = "") -> None:
     """Save env file."""
     lines = []
 
-    def flatten(d, current_prefix):
+    def flatten(d: dict, current_prefix: str) -> None:
+        """Flatten names."""
         for k, v in d.items():
             new_key = f"{current_prefix}{k.upper()}"
             if isinstance(v, dict):
