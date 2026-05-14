@@ -20,7 +20,7 @@
     "isActive": true,
     "modDateFormat": "YYYY-MM-DD HH:mm:ss",
     "modDate": "Last update",
-    "modBy": "Modified By",
+    "modBy": "Modified By"
   },
   "psi-header.lang-config": [
     {
@@ -28,7 +28,7 @@
       "blankLinesAfter": 0,
       "begin": "\"\"\"",
       "commentMiddle": "",
-      "end": "\"\"\"",
+      "end": "\"\"\""
     }
   ],
   "psi-header.templates": [
@@ -49,7 +49,6 @@
   ],
   "makefile.configureOnOpen": false,
   "cSpell.words": [
-    "amrt",
     "Cookiecutter",
     "docstrings",
     "fastmcp",
