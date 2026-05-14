@@ -1,0 +1,4199 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="index.html">
+      
+      
+        <link rel="next" href="CONTRIBUTING.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>CHANGELOG - PyModeller</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+        <script src="assets/external/unpkg.com/iframe-worker/shim.js"></script>
+      
+    
+    
+      
+        
+        
+        
+        <link rel="stylesheet" href="assets/external/fonts.googleapis.com/css.49ea35f2.css">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="css/material.css">
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#changelog" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="index.html" title="PyModeller" class="md-header__button md-logo" aria-label="PyModeller" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PyModeller
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CHANGELOG
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="index.html" title="PyModeller" class="md-nav__button md-logo" aria-label="PyModeller" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PyModeller
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PyModeller
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CHANGELOG
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="CHANGELOG.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CHANGELOG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v090-2026-05-14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.9.0 (2026-05-14)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.9.0 (2026-05-14)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v081-2026-05-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.8.1 (2026-05-13)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.8.1 (2026-05-13)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v080-2026-05-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.8.0 (2026-05-13)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.8.0 (2026-05-13)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v074-2026-05-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.7.4 (2026-05-13)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.7.4 (2026-05-13)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v073-2026-05-12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.7.3 (2026-05-12)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.7.3 (2026-05-12)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v072-2026-05-12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.7.2 (2026-05-12)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.7.2 (2026-05-12)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v071-2026-05-02" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.7.1 (2026-05-02)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.7.1 (2026-05-02)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v070-2026-04-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.7.0 (2026-04-30)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.7.0 (2026-04-30)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v063-2026-04-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.6.3 (2026-04-28)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.6.3 (2026-04-28)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v062-2026-04-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.6.2 (2026-04-28)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.6.2 (2026-04-28)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v061-2026-04-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.6.1 (2026-04-28)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.6.1 (2026-04-28)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v060-2026-04-27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.6.0 (2026-04-27)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.6.0 (2026-04-27)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v055-2026-04-27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.5.5 (2026-04-27)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.5.5 (2026-04-27)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v054-2026-04-27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.5.4 (2026-04-27)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.5.4 (2026-04-27)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v053-2026-04-26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.5.3 (2026-04-26)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.5.3 (2026-04-26)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v052-2026-04-26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.5.2 (2026-04-26)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.5.2 (2026-04-26)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v051-2026-04-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.5.1 (2026-04-24)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.5.1 (2026-04-24)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v010-2026-04-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.1.0 (2026-04-24)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v031-2026-04-23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.3.1 (2026-04-23)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.3.1 (2026-04-23)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v030-2026-04-23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.3.0 (2026-04-23)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.3.0 (2026-04-23)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#continuous-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Continuous Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v027-2026-04-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.7 (2026-04-22)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.2.7 (2026-04-22)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v026-2026-04-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.6 (2026-04-22)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.2.6 (2026-04-22)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#continuous-integration_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Continuous Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v025-2026-04-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.5 (2026-04-22)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v025-rc2-2026-04-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.5-rc.2 (2026-04-22)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.2.5-rc.2 (2026-04-22)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v025-rc1-2026-04-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.5-rc.1 (2026-04-22)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.2.5-rc.1 (2026-04-22)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v024-2026-04-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.4 (2026-04-22)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.2.4 (2026-04-22)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v023-2026-04-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.3 (2026-04-22)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.2.3 (2026-04-22)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v022-2026-04-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.2 (2026-04-22)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.2.2 (2026-04-22)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#continuous-integration_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Continuous Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v021-2026-04-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.1 (2026-04-21)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.2.1 (2026-04-21)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v021-rc2-2026-04-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.1-rc.2 (2026-04-21)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.2.1-rc.2 (2026-04-21)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v021-rc1-2026-04-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.1-rc.1 (2026-04-21)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.2.1-rc.1 (2026-04-21)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#continuous-integration_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Continuous Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v020-2026-04-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.0 (2026-04-21)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v020-rc1-2026-04-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.0-rc.1 (2026-04-21)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.2.0-rc.1 (2026-04-21)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#continuous-integration_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Continuous Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v015-rc1-2026-04-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.1.5-rc.1 (2026-04-20)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.1.5-rc.1 (2026-04-20)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v014-2026-04-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.1.4 (2026-04-20)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.1.4 (2026-04-20)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v013-2026-04-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.1.3 (2026-04-20)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.1.3 (2026-04-20)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v012-2026-04-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.1.2 (2026-04-20)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.1.2 (2026-04-20)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#continuous-integration_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Continuous Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v011-2026-04-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.1.1 (2026-04-20)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.1.1 (2026-04-20)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v010-2026-04-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.1.0 (2026-04-20)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.1.0 (2026-04-20)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v003-rc2-2026-04-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.0.3-rc.2 (2026-04-20)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.0.3-rc.2 (2026-04-20)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v003-rc1-2026-04-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.0.3-rc.1 (2026-04-20)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.0.3-rc.1 (2026-04-20)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v002-2026-04-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.0.2 (2026-04-20)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.0.2 (2026-04-20)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_35" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v001-2026-04-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.0.1 (2026-04-20)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v001-rc1-2026-04-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.0.1-rc.1 (2026-04-20)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="CONTRIBUTING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="styleguide.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2025 Enhanced Git Commit Message Style Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Code
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/__main__.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+      main  
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pymodeller
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Pymodeller
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/pymodeller/config.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Config
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/pymodeller/loader.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Loader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/pymodeller/tool_runner.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tool runner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/pymodeller/utils.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utils
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/pymodeller/validator.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2_6" id="__nav_5_2_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cli
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_2_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Cli
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/pymodeller/cli/cli.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cli
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/pymodeller/cli/commands.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Commands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/pymodeller/cli/dev_tools.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dev tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2_7" id="__nav_5_2_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generators
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_2_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Generators
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/pymodeller/generators/peewee_generator.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Peewee generator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/pymodeller/generators/pydantic_generator.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pydantic generator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v090-2026-05-14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.9.0 (2026-05-14)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.9.0 (2026-05-14)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v081-2026-05-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.8.1 (2026-05-13)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.8.1 (2026-05-13)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v080-2026-05-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.8.0 (2026-05-13)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.8.0 (2026-05-13)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v074-2026-05-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.7.4 (2026-05-13)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.7.4 (2026-05-13)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v073-2026-05-12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.7.3 (2026-05-12)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.7.3 (2026-05-12)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v072-2026-05-12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.7.2 (2026-05-12)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.7.2 (2026-05-12)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v071-2026-05-02" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.7.1 (2026-05-02)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.7.1 (2026-05-02)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v070-2026-04-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.7.0 (2026-04-30)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.7.0 (2026-04-30)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v063-2026-04-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.6.3 (2026-04-28)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.6.3 (2026-04-28)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v062-2026-04-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.6.2 (2026-04-28)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.6.2 (2026-04-28)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v061-2026-04-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.6.1 (2026-04-28)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.6.1 (2026-04-28)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v060-2026-04-27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.6.0 (2026-04-27)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.6.0 (2026-04-27)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v055-2026-04-27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.5.5 (2026-04-27)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.5.5 (2026-04-27)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v054-2026-04-27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.5.4 (2026-04-27)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.5.4 (2026-04-27)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v053-2026-04-26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.5.3 (2026-04-26)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.5.3 (2026-04-26)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v052-2026-04-26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.5.2 (2026-04-26)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.5.2 (2026-04-26)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v051-2026-04-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.5.1 (2026-04-24)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.5.1 (2026-04-24)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v010-2026-04-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.1.0 (2026-04-24)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v031-2026-04-23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.3.1 (2026-04-23)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.3.1 (2026-04-23)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v030-2026-04-23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.3.0 (2026-04-23)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.3.0 (2026-04-23)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#continuous-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Continuous Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v027-2026-04-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.7 (2026-04-22)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.2.7 (2026-04-22)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v026-2026-04-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.6 (2026-04-22)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.2.6 (2026-04-22)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#continuous-integration_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Continuous Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v025-2026-04-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.5 (2026-04-22)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v025-rc2-2026-04-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.5-rc.2 (2026-04-22)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.2.5-rc.2 (2026-04-22)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v025-rc1-2026-04-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.5-rc.1 (2026-04-22)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.2.5-rc.1 (2026-04-22)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v024-2026-04-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.4 (2026-04-22)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.2.4 (2026-04-22)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v023-2026-04-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.3 (2026-04-22)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.2.3 (2026-04-22)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v022-2026-04-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.2 (2026-04-22)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.2.2 (2026-04-22)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#continuous-integration_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Continuous Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v021-2026-04-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.1 (2026-04-21)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.2.1 (2026-04-21)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v021-rc2-2026-04-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.1-rc.2 (2026-04-21)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.2.1-rc.2 (2026-04-21)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v021-rc1-2026-04-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.1-rc.1 (2026-04-21)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.2.1-rc.1 (2026-04-21)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#continuous-integration_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Continuous Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v020-2026-04-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.0 (2026-04-21)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v020-rc1-2026-04-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.2.0-rc.1 (2026-04-21)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.2.0-rc.1 (2026-04-21)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#continuous-integration_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Continuous Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v015-rc1-2026-04-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.1.5-rc.1 (2026-04-20)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.1.5-rc.1 (2026-04-20)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v014-2026-04-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.1.4 (2026-04-20)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.1.4 (2026-04-20)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v013-2026-04-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.1.3 (2026-04-20)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.1.3 (2026-04-20)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v012-2026-04-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.1.2 (2026-04-20)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.1.2 (2026-04-20)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#continuous-integration_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Continuous Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v011-2026-04-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.1.1 (2026-04-20)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.1.1 (2026-04-20)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v010-2026-04-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.1.0 (2026-04-20)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.1.0 (2026-04-20)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v003-rc2-2026-04-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.0.3-rc.2 (2026-04-20)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.0.3-rc.2 (2026-04-20)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v003-rc1-2026-04-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.0.3-rc.1 (2026-04-20)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.0.3-rc.1 (2026-04-20)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v002-2026-04-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.0.2 (2026-04-20)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.0.2 (2026-04-20)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_35" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v001-2026-04-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.0.1 (2026-04-20)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v001-rc1-2026-04-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.0.1-rc.1 (2026-04-20)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="changelog">CHANGELOG</h1>
+<!-- version list -->
+
+<h2 id="v090-2026-05-14">v0.9.0 (2026-05-14)</h2>
+<h3 id="bug-fixes">Bug Fixes</h3>
+<ul>
+<li>
+<p>Update command check
+  (<a href="https://github.com/pymodeller/PyModeller/commit/d836b93fac03b53e20d151f518ffdc83b40faef5"><code>d836b93</code></a>)</p>
+</li>
+<li>
+<p>Update models loader
+  (<a href="https://github.com/pymodeller/PyModeller/commit/eab741c9933efac9998c187acfd147b8ec125e09"><code>eab741c</code></a>)</p>
+</li>
+<li>
+<p>Update tests
+  (<a href="https://github.com/pymodeller/PyModeller/commit/3a797eb710187164daa8700669bbbeae4758a9c4"><code>3a797eb</code></a>)</p>
+</li>
+</ul>
+<h3 id="features">Features</h3>
+<ul>
+<li>Added new feature generation .env files from environments.yaml
+  (<a href="https://github.com/pymodeller/PyModeller/commit/7341fad10e18c6cb5b7366b814f265c64bf1195c"><code>7341fad</code></a>)</li>
+</ul>
+<h3 id="testing">Testing</h3>
+<ul>
+<li>
+<p>Fixing tests
+  (<a href="https://github.com/pymodeller/PyModeller/commit/eb4a37a00481aa0b5c6f94a6dc188a4d6ca15032"><code>eb4a37a</code></a>)</p>
+</li>
+<li>
+<p>Update tests
+  (<a href="https://github.com/pymodeller/PyModeller/commit/8b870857c4ee8760ab4d4fb19fb782cd9358d45d"><code>8b87085</code></a>)</p>
+</li>
+<li>
+<p>Update tests
+  (<a href="https://github.com/pymodeller/PyModeller/commit/41ec804bcea4412e1603affddd99d1a8af7d0783"><code>41ec804</code></a>)</p>
+</li>
+<li>
+<p>Update tests again
+  (<a href="https://github.com/pymodeller/PyModeller/commit/fadf0576138d2e2e42b3055ceb17d0f31b13f4c3"><code>fadf057</code></a>)</p>
+</li>
+<li>
+<p>Update tests for dev_tools
+  (<a href="https://github.com/pymodeller/PyModeller/commit/41f263899c87ecc7b109b63142ef18ae45c24cbc"><code>41f2638</code></a>)</p>
+</li>
+</ul>
+<h2 id="v081-2026-05-13">v0.8.1 (2026-05-13)</h2>
+<h3 id="bug-fixes_1">Bug Fixes</h3>
+<ul>
+<li>Update configuration toml
+  (<a href="https://github.com/pymodeller/PyModeller/commit/dd65640d9430af4a485f7cc32ca74df41edebabd"><code>dd65640</code></a>)</li>
+</ul>
+<h2 id="v080-2026-05-13">v0.8.0 (2026-05-13)</h2>
+<h3 id="bug-fixes_2">Bug Fixes</h3>
+<ul>
+<li>
+<p>Update configuration toml
+  (<a href="https://github.com/pymodeller/PyModeller/commit/501afee94681470495936efb7c6523f377c580d3"><code>501afee</code></a>)</p>
+</li>
+<li>
+<p>Update template
+  (<a href="https://github.com/pymodeller/PyModeller/commit/c0aea8545d2048ecd3cee97084ec61ed295ae7e1"><code>c0aea85</code></a>)</p>
+</li>
+</ul>
+<h3 id="features_1">Features</h3>
+<ul>
+<li>
+<p>Added exception generator
+  (<a href="https://github.com/pymodeller/PyModeller/commit/201b000372b2f39f3576e83b20594f1a7885c5df"><code>201b000</code></a>)</p>
+</li>
+<li>
+<p>Reading configuration from tool.pymodeller -&gt; pyproject.toml
+  (<a href="https://github.com/pymodeller/PyModeller/commit/d07f0acedc797a3757df2d363f1ca5059af0531d"><code>d07f0ac</code></a>)</p>
+</li>
+</ul>
+<h2 id="v074-2026-05-13">v0.7.4 (2026-05-13)</h2>
+<h3 id="bug-fixes_3">Bug Fixes</h3>
+<ul>
+<li>
+<p>Added feature generate environment yaml
+  (<a href="https://github.com/pymodeller/PyModeller/commit/b35c2c32e620dcbb0983f5c62d3a832230cebf42"><code>b35c2c3</code></a>)</p>
+</li>
+<li>
+<p>Added feature generate environment yaml and fix tests
+  (<a href="https://github.com/pymodeller/PyModeller/commit/4d8f84c1a4b89732b3f8a3dad6fcab469d38b0a8"><code>4d8f84c</code></a>)</p>
+</li>
+</ul>
+<h3 id="testing_1">Testing</h3>
+<ul>
+<li>Update tests
+  (<a href="https://github.com/pymodeller/PyModeller/commit/d5aa29e56077af1e1d81fb976916b5930981ae6e"><code>d5aa29e</code></a>)</li>
+</ul>
+<h2 id="v073-2026-05-12">v0.7.3 (2026-05-12)</h2>
+<h3 id="bug-fixes_4">Bug Fixes</h3>
+<ul>
+<li>Update yaml env source template
+  (<a href="https://github.com/pymodeller/PyModeller/commit/42e6976f42b6b7dd397952f02a84151b28b4d26f"><code>42e6976</code></a>)</li>
+</ul>
+<h2 id="v072-2026-05-12">v0.7.2 (2026-05-12)</h2>
+<h3 id="bug-fixes_5">Bug Fixes</h3>
+<ul>
+<li>
+<p>Added environments yaml reading &amp; setting
+  (<a href="https://github.com/pymodeller/PyModeller/commit/6dc27576d04fe64b6a5c77bcb0ae4773437991ac"><code>6dc2757</code></a>)</p>
+</li>
+<li>
+<p>Added source env jinja
+  (<a href="https://github.com/pymodeller/PyModeller/commit/0c2b8db8f0716047dd482f9412beef54571b8531"><code>0c2b8db</code></a>)</p>
+</li>
+<li>
+<p>Added source env jinja
+  (<a href="https://github.com/pymodeller/PyModeller/commit/e41821eed6ec15d1a801e31ba56b750d52d00f6e"><code>e41821e</code></a>)</p>
+</li>
+<li>
+<p>Ignore <strong>main</strong> in sonar
+  (<a href="https://github.com/pymodeller/PyModeller/commit/4b227acbd4c21694c3fe3317d09bc342567efb85"><code>4b227ac</code></a>)</p>
+</li>
+<li>
+<p>Pretty qa
+  (<a href="https://github.com/pymodeller/PyModeller/commit/1d85787a511c14576c888add2810fd31aa59295b"><code>1d85787</code></a>)</p>
+</li>
+<li>
+<p>Pretty qa
+  (<a href="https://github.com/pymodeller/PyModeller/commit/a2de47114ec63a3ec9ae66d5bd7a695f17c2f498"><code>a2de471</code></a>)</p>
+</li>
+<li>
+<p>Pretty qa
+  (<a href="https://github.com/pymodeller/PyModeller/commit/523151621b811499e0abee9b4b8ceda3df09dd0e"><code>5231516</code></a>)</p>
+</li>
+<li>
+<p>Update generate vars in .env.example
+  (<a href="https://github.com/pymodeller/PyModeller/commit/7b19c57762f08f62aeb9c9f5ac0b7af960836e00"><code>7b19c57</code></a>)</p>
+</li>
+</ul>
+<h2 id="v071-2026-05-02">v0.7.1 (2026-05-02)</h2>
+<h3 id="bug-fixes_6">Bug Fixes</h3>
+<ul>
+<li>Added any option and fix in source master_pydantic.jinja
+  (<a href="https://github.com/pymodeller/PyModeller/commit/3ece8ec7036fd343ca80c9c6ae528b5dfcedb4fb"><code>3ece8ec</code></a>)</li>
+</ul>
+<h2 id="v070-2026-04-30">v0.7.0 (2026-04-30)</h2>
+<h3 id="bug-fixes_7">Bug Fixes</h3>
+<ul>
+<li>
+<p>Added pre-hooks
+  (<a href="https://github.com/pymodeller/PyModeller/commit/62178316059007e772ba4dc0d2fc16c8e30d056f"><code>6217831</code></a>)</p>
+</li>
+<li>
+<p>Update CONVENTIONS.md
+  (<a href="https://github.com/pymodeller/PyModeller/commit/ba8fc7f5f9ce10d364d249f77d9d2fe039fc6cad"><code>ba8fc7f</code></a>)</p>
+</li>
+<li>
+<p>Update exclude value in fields
+  (<a href="https://github.com/pymodeller/PyModeller/commit/af1ae01e4ab7512b9b4488ffcf7f9290a259322a"><code>af1ae01</code></a>)</p>
+</li>
+<li>
+<p>Update pre-hook names
+  (<a href="https://github.com/pymodeller/PyModeller/commit/11ed85b1936b7552d88eb5e2d5266aac596bc6f9"><code>11ed85b</code></a>)</p>
+</li>
+<li>
+<p>Update skill conventions
+  (<a href="https://github.com/pymodeller/PyModeller/commit/e80ee9b3fee73697e3d11201805593d043c1f159"><code>e80ee9b</code></a>)</p>
+</li>
+<li>
+<p>Update style
+  (<a href="https://github.com/pymodeller/PyModeller/commit/4450ebd0c7412c4bb8883ba15472d405d86cbfdf"><code>4450ebd</code></a>)</p>
+</li>
+</ul>
+<h3 id="features_2">Features</h3>
+<ul>
+<li>
+<p>Added agent files
+  (<a href="https://github.com/pymodeller/PyModeller/commit/9a872ef1c99ba5c815b24559637751cca6ff967b"><code>9a872ef</code></a>)</p>
+</li>
+<li>
+<p>Update files
+  (<a href="https://github.com/pymodeller/PyModeller/commit/23b04aa8f7b6b1e6b51cc471880ba85a0370f3a5"><code>23b04aa</code></a>)</p>
+</li>
+</ul>
+<h2 id="v063-2026-04-28">v0.6.3 (2026-04-28)</h2>
+<h3 id="bug-fixes_8">Bug Fixes</h3>
+<ul>
+<li>Added include_init_settings option
+  (<a href="https://github.com/pymodeller/PyModeller/commit/67316e4ed69f2725985c2944aea9982f5ba17f7e"><code>67316e4</code></a>)</li>
+</ul>
+<h2 id="v062-2026-04-28">v0.6.2 (2026-04-28)</h2>
+<h3 id="bug-fixes_9">Bug Fixes</h3>
+<ul>
+<li>Update master_pydantic.jinja template
+  (<a href="https://github.com/pymodeller/PyModeller/commit/67c5fbe064dcf7cdb2eb30b27513455d68803de3"><code>67c5fbe</code></a>)</li>
+</ul>
+<h2 id="v061-2026-04-28">v0.6.1 (2026-04-28)</h2>
+<h3 id="bug-fixes_10">Bug Fixes</h3>
+<ul>
+<li>Update base_settings and loader check duplicates
+  (<a href="https://github.com/pymodeller/PyModeller/commit/2a682517c3dd6d51f521b14cf05e88b44924589b"><code>2a68251</code></a>)</li>
+</ul>
+<h2 id="v060-2026-04-27">v0.6.0 (2026-04-27)</h2>
+<h3 id="features_3">Features</h3>
+<ul>
+<li>Added parser default values
+  (<a href="https://github.com/pymodeller/PyModeller/commit/33fef7f8a077d78d940d3e1220879a96381fde96"><code>33fef7f</code></a>)</li>
+</ul>
+<h2 id="v055-2026-04-27">v0.5.5 (2026-04-27)</h2>
+<h3 id="bug-fixes_11">Bug Fixes</h3>
+<ul>
+<li>Update actions
+  (<a href="https://github.com/pymodeller/PyModeller/commit/06d44b7d64135133fc56ef503b1623cc0541bc42"><code>06d44b7</code></a>)</li>
+</ul>
+<h2 id="v054-2026-04-27">v0.5.4 (2026-04-27)</h2>
+<h3 id="bug-fixes_12">Bug Fixes</h3>
+<ul>
+<li>Update types mode default value
+  (<a href="https://github.com/pymodeller/PyModeller/commit/3d52dfcbbb67751cad2fd416a04e2acf6ac2def5"><code>3d52dfc</code></a>)</li>
+</ul>
+<h2 id="v053-2026-04-26">v0.5.3 (2026-04-26)</h2>
+<h3 id="bug-fixes_13">Bug Fixes</h3>
+<ul>
+<li>
+<p>Remove comments
+  (<a href="https://github.com/pymodeller/PyModeller/commit/b44b905112ae3ba8c7113ec7121f9123fe1fce4c"><code>b44b905</code></a>)</p>
+</li>
+<li>
+<p>Remove hash file
+  (<a href="https://github.com/pymodeller/PyModeller/commit/4800c199ef4e0c408f321dc88d7c18a1abf9af1b"><code>4800c19</code></a>)</p>
+</li>
+</ul>
+<h2 id="v052-2026-04-26">v0.5.2 (2026-04-26)</h2>
+<h3 id="bug-fixes_14">Bug Fixes</h3>
+<ul>
+<li>Creating new version
+  (<a href="https://github.com/pymodeller/PyModeller/commit/f03638e42ce1d446e1784a557614b37a8ab9203d"><code>f03638e</code></a>)</li>
+</ul>
+<h3 id="documentation">Documentation</h3>
+<ul>
+<li>Update docs
+  (<a href="https://github.com/pymodeller/PyModeller/commit/e513746072145ce2327b1c5e7cc0e53127496218"><code>e513746</code></a>)</li>
+</ul>
+<h2 id="v051-2026-04-24">v0.5.1 (2026-04-24)</h2>
+<h3 id="bug-fixes_15">Bug Fixes</h3>
+<ul>
+<li>
+<p>Added ruff format commands
+  (<a href="https://github.com/pymodeller/PyModeller/commit/a137fbe1b9d724511180f422850704e254537c01"><code>a137fbe</code></a>)</p>
+</li>
+<li>
+<p>Remove no used packages
+  (<a href="https://github.com/pymodeller/PyModeller/commit/ff5578dca3a300db3396628f1a05265b1b70ef55"><code>ff5578d</code></a>)</p>
+</li>
+</ul>
+<h2 id="v010-2026-04-24">v0.1.0 (2026-04-24)</h2>
+<ul>
+<li>Initial Release</li>
+</ul>
+<h2 id="v031-2026-04-23">v0.3.1 (2026-04-23)</h2>
+<h3 id="bug-fixes_16">Bug Fixes</h3>
+<ul>
+<li>Generated import fix in pydantic models
+  (<a href="https://github.com/pymodeller/PyModeller/commit/3359c18a349b9a1800e7c5ebf19502f0d49d3c82"><code>3359c18</code></a>)</li>
+</ul>
+<h2 id="v030-2026-04-23">v0.3.0 (2026-04-23)</h2>
+<h3 id="continuous-integration">Continuous Integration</h3>
+<ul>
+<li>Update sonar-project.properties
+  (<a href="https://github.com/pymodeller/PyModeller/commit/c0e7750d5613b48b8cb8f39bfd043cf8f06fa981"><code>c0e7750</code></a>)</li>
+</ul>
+<h3 id="features_4">Features</h3>
+<ul>
+<li>
+<p>Added peewee_generator.py.py from jinja
+  (<a href="https://github.com/pymodeller/PyModeller/commit/d3dc14f6878e26dbc16c4fce67fe80d158adab4f"><code>d3dc14f</code></a>)</p>
+</li>
+<li>
+<p>Added pydantic_generator.py from jinja
+  (<a href="https://github.com/pymodeller/PyModeller/commit/bb26a484ceb019b77894d1ebce659c73fc74b00e"><code>bb26a48</code></a>)</p>
+</li>
+<li>
+<p>Load data from yaml, and save origins in pydantic_generator
+  (<a href="https://github.com/pymodeller/PyModeller/commit/84f9c3f9d49060dc9f084cf9b76627cef3efcf52"><code>84f9c3f</code></a>)</p>
+</li>
+</ul>
+<h3 id="testing_2">Testing</h3>
+<ul>
+<li>
+<p>Added tests
+  (<a href="https://github.com/pymodeller/PyModeller/commit/b18c2597e36159978360480215a4d3a4cc99bfce"><code>b18c259</code></a>)</p>
+</li>
+<li>
+<p>Code generator fix test
+  (<a href="https://github.com/pymodeller/PyModeller/commit/911c102b8286ef7587ce3beef9704dd78c3bfc53"><code>911c102</code></a>)</p>
+</li>
+</ul>
+<h2 id="v027-2026-04-22">v0.2.7 (2026-04-22)</h2>
+<h3 id="bug-fixes_17">Bug Fixes</h3>
+<ul>
+<li>Update configuration
+  (<a href="https://github.com/pymodeller/PyModeller/commit/d0d05c5f8c3a6b739b5344f8419f93e001ab25b5"><code>d0d05c5</code></a>)</li>
+</ul>
+<h2 id="v026-2026-04-22">v0.2.6 (2026-04-22)</h2>
+<h3 id="bug-fixes_18">Bug Fixes</h3>
+<ul>
+<li>Added more tests
+  (<a href="https://github.com/pymodeller/PyModeller/commit/93138ca45fe658ef9ee8646429bab15936efcd3b"><code>93138ca</code></a>)</li>
+</ul>
+<h3 id="continuous-integration_1">Continuous Integration</h3>
+<ul>
+<li>
+<p>Sonarqube.yaml update
+  (<a href="https://github.com/pymodeller/PyModeller/commit/863ecf9b03e5902e8da4ced3680b39cafd2eacf3"><code>863ecf9</code></a>)</p>
+</li>
+<li>
+<p>Update organization key in sonar-project.properties
+  (<a href="https://github.com/pymodeller/PyModeller/commit/1abd352d29afaf08a452f68f24d3cd6fe26ce3dc"><code>1abd352</code></a>)</p>
+</li>
+<li>
+<p>Update secrets
+  (<a href="https://github.com/pymodeller/PyModeller/commit/bdc6941595219b1817a6162b2f4bbce66db32bc5"><code>bdc6941</code></a>)</p>
+</li>
+<li>
+<p>Update workflows
+  (<a href="https://github.com/pymodeller/PyModeller/commit/87740aed48cf64e4762461421a0010ba7756c36a"><code>87740ae</code></a>)</p>
+</li>
+</ul>
+<h2 id="v025-2026-04-22">v0.2.5 (2026-04-22)</h2>
+<h2 id="v025-rc2-2026-04-22">v0.2.5-rc.2 (2026-04-22)</h2>
+<h3 id="bug-fixes_19">Bug Fixes</h3>
+<ul>
+<li>Added sonar badges and sonar-project.properties
+  (<a href="https://github.com/pymodeller/PyModeller/commit/cd2e30ac9f232e2d962c4b147960ec1a1ec72038"><code>cd2e30a</code></a>)</li>
+</ul>
+<h2 id="v025-rc1-2026-04-22">v0.2.5-rc.1 (2026-04-22)</h2>
+<h3 id="bug-fixes_20">Bug Fixes</h3>
+<ul>
+<li>
+<p>Fixing sonarqube and readme
+  (<a href="https://github.com/pymodeller/PyModeller/commit/7454cd8f9e36a91b2271f81bab484cc2e15ff25b"><code>7454cd8</code></a>)</p>
+</li>
+<li>
+<p>Pretty qa
+  (<a href="https://github.com/pymodeller/PyModeller/commit/49c965906da732bd7ab7ddc496f86e6006b192bc"><code>49c9659</code></a>)</p>
+</li>
+</ul>
+<h2 id="v024-2026-04-22">v0.2.4 (2026-04-22)</h2>
+<h3 id="bug-fixes_21">Bug Fixes</h3>
+<ul>
+<li>Fixing sonarqube
+  (<a href="https://github.com/pymodeller/PyModeller/commit/344cb234b3b99ff4fd6a8fb85b53f5d3965d27fe"><code>344cb23</code></a>)</li>
+</ul>
+<h2 id="v023-2026-04-22">v0.2.3 (2026-04-22)</h2>
+<h3 id="bug-fixes_22">Bug Fixes</h3>
+<ul>
+<li>Update docs
+  (<a href="https://github.com/pymodeller/PyModeller/commit/2e352683f72d43d4c9240672cf2dc00bb1dbae80"><code>2e35268</code></a>)</li>
+</ul>
+<h2 id="v022-2026-04-22">v0.2.2 (2026-04-22)</h2>
+<h3 id="bug-fixes_23">Bug Fixes</h3>
+<ul>
+<li>Fixed security spot sonarqube
+  (<a href="https://github.com/pymodeller/PyModeller/commit/2f09cb2963454ec1b38160a9187f8417c74b41d4"><code>2f09cb2</code></a>)</li>
+</ul>
+<h3 id="continuous-integration_2">Continuous Integration</h3>
+<ul>
+<li>
+<p>Resolve token conflict
+  (<a href="https://github.com/pymodeller/PyModeller/commit/e236efff891d97c4d3a109b3516f18918bb6db76"><code>e236eff</code></a>)</p>
+</li>
+<li>
+<p>Update workflow in test and semantic-release.yaml
+  (<a href="https://github.com/pymodeller/PyModeller/commit/7ca53841f48c590c65832278bb9a9c536f0b3a05"><code>7ca5384</code></a>)</p>
+</li>
+</ul>
+<h2 id="v021-2026-04-21">v0.2.1 (2026-04-21)</h2>
+<h3 id="bug-fixes_24">Bug Fixes</h3>
+<ul>
+<li>Update ci environment
+  (<a href="https://github.com/pymodeller/PyModeller/commit/29da46fb85c7a1d47e1c6471a82f4e34803057d0"><code>29da46f</code></a>)</li>
+</ul>
+<h2 id="v021-rc2-2026-04-21">v0.2.1-rc.2 (2026-04-21)</h2>
+<h3 id="bug-fixes_25">Bug Fixes</h3>
+<ul>
+<li>Added job step for release workflow
+  (<a href="https://github.com/pymodeller/PyModeller/commit/a06edd10c8613424318d4894bcf62ce42b8cc679"><code>a06edd1</code></a>)</li>
+</ul>
+<h2 id="v021-rc1-2026-04-21">v0.2.1-rc.1 (2026-04-21)</h2>
+<h3 id="bug-fixes_26">Bug Fixes</h3>
+<ul>
+<li>Remove workflow
+  (<a href="https://github.com/pymodeller/PyModeller/commit/40f062154ff74282d3bc65f034711444acafee49"><code>40f0621</code></a>)</li>
+</ul>
+<h3 id="continuous-integration_3">Continuous Integration</h3>
+<ul>
+<li>
+<p>Added approve-release guardian
+  (<a href="https://github.com/pymodeller/PyModeller/commit/da6ef3a9f5ecce162d0755f7cf5074d6be407ce4"><code>da6ef3a</code></a>)</p>
+</li>
+<li>
+<p>Cleaning comments
+  (<a href="https://github.com/pymodeller/PyModeller/commit/d58e71945ffafd6bdfbdc208a40e1df35aeb27a7"><code>d58e719</code></a>)</p>
+</li>
+<li>
+<p>Update conditions publish
+  (<a href="https://github.com/pymodeller/PyModeller/commit/0fea6c5eb454f07455197fa1a6e4714bcf115d65"><code>0fea6c5</code></a>)</p>
+</li>
+<li>
+<p>Update generate docs conditions
+  (<a href="https://github.com/pymodeller/PyModeller/commit/1fcc95e3725a502e91eb7b9b942d444b178aa417"><code>1fcc95e</code></a>)</p>
+</li>
+</ul>
+<h2 id="v020-2026-04-21">v0.2.0 (2026-04-21)</h2>
+<h2 id="v020-rc1-2026-04-21">v0.2.0-rc.1 (2026-04-21)</h2>
+<h3 id="bug-fixes_27">Bug Fixes</h3>
+<ul>
+<li>Fix imports
+  (<a href="https://github.com/pymodeller/PyModeller/commit/c6e5f8d5d8eb4c9836ace279fbb69b7cf3f52e6f"><code>c6e5f8d</code></a>)</li>
+</ul>
+<h3 id="continuous-integration_4">Continuous Integration</h3>
+<ul>
+<li>
+<p>Remove "call" from job names
+  (<a href="https://github.com/pymodeller/PyModeller/commit/c4407e8f631d476edcd580e1a1d7967edef05959"><code>c4407e8</code></a>)</p>
+</li>
+<li>
+<p>Update main workflow for publish stage
+  (<a href="https://github.com/pymodeller/PyModeller/commit/afaf0a676bcb8f97c0b9ae120c7df5c226ff2fbf"><code>afaf0a6</code></a>)</p>
+</li>
+<li>
+<p>Update needs in job "call"
+  (<a href="https://github.com/pymodeller/PyModeller/commit/1125f64cdacfae78fa4188b21390392bf855292d"><code>1125f64</code></a>)</p>
+</li>
+</ul>
+<h3 id="documentation_1">Documentation</h3>
+<ul>
+<li>Update readme
+  (<a href="https://github.com/pymodeller/PyModeller/commit/3ee1c346bfb06e7b805ce225fe1785b0a712a42a"><code>3ee1c34</code></a>)</li>
+</ul>
+<h3 id="features_5">Features</h3>
+<ul>
+<li>Added enum generator
+  (<a href="https://github.com/pymodeller/PyModeller/commit/ccc57600797c5c7730fc5aa094f1331389835d45"><code>ccc5760</code></a>)</li>
+</ul>
+<h3 id="testing_3">Testing</h3>
+<ul>
+<li>
+<p>Fix setup command result
+  (<a href="https://github.com/pymodeller/PyModeller/commit/0dae3c70adfabcac5258562ccf8581da57e35c92"><code>0dae3c7</code></a>)</p>
+</li>
+<li>
+<p>Fix setup command result
+  (<a href="https://github.com/pymodeller/PyModeller/commit/fdde17ce16508f2215d8f8d36db0d580f81ccea1"><code>fdde17c</code></a>)</p>
+</li>
+</ul>
+<h2 id="v015-rc1-2026-04-20">v0.1.5-rc.1 (2026-04-20)</h2>
+<h3 id="bug-fixes_28">Bug Fixes</h3>
+<ul>
+<li>Update ci
+  (<a href="https://github.com/pymodeller/PyModeller/commit/f3bcafe6c928357b005e43501661725425974f23"><code>f3bcafe</code></a>)</li>
+</ul>
+<h2 id="v014-2026-04-20">v0.1.4 (2026-04-20)</h2>
+<h3 id="bug-fixes_29">Bug Fixes</h3>
+<ul>
+<li>
+<p>Added exit commands
+  (<a href="https://github.com/pymodeller/PyModeller/commit/7db92df1e442f7a354e6cc535ab02d60912b497f"><code>7db92df</code></a>)</p>
+</li>
+<li>
+<p>Added exit commands
+  (<a href="https://github.com/pymodeller/PyModeller/commit/8a7c4accb85a9c4d13e760f983b8d5e477427e25"><code>8a7c4ac</code></a>)</p>
+</li>
+</ul>
+<h2 id="v013-2026-04-20">v0.1.3 (2026-04-20)</h2>
+<h3 id="bug-fixes_30">Bug Fixes</h3>
+<ul>
+<li>Get latest changes in publish
+  (<a href="https://github.com/pymodeller/PyModeller/commit/2d91214559e69633ba8142e938cbe5ec2e2ca830"><code>2d91214</code></a>)</li>
+</ul>
+<h2 id="v012-2026-04-20">v0.1.2 (2026-04-20)</h2>
+<h3 id="bug-fixes_31">Bug Fixes</h3>
+<ul>
+<li>Added pyyaml as dependency
+  (<a href="https://github.com/pymodeller/PyModeller/commit/9cc2303a710d9f72da24916a3c28f1a51c2ec5fc"><code>9cc2303</code></a>)</li>
+</ul>
+<h3 id="continuous-integration_5">Continuous Integration</h3>
+<ul>
+<li>
+<p>Added environment
+  (<a href="https://github.com/pymodeller/PyModeller/commit/eea52817364826c78e1c4e1107c8d20006469498"><code>eea5281</code></a>)</p>
+</li>
+<li>
+<p>Update main.yaml
+  (<a href="https://github.com/pymodeller/PyModeller/commit/f4dcd168498826e283cb66782e90f485a15fb59d"><code>f4dcd16</code></a>)</p>
+</li>
+<li>
+<p>Update main.yaml
+  (<a href="https://github.com/pymodeller/PyModeller/commit/2daf41d9b52121bae94af8ca594c38dba4bcbd4a"><code>2daf41d</code></a>)</p>
+</li>
+<li>
+<p>Update workflow with pypi
+  (<a href="https://github.com/pymodeller/PyModeller/commit/76ff5e8806f52fa32a83ffeff191891bc979a2ca"><code>76ff5e8</code></a>)</p>
+</li>
+</ul>
+<h2 id="v011-2026-04-20">v0.1.1 (2026-04-20)</h2>
+<h3 id="bug-fixes_32">Bug Fixes</h3>
+<ul>
+<li>Added trusted publish package
+  (<a href="https://github.com/pymodeller/PyModeller/commit/3e784f26a86ca6efe22aeb336e296c4426d81c1d"><code>3e784f2</code></a>)</li>
+</ul>
+<h2 id="v010-2026-04-20">v0.1.0 (2026-04-20)</h2>
+<h3 id="features_6">Features</h3>
+<ul>
+<li>Update sample py_modeller.yaml
+  (<a href="https://github.com/pymodeller/PyModeller/commit/e2c10aecbc04f34148ef670226be44ae8e6f877c"><code>e2c10ae</code></a>)</li>
+</ul>
+<h2 id="v003-rc2-2026-04-20">v0.0.3-rc.2 (2026-04-20)</h2>
+<h3 id="bug-fixes_33">Bug Fixes</h3>
+<ul>
+<li>Update actions.yaml
+  (<a href="https://github.com/pymodeller/PyModeller/commit/83f084eca13c21de09f577be5a477e018773159b"><code>83f084e</code></a>)</li>
+</ul>
+<h2 id="v003-rc1-2026-04-20">v0.0.3-rc.1 (2026-04-20)</h2>
+<h3 id="bug-fixes_34">Bug Fixes</h3>
+<ul>
+<li>Update configuration toml semantic-releae
+  (<a href="https://github.com/pymodeller/PyModeller/commit/c0538dcf138eace9cdde57ff6c93e0d10bfa66ac"><code>c0538dc</code></a>)</li>
+</ul>
+<h3 id="documentation_2">Documentation</h3>
+<ul>
+<li>
+<p>Update README.md
+  (<a href="https://github.com/pymodeller/PyModeller/commit/36177f39e654af125de9348f6e675305c671bee0"><code>36177f3</code></a>)</p>
+</li>
+<li>
+<p>Update README.md
+  (<a href="https://github.com/pymodeller/PyModeller/commit/5bda8a6875d9cf0074637cde82ab2ae524c3cea7"><code>5bda8a6</code></a>)</p>
+</li>
+</ul>
+<h2 id="v002-2026-04-20">v0.0.2 (2026-04-20)</h2>
+<h3 id="bug-fixes_35">Bug Fixes</h3>
+<ul>
+<li>Update docs
+  (<a href="https://github.com/pymodeller/PyModeller/commit/e6f51f738357462910949c9f4861a154c120daf3"><code>e6f51f7</code></a>)</li>
+</ul>
+<h2 id="v001-2026-04-20">v0.0.1 (2026-04-20)</h2>
+<ul>
+<li>Initial Release</li>
+</ul>
+<h2 id="v001-rc1-2026-04-20">v0.0.1-rc.1 (2026-04-20)</h2>
+<ul>
+<li>Initial Release</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["search.highlight", "content.code.copy"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="assets/external/unpkg.com/mermaid@11/dist/mermaid.min.js"></script>
+      
+    
+  </body>
+</html>

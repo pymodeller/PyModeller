@@ -1,0 +1,1902 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+        <link rel="next" href="CHANGELOG.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>PyModeller</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+        <script src="assets/external/unpkg.com/iframe-worker/shim.js"></script>
+      
+    
+    
+      
+        
+        
+        
+        <link rel="stylesheet" href="assets/external/fonts.googleapis.com/css.49ea35f2.css">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="css/material.css">
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pymodeller" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="index.html" title="PyModeller" class="md-header__button md-logo" aria-label="PyModeller" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PyModeller
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              PyModeller
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="index.html" title="PyModeller" class="md-nav__button md-logo" aria-label="PyModeller" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PyModeller
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PyModeller
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="index.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PyModeller
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#core-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Features
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#project-initialization-core-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project Initialization &amp; Core Models
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Project Initialization &amp; Core Models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-general-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The 'General' Section
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-generate-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Generate models
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-example-environment-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Example Environment Generation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-environment-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Environment Check
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-drift-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Drift Detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cli-command-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI Command Reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-loading-specification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Loading &amp; Specification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-data-model-specification-yaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment Data Model Specification (YAML)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Environment Data Model Specification (YAML)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#basetraceablesettings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BaseTraceableSettings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-global-config-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Global Config (config)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-root-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Root Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-section-schema-envsection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Section Schema (EnvSection)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-variable-specification-envvarspec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Variable Specification (EnvVarSpec)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Variable Specification (EnvVarSpec)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#supported-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-database-specification-dbspec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Database Specification (DBSpec)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-database-field-specification-dbfield" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Database Field Specification (DBField)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contributing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        License
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="CHANGELOG.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CHANGELOG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="CONTRIBUTING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="styleguide.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2025 Enhanced Git Commit Message Style Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Code
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/__main__.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+      main  
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pymodeller
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Pymodeller
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/pymodeller/config.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Config
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/pymodeller/loader.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Loader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/pymodeller/tool_runner.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tool runner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/pymodeller/utils.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utils
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/pymodeller/validator.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2_6" id="__nav_5_2_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cli
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_2_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Cli
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/pymodeller/cli/cli.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cli
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/pymodeller/cli/commands.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Commands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/pymodeller/cli/dev_tools.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dev tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2_7" id="__nav_5_2_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generators
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_2_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Generators
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/pymodeller/generators/peewee_generator.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Peewee generator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code/pymodeller/generators/pydantic_generator.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pydantic generator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#core-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Features
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#project-initialization-core-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project Initialization &amp; Core Models
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Project Initialization &amp; Core Models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-general-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The 'General' Section
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-generate-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Generate models
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-example-environment-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Example Environment Generation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-environment-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Environment Check
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-drift-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Drift Detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cli-command-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI Command Reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-loading-specification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Loading &amp; Specification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-data-model-specification-yaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment Data Model Specification (YAML)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Environment Data Model Specification (YAML)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#basetraceablesettings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BaseTraceableSettings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-global-config-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Global Config (config)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-root-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Root Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-section-schema-envsection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Section Schema (EnvSection)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-variable-specification-envvarspec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Variable Specification (EnvVarSpec)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Variable Specification (EnvVarSpec)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#supported-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-database-specification-dbspec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Database Specification (DBSpec)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-database-field-specification-dbfield" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Database Field Specification (DBField)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contributing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        License
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="pymodeller">PyModeller</h1>
+<p><img alt="Python" src="assets/external/img.shields.io/badge/Python-3.ce097024.13+-3775A8.svg">
+<img alt="uv" src="assets/external/img.shields.io/badge/uv-0.3001f643.9+-00A1E0.svg">
+<a href="LICENSE"><img alt="License" src="assets/external/img.shields.io/github/license/pymodeller/PyModeller.ca79d164.svg"></a>
+<a href="https://sonarcloud.io/summary/new_code?id=pymodeller_PyModeller"><img alt="Quality Gate Status" src="assets/external/sonarcloud.io/api/project_badges/measure.6e07649d.svg"></a>
+<a href="https://github.com/pymodeller/PyModeller/actions"><img alt="Tests" src="assets/external/img.shields.io/github/actions/workflow/status/pymodeller/PyModeller/main.ac6499ff.yaml.svg"></a>
+<a href="https://github.com/pymodeller/PyModeller/actions"><img alt="CI" src="assets/external/img.shields.io/github/actions/workflow/status/pymodeller/PyModeller/main.407b2d4a.yaml.svg"></a>
+<a href="https://github.com/astral-sh/ruff"><img alt="Ruff" src="assets/external/img.shields.io/endpoint.66e854e9.svg"></a>
+<a href="https://sonarcloud.io/summary/new_code?id=pymodeller_PyModeller"><img alt="Coverage" src="assets/external/sonarcloud.io/api/project_badges/measure.9b6dde2f.svg"></a></p>
+<p><strong>PyModeller</strong> is a <strong>DevOps-oriented</strong> CLI tool designed to synchronize infrastructure requirements with Python
+application code. By utilizing a single YAML "Source of Truth," PyModeller automates the
+generation of Pydantic models, Peewee ORM classes, and <code>.env</code> templates, ensuring your
+configuration and database schemas never drift from your documentation.</p>
+<h2 id="core-features">Core Features</h2>
+<ul>
+<li><strong>Code Generation</strong>: Instant creation of typed Pydantic models or Peewee schemas from YAML.</li>
+<li><strong>Traceable Settings</strong>: Automatically generates a <code>BaseTraceableSettings</code> class. All settings inherit from this,
+enabling data source tracking and native YAML loading capabilities.</li>
+<li><strong>Environment Templates</strong>: Auto-generate <code>.env.example</code> files for seamless developer onboarding.</li>
+<li><strong>Validation &amp; Safety</strong>: Verify local <code>.env</code> files against specifications to catch errors before runtime.</li>
+<li><strong>Drift Detection</strong>: Identify discrepancies between your YAML definitions and existing Python code.</li>
+</ul>
+<h2 id="project-initialization-core-models">Project Initialization &amp; Core Models</h2>
+<p>By default, PyModeller looks for a <code>py_modeller.yaml</code> file in the root of your project. This file must contain two main sections: <code>config</code> and <code>sections</code>.</p>
+<h3 id="the-general-section">The 'General' Section</h3>
+<p>For Pydantic model generation, it is <strong>required</strong> to define a section named <code>General</code>. This section is used to generate the <code>general_setting</code> class, which serves as the primary configuration entry point.
+* <strong>Centralized Access</strong>: This allows you to import the global configuration state from anywhere in your application.
+* <strong>Project Metadata</strong>: It typically holds flags like <code>LOCAL_DEV</code>, <code>N_THREADS</code>, or global API keys.</p>
+<hr />
+<h2 id="installation">Installation</h2>
+<p>Install the package using <a href="https://github.com/astral-sh/uv">uv</a> or pip:</p>
+<div class="highlight"><pre><span></span><code><span class="w"> </span>uv<span class="w"> </span>add<span class="w"> </span>pymodeller
+</code></pre></div>
+<hr />
+<h2 id="usage">Usage</h2>
+<p>The CLI provides four main commands to manage your development workflow:</p>
+<h3 id="1-generate-models">1. Generate models</h3>
+<p>Generate typed Pydantic models or Peewee code for your project.
+<div class="highlight"><pre><span></span><code>pymodeller<span class="w"> </span>codegen
+</code></pre></div></p>
+<h3 id="2-example-environment-generation">2. Example Environment Generation</h3>
+<p>Generate a template .env.example file based on your YAML specification to help collaborators set up their environment.
+<div class="highlight"><pre><span></span><code>pymodeller<span class="w"> </span>example
+</code></pre></div></p>
+<h3 id="3-environment-check">3. Environment Check</h3>
+<p>Validate your current .env file against the YAML specification to ensure all required variables are present and correctly formatted.
+<div class="highlight"><pre><span></span><code>pymodeller<span class="w"> </span>check
+</code></pre></div></p>
+<h3 id="4-drift-detection">4. Drift Detection</h3>
+<p>Check for "drift" between your YAML specification and the code already generated. This ensures that your Python models haven't fallen out of date.
+<div class="highlight"><pre><span></span><code>pymodeller<span class="w"> </span>drift
+</code></pre></div></p>
+<hr />
+<h2 id="cli-command-reference">CLI Command Reference</h2>
+<p><img alt="pymodeller cli" src="assets/cli.png" /></p>
+<hr />
+<h2 id="data-loading-specification">Data Loading &amp; Specification</h2>
+<p>The project uses a structured YAML-to-Object mapping to manage environment variables and database schemas.
+The py_modeller.yaml acts as the Single Source of Truth, which is parsed into an EnvSpec instance.</p>
+<h2 id="environment-data-model-specification-yaml">Environment Data Model Specification (YAML)</h2>
+<p>This document defines the schema for the <code>py_modeller.yaml</code> file. This file is used by the <code>loader.py</code> to generate typed
+Python dataclasses and manage environment variables, settings, and database schemas.</p>
+<h4 id="validation">Validation</h4>
+<p>The loading process includes a mandatory validate_no_duplicates() call which ensures:
+1. No two environment variables share the same env_name.
+2. No two Python attributes (aliases) collide within the same section.</p>
+<hr />
+<p>## Technical Specification</p>
+<h3 id="basetraceablesettings">BaseTraceableSettings</h3>
+<p>Every generated settings class inherits from <code>BaseTraceableSettings</code>. This core class provides:
+* <strong>Source Tracking</strong>: Maintains a record of where each setting value originated (Environment, YAML, or Default).
+* <strong>YAML Loader</strong>: Built-in methods to populate settings directly from structured YAML files.</p>
+<h3 id="1-global-config-config">1. Global Config (<code>config</code>)</h3>
+<p>Defines the output paths for generated files.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Key</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>PYDANTIC_OUT</code></td>
+<td style="text-align: left;">Main file path for Pydantic models.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PYDANTIC_FOLDER</code></td>
+<td style="text-align: left;">Directory for individual Pydantic model files.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PEEWEE_OUT</code></td>
+<td style="text-align: left;">Main file path for the Peewee ORM models.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PEEWEE_FOLDER</code></td>
+<td style="text-align: left;">Directory for individual ORM model files.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-root-structure">2. Root Structure</h3>
+<p>The YAML must contain a top-level <code>sections</code> key which is a list of environment groups.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">sections</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ExampleSection&quot;</span>
+<span class="w">  </span><span class="nt">variables</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+</code></pre></div>
+<hr />
+<h3 id="3-section-schema-envsection">3. Section Schema (<code>EnvSection</code>)</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Key</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>name</code></td>
+<td style="text-align: left;"><code>string</code></td>
+<td style="text-align: left;"><strong>Required</strong>. The display name of the section.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>description</code></td>
+<td style="text-align: left;"><code>string</code></td>
+<td style="text-align: left;">Brief explanation of the section's purpose.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>env_prefix</code></td>
+<td style="text-align: left;"><code>string</code></td>
+<td style="text-align: left;">Prefix added to all variables in this section (e.g., <code>APP_</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>type</code></td>
+<td style="text-align: left;"><code>string</code></td>
+<td style="text-align: left;">Section category: <code>settings</code>, <code>model</code>, or <code>peewee</code> (Default: <code>model</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>include_general</code></td>
+<td style="text-align: left;"><code>boolean</code></td>
+<td style="text-align: left;">Whether to include general configurations (Default: <code>true</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>include_literal</code></td>
+<td style="text-align: left;"><code>boolean</code></td>
+<td style="text-align: left;">Used for FastAPI/literal exports (Default: <code>true</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>database</code></td>
+<td style="text-align: left;"><code>object</code></td>
+<td style="text-align: left;"><em>Optional</em>. Metadata for Database tables (See <a href="#4-database-specification-dbspec">DBSpec</a>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>variables</code></td>
+<td style="text-align: left;"><code>list</code></td>
+<td style="text-align: left;">A list of variable definitions (See <a href="#3-variable-specification-envvarspec">EnvVarSpec</a>).</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="4-variable-specification-envvarspec">4. Variable Specification (<code>EnvVarSpec</code>)</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Key</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>name</code></td>
+<td style="text-align: left;"><code>string</code></td>
+<td style="text-align: left;"><strong>Required</strong>. The variable name (automatically converted to <code>snake_case</code> in Python).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>type</code></td>
+<td style="text-align: left;"><code>string</code></td>
+<td style="text-align: left;">Data type mapping (See <a href="#supported-types">Supported Types</a>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>description</code></td>
+<td style="text-align: left;"><code>string</code></td>
+<td style="text-align: left;">Documentation for the variable.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>default</code></td>
+<td style="text-align: left;"><code>any</code></td>
+<td style="text-align: left;">Default value if the environment variable is not set.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>required</code></td>
+<td style="text-align: left;"><code>boolean</code></td>
+<td style="text-align: left;">If true, the loader validates its existence.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>secret</code></td>
+<td style="text-align: left;"><code>boolean</code></td>
+<td style="text-align: left;">If true, masks the value in logs (Type <code>secret</code> is a shortcut).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>alias</code></td>
+<td style="text-align: left;"><code>string</code></td>
+<td style="text-align: left;">Custom Python attribute name (Defaults to <code>camelCase</code> of name).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>db_spec</code></td>
+<td style="text-align: left;"><code>object</code></td>
+<td style="text-align: left;"><em>Optional</em>. ORM field configuration (See <a href="#5-database-field-specification-dbfield">DBField</a>).</td>
+</tr>
+</tbody>
+</table>
+<h4 id="supported-types">Supported Types</h4>
+<p>The loader normalizes the following types:
+- <strong>Primitives:</strong> <code>string</code>, <code>integer</code>, <code>number</code> (float), <code>boolean</code>, <code>datetime</code>.
+- <strong>Special:</strong> <code>secret</code> (shortcut for <code>str</code> + <code>secret: true</code>), <code>path</code>, <code>list</code>.
+- <strong>Numpy Arrays:</strong> <code>pnd.NpNDArrayUint8</code>, <code>pnd.NpNDArrayInt8</code>, <code>pnd.NpNDArrayFp32</code>.</p>
+<blockquote>
+<p>Note: We are actively working on expanding this list to support additional data types and specialized structures in
+future releases.</p>
+</blockquote>
+<hr />
+<h3 id="5-database-specification-dbspec">5. Database Specification (<code>DBSpec</code>)</h3>
+<p>Defined at the section level for Peewee/ORM metadata.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Key</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>table_name</code></td>
+<td style="text-align: left;"><code>string</code></td>
+<td style="text-align: left;">Explicit name for the database table.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>schema</code></td>
+<td style="text-align: left;"><code>string</code></td>
+<td style="text-align: left;">Database schema (e.g., <code>public</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>primary_key</code></td>
+<td style="text-align: left;"><code>list</code></td>
+<td style="text-align: left;">List of field names that form a composite primary key.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>indexes</code></td>
+<td style="text-align: left;"><code>list</code></td>
+<td style="text-align: left;">Custom database index definitions.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>constraints</code></td>
+<td style="text-align: left;"><code>list</code></td>
+<td style="text-align: left;">Table-level constraints.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="6-database-field-specification-dbfield">6. Database Field Specification (<code>DBField</code>)</h3>
+<p>Defined under the <code>db_spec</code> key within a variable.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Key</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>primary_key</code></td>
+<td style="text-align: left;"><code>boolean</code></td>
+<td style="text-align: left;">Marks the field as the primary key.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>allow_null</code></td>
+<td style="text-align: left;"><code>boolean</code></td>
+<td style="text-align: left;">Allows NULL values in DB (Default: <code>false</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>unique</code></td>
+<td style="text-align: left;"><code>boolean</code></td>
+<td style="text-align: left;">Adds a UNIQUE constraint.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>max_length</code></td>
+<td style="text-align: left;"><code>integer</code></td>
+<td style="text-align: left;">Max characters for string fields.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>foreign_key</code></td>
+<td style="text-align: left;"><code>string</code></td>
+<td style="text-align: left;">Reference to another model/table.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>choices</code></td>
+<td style="text-align: left;"><code>list</code></td>
+<td style="text-align: left;">Enforces a list of allowed string values.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>max_digits</code></td>
+<td style="text-align: left;"><code>integer</code></td>
+<td style="text-align: left;">Precision for decimal numbers.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>decimal_places</code></td>
+<td style="text-align: left;"><code>integer</code></td>
+<td style="text-align: left;">Scale for decimal numbers.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="example-usage">Example Usage</h3>
+<div class="highlight"><pre><span></span><code><span class="nt">sections</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Network&quot;</span>
+<span class="w">  </span><span class="nt">env_prefix</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;NET&quot;</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;settings&quot;</span>
+<span class="w">  </span><span class="nt">variables</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;host_address&quot;</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;string&quot;</span>
+<span class="w">      </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.0.0.0&quot;</span>
+<span class="w">      </span><span class="nt">alias</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;serverHost&quot;</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;UsersTable&quot;</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;peewee&quot;</span>
+<span class="w">  </span><span class="nt">database</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">table_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;app_users&quot;</span>
+<span class="w">  </span><span class="nt">variables</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;id&quot;</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;integer&quot;</span>
+<span class="w">      </span><span class="nt">db_spec</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">primary_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;api_key&quot;</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;secret&quot;</span>
+<span class="w">      </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<hr />
+<h2 id="contributing">Contributing</h2>
+<p>Contributions are welcome! We value your help in making PyModeller better.</p>
+<p>Before you get started, please refer to our <a href="CONTRIBUTING.html">Contributing Guide</a> for details on our development
+ workflow, coding standards, and how to submit pull requests.</p>
+<p>If you encounter a bug or have a feature request, feel free to <a href="https://github.com/pymodeller/PyModeller/issues">open an issue</a>.</p>
+<h2 id="license">License</h2>
+<p>This project is licensed under the MIT License.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["search.highlight", "content.code.copy"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="assets/external/unpkg.com/mermaid@11/dist/mermaid.min.js"></script>
+      
+    
+  </body>
+</html>
