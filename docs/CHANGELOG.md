@@ -2,6 +2,42 @@
 
 <!-- version list -->
 
+## v0.9.0 (2026-05-14)
+
+### Bug Fixes
+
+- Update command check
+  ([`d836b93`](https://github.com/pymodeller/PyModeller/commit/d836b93fac03b53e20d151f518ffdc83b40faef5))
+
+- Update models loader
+  ([`eab741c`](https://github.com/pymodeller/PyModeller/commit/eab741c9933efac9998c187acfd147b8ec125e09))
+
+- Update tests
+  ([`3a797eb`](https://github.com/pymodeller/PyModeller/commit/3a797eb710187164daa8700669bbbeae4758a9c4))
+
+### Features
+
+- Added new feature generation .env files from environments.yaml
+  ([`7341fad`](https://github.com/pymodeller/PyModeller/commit/7341fad10e18c6cb5b7366b814f265c64bf1195c))
+
+### Testing
+
+- Fixing tests
+  ([`eb4a37a`](https://github.com/pymodeller/PyModeller/commit/eb4a37a00481aa0b5c6f94a6dc188a4d6ca15032))
+
+- Update tests
+  ([`8b87085`](https://github.com/pymodeller/PyModeller/commit/8b870857c4ee8760ab4d4fb19fb782cd9358d45d))
+
+- Update tests
+  ([`41ec804`](https://github.com/pymodeller/PyModeller/commit/41ec804bcea4412e1603affddd99d1a8af7d0783))
+
+- Update tests again
+  ([`fadf057`](https://github.com/pymodeller/PyModeller/commit/fadf0576138d2e2e42b3055ceb17d0f31b13f4c3))
+
+- Update tests for dev_tools
+  ([`41f2638`](https://github.com/pymodeller/PyModeller/commit/41f263899c87ecc7b109b63142ef18ae45c24cbc))
+
+
 ## v0.8.1 (2026-05-13)
 
 ### Bug Fixes
