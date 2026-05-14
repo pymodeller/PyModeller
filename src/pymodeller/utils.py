@@ -97,3 +97,29 @@ def get_variants(name: str) -> str:
     order_list = sorted({f'"{snake}"', f'"{camel}"', f'"{upper}"'})
     val_alias_opt = ",\n            ".join(order_list)
     return f"AliasChoices(\n            {val_alias_opt}\n        )"
+
+
+def write_env_file(path: Path, data: dict, prefix: str = "") -> None:
+    """Save env file."""
+    lines = []
+
+    def flatten(d, current_prefix):
+        for k, v in d.items():
+            new_key = f"{current_prefix}{k.upper()}"
+            if isinstance(v, dict):
+                flatten(v, f"{new_key}__")
+            else:
+                lines.append(f"{new_key}={v}")
+
+    flatten(data, prefix)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def deep_merge(base: dict, overrides: dict) -> dict:
+    """Combine two dicts."""
+    for key, value in overrides.items():
+        if isinstance(value, dict) and key in base and isinstance(base[key], dict):
+            deep_merge(base[key], value)
+        else:
+            base[key] = value
+    return base

@@ -15,7 +15,7 @@ class EnvGenerator:
         self.env = Environment(loader=PackageLoader("pymodeller", "templates"), autoescape=select_autoescape())
 
     @staticmethod
-    def create_section(lines: list, section: Any, variables_to_show: list) -> None:
+    def create_section(lines: list, section: Any, variables_to_show: list, separator: str = '=') -> None:
         """Create section for env file."""
         lines.append(f"# {'─' * 20} {section.name} {'─' * 20}")
         if section.description:
@@ -30,7 +30,7 @@ class EnvGenerator:
             badge_str = f"  [{' | '.join(badges)}]" if badges else ""
 
             lines.append(f"# {var.description} | type: {var.type}{badge_str}")
-            lines.append(f"{var.env_name.upper()}={var.display_value()}")
+            lines.append(f"{var.env_name.upper()}{separator}{var.display_value()}")
 
     def generate_example_content(self, spec: Any, secrets_only: bool = False) -> str:
         """Build the content for the .env.example file."""
@@ -54,6 +54,6 @@ class EnvGenerator:
             variables_to_show = [v for v in section.variables if not v.secret]
             if not variables_to_show:
                 continue
-            self.create_section(lines, section, variables_to_show)
+            self.create_section(lines, section, variables_to_show, separator=': ')
 
         return template.render(env_lines=lines)

@@ -28,22 +28,22 @@ sections:
       - name: server_url
         description: Host
         type: str
-        default: localhost
+        default: server_url_local
         required: false
       - name: server_ws
         description: Host
         type: str
-        default: localhost
+        default: server_ws_local
         required: false
       - name: url_event
         description: Host
         type: str
-        default: localhost
+        default: url_event_local
         required: false
       - name: waterfall
         description: Host
         type: str
-        default: localhost
+        default: waterfall_name
         required: false
 
   # =============================================
