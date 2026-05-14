@@ -151,7 +151,7 @@ class EnvVarSpec(BaseModel):
             data["type"] = "str"
             data["secret"] = True
 
-        data["type"] = YAML_TYPE_MAP.get(str(data["type"]).lower(), "str")
+        data["type"] = YAML_TYPE_MAP.get(str(data.get("type", "str")).lower(), "str")
 
         return data
 
@@ -171,6 +171,7 @@ class EnvSection(BaseModel):
     type: SectionType = SectionType.MODEL
     include_init_settings: bool = True
     include_general: bool = True
+    attr: str = ''
     from_attributes: bool = True
     database: DBSpec | None = None
     yaml_file: Path | None = None

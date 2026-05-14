@@ -252,6 +252,7 @@ class PydanticGenerator:
 
         self.generate_general_settings(general_section, sections_with_classes, out)
         self.generate_init(sections, out)
+
         if not code_gen_conf.import_settings_base_class:
             self.generate_base_class(out)
 
