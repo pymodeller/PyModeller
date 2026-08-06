@@ -77,10 +77,7 @@ class SectionType(StrEnum):
     @classmethod
     def _missing_(cls, value: object) -> None:
         options = ", ".join([f"'{item.value}'" for item in cls])
-        raise ValueError(
-            f"'{value}' is not a valid {cls.__name__}. "
-            f"Allowed options are: [{options}]"
-        )
+        raise ValueError(f"'{value}' is not a valid {cls.__name__}. Allowed options are: [{options}]")
 
 
 @dataclass(frozen=True)
@@ -143,10 +140,9 @@ class EnvVarSpec:
         if not self.alias:
             object.__setattr__(self, "alias", to_camel_case(self.name))
 
-        search_prefix = ['arn:aws:', 's3://']
+        search_prefix = ["arn:aws:", "s3://"]
 
-        if (self.default and isinstance(self.default, str)
-                and any(p in self.default for p in search_prefix)):
+        if self.default and isinstance(self.default, str) and any(p in self.default for p in search_prefix):
             object.__setattr__(self, "type", "secret")
 
         # 'secret' type is a shortcut for type: str + secret: true

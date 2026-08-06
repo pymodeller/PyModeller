@@ -116,7 +116,7 @@ class PydanticGenerator:
 
         return self.template.render(context)
 
-    def save_template(self, out_path: Path, template_name: str = '') -> None:
+    def save_template(self, out_path: Path, template_name: str = "") -> None:
         """Save the Jinja template."""
         template = self.env.get_template(f"{template_name}.jinja")
 
@@ -127,8 +127,7 @@ class PydanticGenerator:
 
     def generate_base_class(self, out_path: Path) -> None:
         """Generates the static base class needed for tracking."""
-
-        templates = ["base_settings",  "yaml_env_source", "s3_secrets_source"]
+        templates = ["base_settings", "yaml_env_source", "s3_secrets_source"]
 
         for t in templates:
             self.save_template(out_path, t)

@@ -1,7 +1,7 @@
 """Tool runner."""
 
 import shutil
-import subprocess  # noqa: S404
+import subprocess  # ruff: ignore[suspicious-subprocess-import]
 import sys
 from collections.abc import Sequence
 from logging import getLogger
@@ -17,7 +17,7 @@ class ToolRunner:
         """Execute a system command and exit on failure."""
         logger.info(f"Executing: {' '.join(cmd)}")
         try:
-            result = subprocess.run(cmd, check=False)  # noqa: S603
+            result = subprocess.run(cmd, check=False)  # ruff: ignore[subprocess-without-shell-equals-true]
             if result.returncode != 0:
                 logger.error(f"Command failed with exit code {result.returncode}: {' '.join(cmd)}")
                 sys.exit(result.returncode)
