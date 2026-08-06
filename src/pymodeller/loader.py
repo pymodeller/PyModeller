@@ -135,6 +135,12 @@ class EnvVarSpec:
         if not self.alias:
             object.__setattr__(self, "alias", to_camel_case(self.name))
 
+        search_prefix = ['arn:aws:', 's3://']
+
+        if (self.default and isinstance(self.default, str)
+                and any(p in self.default for p in search_prefix)):
+            object.__setattr__(self, "type", "secret")
+
         # 'secret' type is a shortcut for type: str + secret: true
         if self.type == "secret":
             object.__setattr__(self, "type", "str")
