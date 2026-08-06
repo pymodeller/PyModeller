@@ -1,19 +1,30 @@
 environments:
   base:
+    port: 123456
     # default vars
+    general:
+      zone:
+        start: 56
     config:
       device:
         name: DEVICE_BASE
     path_input: /data/custom_mayor_base_yaml
+    process:
+      threads_energy: 20321
+      token_value: arn:aws:s3:my-bucket/Project
 
 
   local:
+    port: 888888
     # Local development overrides
     config:
       device:
         name: DEVICE_LOCAL
     # path_input: /data/custom_mayor_local_yaml
     path_prefix_input: CHAnaaale_local_yaml
+    process:
+      threads_energy: 20321
+      token_value: arn:aws:s3:my-bucket/Test
 
   ministack: {}
     # Ministack cluster profile — overrides go here

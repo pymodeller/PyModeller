@@ -74,6 +74,14 @@ class SectionType(StrEnum):
     MODEL = "model"
     PEEWEE = "peewee"
 
+    @classmethod
+    def _missing_(cls, value: object) -> None:
+        options = ", ".join([f"'{item.value}'" for item in cls])
+        raise ValueError(
+            f"'{value}' is not a valid {cls.__name__}. "
+            f"Allowed options are: [{options}]"
+        )
+
 
 @dataclass(frozen=True)
 class DBSpec:
