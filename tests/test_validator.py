@@ -77,7 +77,7 @@ def test_validator_missing_required(complex_spec: EnvSpec) -> None:
 
     assert result.ok is False
     assert len(result.missing) == 1
-    assert result.missing[0].name == "api_key"
+    assert result.missing[0].name == "API_KEY"
 
 
 def test_validator_empty_required(complex_spec: EnvSpec) -> None:
