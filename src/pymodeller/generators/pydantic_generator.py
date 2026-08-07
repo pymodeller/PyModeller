@@ -116,21 +116,21 @@ class PydanticGenerator:
 
         return self.template.render(context)
 
-    def generate_base_class(self, out_path: Path) -> None:
-        """Generates the static base class needed for tracking."""
-        template = self.env.get_template("base_settings.jinja")
+    def save_template(self, out_path: Path, template_name: str = "") -> None:
+        """Save the Jinja template."""
+        template = self.env.get_template(f"{template_name}.jinja")
 
         rendered_code = template.render()
 
-        file_path = out_path / "base_settings.py"
+        file_path = out_path / f"{template_name}.py"
         file_path.write_text(rendered_code, encoding="utf-8")
 
-        template_yaml = self.env.get_template("yaml_env_source.jinja")
+    def generate_base_class(self, out_path: Path) -> None:
+        """Generates the static base class needed for tracking."""
+        templates = ["base_settings", "yaml_env_source", "s3_secrets_source"]
 
-        rendered_code_yaml = template_yaml.render()
-
-        file_path = out_path / "yaml_env_source.py"
-        file_path.write_text(rendered_code_yaml, encoding="utf-8")
+        for t in templates:
+            self.save_template(out_path, t)
 
     def generate_init(self, sections: list, out_path: Path) -> None:
         """sections_info debe ser una lista de dicts."""

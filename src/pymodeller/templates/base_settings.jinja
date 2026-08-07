@@ -1,4 +1,4 @@
-"""Base settings. """
+"""Base settings."""
 
 import os
 from typing import Any
@@ -6,7 +6,9 @@ from typing import Any
 from pydantic import PrivateAttr, model_validator
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 
+from .s3_secrets_source import S3SecretSource
 from .yaml_env_source import YamlEnvSource
+
 
 def track_origin(data: dict, origin: str, prefix: str = "", registry: dict | None = None) -> dict[str, str]:
     """Recursively traces the origin of each value in a nested dictionary."""
@@ -63,26 +65,28 @@ class BaseTraceableSettings(BaseSettings):
 
     @classmethod
     def settings_customise_sources(
-        cls,
-        settings_cls: type[BaseSettings],
-        init_settings: PydanticBaseSettingsSource,
-        env_settings: PydanticBaseSettingsSource,
-        dotenv_settings: PydanticBaseSettingsSource,
-        file_secret_settings: PydanticBaseSettingsSource,
+            cls,
+            settings_cls: type[BaseSettings],
+            init_settings: PydanticBaseSettingsSource,
+            env_settings: PydanticBaseSettingsSource,
+            dotenv_settings: PydanticBaseSettingsSource,
+            file_secret_settings: PydanticBaseSettingsSource,
     ) -> tuple[PydanticBaseSettingsSource, ...]:
         """Define global source priority.
 
         Wrap each source to track where values come from.
         """
-        env_prefix = settings_cls.model_config.get('env_prefix', '')
+        env_prefix = settings_cls.model_config.get("env_prefix", "")
 
         current_env = os.getenv("APP_ENV", "base")
-        yaml_env_source = YamlEnvSource(settings_cls, current_env, env_prefix)
+        yaml_env_source = YamlEnvSource(settings_cls, current_env, env_prefix, settings_name=cls.__name__)
+        s3_source = S3SecretSource(settings_cls, wrapped_source=yaml_env_source())
 
         return (
             track_source(env_settings, "env_var"),
             track_source(dotenv_settings, "dotenv_file"),
             track_source(init_settings, "init_yaml"),
+            track_source(s3_source, "s3_source"),
             track_source(yaml_env_source, f"yaml_{current_env}"),
             track_source(file_secret_settings, "file_secret"),
         )

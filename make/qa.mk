@@ -37,7 +37,3 @@ test: sync  ## Run test suite
 	@echo "$(ARROW) Running tests..."
 	@uv run pytest -m "not functional" || { echo "❌ Tests failed."; exit 1; }
 	@echo "All tests passed $(OK)"
-
-.PHONY: e2e-test
-e2e-test:  ## Execute an end to end test
-	@uv run pytest -m functional -n 0 # tests/e2e

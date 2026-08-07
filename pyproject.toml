@@ -38,7 +38,9 @@ Issues = "https://github.com/pymodeller/PyModeller/issues"
 
 [dependency-groups]
 test = [
-    "peewee"
+    "peewee",
+    "boto3>=1.34,<2",
+    "botocore"
 ]
 
 dev = [
@@ -69,8 +71,8 @@ docs = [
 pydantic_out="./src/das_control/init_settings.py"
 pydantic_folder="./src/das_control/configuration_bis"
 environment_file="./environments.yaml"
-generate_init_models=false
-import_settings_base_class="from config_das.models.base_settings import BaseTraceableSettings"
+generate_init_models=true
+# import_settings_base_class="from config_das.models.base_settings import BaseTraceableSettings"
 exceptions_file="./pymodeller/exceptions.yaml"
 exceptions_folder="./src/das_control/exceptions"
 pymodeller_models="./pymodeller/models.yaml"

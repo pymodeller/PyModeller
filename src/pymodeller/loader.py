@@ -75,6 +75,11 @@ class SectionType(StrEnum):
     MODEL = "model"
     PEEWEE = "peewee"
 
+    @classmethod
+    def _missing_(cls, value: object) -> None:
+        options = ", ".join([f"'{item.value}'" for item in cls])
+        raise ValueError(f"'{value}' is not a valid {cls.__name__}. Allowed options are: [{options}]")
+
 
 class ValidationSpec(BaseModel):
     """Validation spec."""
@@ -151,9 +156,15 @@ class EnvVarSpec(BaseModel):
             data["type"] = "str"
             data["secret"] = True
 
-        data["type"] = YAML_TYPE_MAP.get(str(data.get("type", "str")).lower(), "str")
+        search_prefix = ["arn:aws:", "s3://"]
 
-        return data
+        if self.default and isinstance(self.default, str) and any(p in self.default for p in search_prefix):
+            object.__setattr__(self, "type", "secret")
+
+        # 'secret' type is a shortcut for type: str + secret: true
+        if self.type == "secret":
+            object.__setattr__(self, "type", "str")
+            object.__setattr__(self, "secret", True)
 
     def display_value(self) -> str:
         """Return a masked or real default value for documentation purposes."""

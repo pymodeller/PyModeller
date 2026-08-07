@@ -68,3 +68,36 @@ sections:
         default: 10
         required: false
         secret: false
+
+      - name: token_value
+        description: just a token value
+        type: str
+        default: arn:aws:s3:my-bucket/Environment
+        required: false
+        secret: false
+
+
+  - name: Zone
+    description: Zone configuration
+    type: model0
+    env_prefix: ZONE
+    include_general: true
+    variables:
+      - name: START
+        description: Start point to process
+        type: int
+        default: 0
+        required: false
+        secret: false
+
+      - name: END
+        description: End point to process
+        type: int
+        default: 50
+        required: false
+        secret: false
+
+      - name: THRESHOLD
+        description: Specific threshold for the zone waterfall
+        type: float
+        required: false
