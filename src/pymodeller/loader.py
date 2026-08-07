@@ -82,9 +82,9 @@ class SectionType(StrEnum):
 
 @dataclass(frozen=True)
 class DBSpec:
-    """Configuración específica para Peewee/DB."""
+    """Configuration for Peewee/DB."""
 
-    primary_key: list[str] | None = None  # Lista de nombres de campos
+    primary_key: list[str] | None = None
     table_name: str | None = None
     schema: str | None = None
     indexes: list[dict] | None = None
@@ -93,7 +93,7 @@ class DBSpec:
 
 @dataclass(frozen=True)
 class DBField:
-    """Configuración específica para entrada."""
+    """Entry configuration."""
 
     max_length: int | None = None
     allow_null: bool = False
