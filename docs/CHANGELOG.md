@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.9.2 (2026-08-07)
+
+### Bug Fixes
+
+- Update commands
+  ([`09f057c`](https://github.com/pymodeller/PyModeller/commit/09f057ca634aea11d8a6185a5086faa0aa2b1c7d))
+
+
 ## v0.9.1 (2026-05-14)
 
 ### Bug Fixes
