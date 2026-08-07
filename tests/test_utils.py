@@ -1,6 +1,14 @@
 from pathlib import Path
 
-from pymodeller.utils import compare_dirs, file_hash, get_variants, to_camel_case, to_snake_case
+from pymodeller.utils import (
+    compare_dirs,
+    deep_merge,
+    file_hash,
+    get_variants,
+    to_camel_case,
+    to_snake_case,
+    write_env_file,
+)
 
 
 class TestUtils:
@@ -100,3 +108,57 @@ class TestUtils:
         # Should normalize to snake: complex_input_test, camel: complexInputTest, etc.
         assert "complex_input_test" in result
         assert "complexInputTest" in result
+
+    def test_deep_merge_basic(self) -> None:
+        """Test deep merge basic."""
+        base = {"a": 1, "b": 2}
+        overrides = {"b": 3, "c": 4}
+        result = deep_merge(base, overrides)
+        assert result == {"a": 1, "b": 3, "c": 4}
+
+    def test_deep_merge_nested(self) -> None:
+        """Test deep merge."""
+        base = {"section": {"key1": "value1", "key2": "value2"}}
+        overrides = {"section": {"key2": "new_value", "key3": "value3"}}
+        result = deep_merge(base, overrides)
+        assert result == {"section": {"key1": "value1", "key2": "new_value", "key3": "value3"}}
+
+    def test_deep_merge_type_mismatch(self) -> None:
+        """Si un valor deja de ser dict, debe ser reemplazado completamente."""
+        base = {"config": {"port": 80}}
+        overrides = {"config": "disabled"}
+        result = deep_merge(base, overrides)
+        assert result == {"config": "disabled"}
+
+    def test_write_env_file_flat(self, tmp_path: Path) -> None:
+        """Test env flat."""
+        env_path = tmp_path / ".env"
+        data = {"database_url": "localhost", "debug": "true"}
+
+        write_env_file(env_path, data)
+
+        content = env_path.read_text(encoding="utf-8")
+        assert "DATABASE_URL=localhost" in content
+        assert "DEBUG=true" in content
+
+    def test_write_env_file_nested_and_prefix(self, tmp_path: Path) -> None:
+        """Test write env file."""
+        env_path = tmp_path / ".env"
+        data = {"db": {"host": "localhost", "port": 5432}, "api_key": "secret"}
+
+        # Probamos con un prefijo opcional para ver si concatena bien
+        write_env_file(env_path, data, prefix="APP_")
+
+        content = env_path.read_text(encoding="utf-8")
+        # El anidamiento debe usar doble guión bajo según tu lógica de flatten
+        assert "APP_DB__HOST=localhost\n" in content
+        assert "APP_DB__PORT=5432\n" in content
+        assert "APP_API_KEY=secret\n" in content
+
+    def test_write_env_file_empty(self, tmp_path: Path) -> None:
+        """Test write env empty."""
+        env_path = tmp_path / ".env"
+        write_env_file(env_path, {})
+
+        content = env_path.read_text(encoding="utf-8")
+        assert content == "\n"

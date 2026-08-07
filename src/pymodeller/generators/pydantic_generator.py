@@ -167,7 +167,7 @@ class PydanticGenerator:
             sections_context.append({
                 "class_name": class_name,
                 "func_name": master_,
-                "yaml_file": s.yaml_file,
+                "yaml_file": str(s.yaml_file),
                 "include_init_settings": s.include_init_settings,
             })
 
@@ -234,7 +234,7 @@ class PydanticGenerator:
         models_dir = Path(out)
         models_dir.mkdir(parents=True, exist_ok=True)
 
-        general_section: EnvSection = EnvSection(GENERAL)
+        general_section: EnvSection = EnvSection(name=GENERAL)
         sections_with_classes: list[EnvSection] = []
 
         for sect in sections:
@@ -252,6 +252,7 @@ class PydanticGenerator:
 
         self.generate_general_settings(general_section, sections_with_classes, out)
         self.generate_init(sections, out)
+
         if not code_gen_conf.import_settings_base_class:
             self.generate_base_class(out)
 

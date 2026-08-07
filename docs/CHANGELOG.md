@@ -2,6 +2,80 @@
 
 <!-- version list -->
 
+## v0.9.1 (2026-05-14)
+
+### Bug Fixes
+
+- Update settings.json
+  ([`45fd25d`](https://github.com/pymodeller/PyModeller/commit/45fd25d24564c2ef65ac1bc66e9bbb0388eaa13c))
+
+- Update settings.json
+  ([`58f8b63`](https://github.com/pymodeller/PyModeller/commit/58f8b63f042879dcd1016c1f4870088acd237063))
+
+
+## v0.9.0 (2026-05-14)
+
+### Bug Fixes
+
+- Update command check
+  ([`d836b93`](https://github.com/pymodeller/PyModeller/commit/d836b93fac03b53e20d151f518ffdc83b40faef5))
+
+- Update models loader
+  ([`eab741c`](https://github.com/pymodeller/PyModeller/commit/eab741c9933efac9998c187acfd147b8ec125e09))
+
+- Update tests
+  ([`3a797eb`](https://github.com/pymodeller/PyModeller/commit/3a797eb710187164daa8700669bbbeae4758a9c4))
+
+### Features
+
+- Added new feature generation .env files from environments.yaml
+  ([`7341fad`](https://github.com/pymodeller/PyModeller/commit/7341fad10e18c6cb5b7366b814f265c64bf1195c))
+
+### Testing
+
+- Fixing tests
+  ([`eb4a37a`](https://github.com/pymodeller/PyModeller/commit/eb4a37a00481aa0b5c6f94a6dc188a4d6ca15032))
+
+- Update tests
+  ([`8b87085`](https://github.com/pymodeller/PyModeller/commit/8b870857c4ee8760ab4d4fb19fb782cd9358d45d))
+
+- Update tests
+  ([`41ec804`](https://github.com/pymodeller/PyModeller/commit/41ec804bcea4412e1603affddd99d1a8af7d0783))
+
+- Update tests again
+  ([`fadf057`](https://github.com/pymodeller/PyModeller/commit/fadf0576138d2e2e42b3055ceb17d0f31b13f4c3))
+
+- Update tests for dev_tools
+  ([`41f2638`](https://github.com/pymodeller/PyModeller/commit/41f263899c87ecc7b109b63142ef18ae45c24cbc))
+
+
+## v0.8.1 (2026-05-13)
+
+### Bug Fixes
+
+- Update configuration toml
+  ([`dd65640`](https://github.com/pymodeller/PyModeller/commit/dd65640d9430af4a485f7cc32ca74df41edebabd))
+
+
+## v0.8.0 (2026-05-13)
+
+### Bug Fixes
+
+- Update configuration toml
+  ([`501afee`](https://github.com/pymodeller/PyModeller/commit/501afee94681470495936efb7c6523f377c580d3))
+
+- Update template
+  ([`c0aea85`](https://github.com/pymodeller/PyModeller/commit/c0aea8545d2048ecd3cee97084ec61ed295ae7e1))
+
+### Features
+
+- Added exception generator
+  ([`201b000`](https://github.com/pymodeller/PyModeller/commit/201b000372b2f39f3576e83b20594f1a7885c5df))
+
+- Reading configuration from tool.pymodeller -> pyproject.toml
+  ([`d07f0ac`](https://github.com/pymodeller/PyModeller/commit/d07f0acedc797a3757df2d363f1ca5059af0531d))
+
+
 ## v0.7.4 (2026-05-13)
 
 ### Bug Fixes

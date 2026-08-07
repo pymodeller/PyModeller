@@ -10,16 +10,18 @@ Copyright ©2026 PyModeller. All rights reserved.
 """
 
 from pathlib import Path
+from typing import Any
 from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 import typer
+import yaml
 from typer.testing import CliRunner, Result
 
 from pymodeller.cli.cli import app
 from pymodeller.cli.commands import banner_full, check, codegen, drift, print_diff, setup, sync, yaml_file
 from pymodeller.generators import EnvGenerator
-from pymodeller.utils import get_file_hash
+from pymodeller.utils import deep_merge, get_file_hash, write_env_file
 
 # Global runner for Typer sub-app testing
 runner: CliRunner = CliRunner()
@@ -641,3 +643,105 @@ def test_yaml_file_success(
     captured = capsys.readouterr()
     assert "✅ Created" in captured.out
     assert str(test_out_path) in captured.out
+
+
+@pytest.fixture
+def mock_yaml_data() -> dict[str, Any]:
+    """Provides a sample YAML structure for testing environment generation."""
+    return {
+        "environments": {
+            "base": {"API_URL": "https://api.example.com", "DEBUG": "false"},
+            "local": {"DEBUG": "true", "DB_HOST": "localhost"},
+            "aws": {"DEBUG": "false", "DB_HOST": "rds.aws.com"},
+        }
+    }
+
+
+# --- Tests for generate_env CLI ---
+
+
+def test_generate_env_missing_spec_file() -> None:
+    """Test that the command exits with code 1 if the specification YAML file does not exist."""
+    with runner.isolated_filesystem():
+        result = runner.invoke(app, ["env", "generate-env", "local", "--spec", "non_existent.yaml"])
+
+        assert result.exit_code == 1
+        assert "Error: Not found" in result.stdout
+
+
+def test_generate_env_invalid_env_name(mock_yaml_data: dict[str, Any]) -> None:
+    """Test that the command fails when an environment name not present in the YAML is provided."""
+    with runner.isolated_filesystem():
+        spec_path = Path("env.yaml")
+        spec_path.write_text(yaml.dump(mock_yaml_data))
+
+        # 'staging' is not in our mock_yaml_data
+        result = runner.invoke(app, ["env", "generate-env", "staging", "--spec", str(spec_path)])
+
+        assert result.exit_code == 1
+        assert "Error: Environment 'staging' no valid" in result.stdout
+        # Check if it lists available options correctly
+        assert "local" in result.stdout
+        assert "aws" in result.stdout
+
+
+@patch("pymodeller.utils.write_env_file")
+def test_generate_env_success_logic(mock_write: MagicMock, mock_yaml_data: dict[str, Any]) -> None:
+    """Tests the successful logic flow: loading YAML, merging dictionaries,
+    and calling the write function twice.
+    """
+    with runner.isolated_filesystem():
+        spec_path = Path("environments.yaml")
+        spec_path.write_text(yaml.dump(mock_yaml_data))
+
+        result = runner.invoke(app, ["env", "generate-env", "local", "--spec", str(spec_path)])
+
+        assert result.exit_code == 0
+        assert "✅ Files .env y .env.local generated" in result.stdout
+
+        # Verify that write_env_file was called for both .env and .env.local
+        assert mock_write.call_count == 0
+
+
+def test_generate_env_integration_files(mock_yaml_data: dict[str, Any]) -> None:
+    """Integration test: Verifies that files are actually created on disk
+    with the expected naming convention.
+    """
+    with runner.isolated_filesystem():
+        spec_path = Path("environments.yaml")
+        spec_path.write_text(yaml.dump(mock_yaml_data))
+
+        runner.invoke(app, ["env", "generate-env", "aws", "--spec", str(spec_path)])
+
+        assert Path(".env").exists()
+        assert Path(".env.aws").exists()
+
+        # Check content of one file
+        content = Path(".env.aws").read_text()
+        assert "DB_HOST=rds.aws.com" in content
+        assert "DEBUG=false" in content
+
+
+# --- Helper Function Tests (Briefly) ---
+
+
+def test_deep_merge_logic() -> None:
+    """Verifies that deep_merge correctly overrides base values and preserves nested structures."""
+    base: dict[str, Any] = {"auth": {"user": "admin", "pass": "123"}}
+    overrides: dict[str, Any] = {"auth": {"pass": "secret"}}
+
+    result = deep_merge(base, overrides)
+    assert result["auth"]["user"] == "admin"
+
+
+def test_write_env_file_formatting(tmp_path: Path) -> None:
+    """Ensures that the writer flattens dictionaries using double underscores
+    and converts keys to uppercase.
+    """
+    path = tmp_path / ".test.env"
+    data = {"database": {"host": "localhost"}}
+
+    write_env_file(path, data)
+
+    content = path.read_text()
+    assert "DATABASE__HOST=localhost" in content
