@@ -1,0 +1,132 @@
+"""S3 / Secrets Source."""
+
+import os
+from functools import lru_cache
+from typing import Any
+
+import boto3
+from botocore.client import BaseClient
+from pydantic import SecretStr
+from pydantic.fields import FieldInfo
+from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
+
+
+@lru_cache(maxsize=1)
+def get_s3_client() -> BaseClient:
+    """Create and return a s3 client."""
+    endpoint_url = os.getenv("AWS_S3_ENDPOINT_URL") or os.getenv("AWS_ENDPOINT_URL")
+    resolved_region = os.getenv("AWS_REGION") or os.getenv("AWS_DEFAULT_REGION")
+    return boto3.client("s3", endpoint_url=endpoint_url, verify=False, region_name=resolved_region)
+
+
+@lru_cache(maxsize=1)
+def get_secrets_manager_client() -> BaseClient:
+    """Creates and returns a cached AWS Secrets Manager client (Singleton)."""
+    endpoint_url = os.getenv("AWS_SECRETSMANAGER_ENDPOINT_URL") or os.getenv("AWS_ENDPOINT_URL")
+    resolved_region = os.getenv("AWS_REGION") or os.getenv("AWS_DEFAULT_REGION")
+
+    # Note: verify=False disables SSL verification. Adjust based on your environment needs.
+    return boto3.client(
+        "secretsmanager",
+        endpoint_url=endpoint_url,
+        verify=False,
+        region_name=resolved_region,
+    )
+
+
+class S3SecretSource(PydanticBaseSettingsSource):
+    """Custom source to resolve secrets from S3 if the value starts with a specific prefix."""
+
+    S3_SCHEME = "s3://"
+    S3_ARN_PREFIX = "arn:aws:s3:"
+    SECRETSMANAGER_ARN_PREFIX = "arn:aws:secret"
+
+    def __init__(self, settings_cls: type[BaseSettings], wrapped_source: dict | None = None) -> None:
+        """Initialize the S3SecretSource with settings class, prefix, and AWS region."""
+        super().__init__(settings_cls)
+        self.wrapped_source = wrapped_source
+        # boto3 client to interact with S3
+        self.s3_client = get_s3_client()
+        self.sm_client = get_secrets_manager_client()
+
+    def _parse_s3_uri(self, uri: str) -> tuple[str, str]:
+        """Extracts the bucket name and key from 's3://bucket/key' or 'arn:aws:s3:::bucket/key'."""
+        clean_uri = uri
+        if clean_uri.startswith(self.S3_ARN_PREFIX):
+            clean_uri = clean_uri.replace(self.S3_ARN_PREFIX, "")
+        elif clean_uri.startswith(self.S3_SCHEME):
+            clean_uri = clean_uri.replace(self.S3_SCHEME, "")
+
+        parts = clean_uri.split("/", 1)
+        bucket = parts[0]
+        key = parts[1] if len(parts) > 1 else ""
+        return bucket, key
+
+    def _fetch_from_s3(self, uri: str) -> str:
+        """Fetches the object content directly from S3."""
+        try:
+            bucket, key = self._parse_s3_uri(uri)
+            response = self.s3_client.get_object(Bucket=bucket, Key=key)
+            return response["Body"].read().decode("utf-8").strip()
+        except Exception as e:
+            raise RuntimeError(f"Failed to retrieve object from S3 ({uri}): {e}") from e
+
+    def _fetch_from_secrets_manager(self, secret_arn: str) -> str:
+        """Fetches the secret value from AWS Secrets Manager using its ARN."""
+        try:
+            response = self.sm_client.get_secret_value(SecretId=secret_arn)
+            if "SecretString" in response:
+                return response["SecretString"]
+            # Fallback for binary secrets
+            return response["SecretBinary"].decode("utf-8")
+        except Exception as e:
+            raise RuntimeError(f"Failed to retrieve secret from Secrets Manager ({secret_arn}): {e}") from e
+
+    def resolve_value(self, value: Any) -> Any:
+        """Inspects the string format and dispatches the request to the target AWS service."""
+        if isinstance(value, str):
+            # Case 1 & 2: Standard S3 URI (s3://bucket/key) or S3 Object ARN (arn:aws:s3:::bucket/key)
+            if value.startswith(self.S3_SCHEME) or value.startswith(self.S3_ARN_PREFIX):
+                return self._fetch_from_s3(value)
+
+            # Case 3: AWS Secrets Manager ARN (arn:aws:secretsmanager:region:acct:secret:name)
+            if value.startswith(self.SECRETSMANAGER_ARN_PREFIX):
+                return self._fetch_from_secrets_manager(value)
+
+        elif isinstance(value, dict):
+            return {k: self.resolve_value(v) for k, v in value.items()}
+        elif isinstance(value, list):
+            return [self.resolve_value(v) for v in value]
+
+        return value
+
+    def get_data(self) -> dict[str, Any]:
+        """Itera sobre los campos definidos y resuelve las URIs de S3 / Secrets Manager."""
+        results: dict[str, Any] = {}
+
+        # 2. Recorremos todas las variables/campos declarados en el modelo de Pydantic
+        for field_name, field in self.settings_cls.model_fields.items():
+            # Si el campo tiene un valor asignado hasta ahora
+            #
+            if isinstance(field.default, SecretStr):
+                val = field.default.get_secret_value()
+
+                if field_name in self.wrapped_source:
+                    val = self.wrapped_source[field_name]
+
+                # Evaluamos si necesita sustituirse la URI por el secreto de S3/SM
+                resolved_val = self.resolve_value(val)
+
+                # Si el valor cambió (era una URI y se descargó el contenido), lo guardamos
+                if resolved_val != val:
+                    results[field_name] = resolved_val
+
+        return results
+
+    def __call__(self) -> dict[str, Any]:
+        """Call function."""
+        return self.get_data()
+
+    def get_field_value(self, field: FieldInfo, field_name: str) -> tuple[Any, str, bool]:
+        """Get field value."""
+        return None, field_name, False

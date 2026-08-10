@@ -1,0 +1,53 @@
+"""Source yaml."""
+
+from pathlib import Path
+from typing import Any
+
+import yaml
+from pydantic.fields import FieldInfo
+from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
+
+
+class YamlEnvSource(PydanticBaseSettingsSource):
+    """Read vars from specific environment environments.yaml."""
+
+    def __init__(
+        self,
+        settings_cls: type[BaseSettings],
+        current_env: str = "base",
+        env_prefix: str = "",
+        yaml_path: str = "environments.yaml",
+        settings_name: str = "general",
+    ) -> None:
+        """Init."""
+        super().__init__(settings_cls)
+        self.yaml_path = Path(yaml_path)
+        self.current_env = current_env
+        self.env_prefix = env_prefix.lower()
+        self.settings_name = settings_name.lower().replace("settings", "")
+
+    def get_data(self) -> dict[str, Any]:
+        """Get data."""
+        if not self.yaml_path.exists():
+            return {}
+
+        with open(self.yaml_path) as f:
+            all_envs = yaml.safe_load(f).get("environments", {})
+
+        base_data = all_envs.get("base", {})
+        env_data = all_envs.get(self.current_env, {})
+
+        unique_vars = {**base_data, **env_data}
+
+        if self.settings_name in unique_vars:
+            unique_vars = unique_vars[self.settings_name]
+
+        return {k.lower().removeprefix(self.env_prefix): v for k, v in unique_vars.items()}
+
+    def __call__(self) -> dict[str, Any]:
+        """Caller."""
+        return self.get_data()
+
+    def get_field_value(self, field: FieldInfo, field_name: str) -> tuple[Any, str, bool]:
+        """Mandatory implementation."""
+        return None, field_name, False

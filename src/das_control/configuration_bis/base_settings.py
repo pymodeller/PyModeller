@@ -1,0 +1,96 @@
+"""Base settings."""
+
+import os
+from typing import Any
+
+from pydantic import PrivateAttr, model_validator
+from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
+
+from .s3_secrets_source import S3SecretSource
+from .yaml_env_source import YamlEnvSource
+
+
+def track_origin(data: dict, origin: str, prefix: str = "", registry: dict | None = None) -> dict[str, str]:
+    """Recursively traces the origin of each value in a nested dictionary."""
+    if registry is None:
+        registry = {}
+
+    if isinstance(data, dict):
+        for key, value in data.items():
+            if key == "_metadata_origins":
+                continue
+            path = f"{prefix}.{key}" if prefix else key
+            track_origin(value, origin, path, registry)
+
+    elif isinstance(data, list):
+        for i, item in enumerate(data):
+            path = f"{prefix}.{i}"
+            track_origin(item, origin, path, registry)
+
+    else:
+        # Caso base: valor simple
+        if prefix and prefix not in registry:
+            registry[prefix] = origin
+    return registry
+
+
+def track_source(source: PydanticBaseSettingsSource, origin: str) -> Any:
+    """Wrapper that injects provenance metadata into the settings source."""
+
+    def wrapper() -> dict[str, Any]:
+        data = source()
+        result = dict(data) if data else {}
+        if result:
+            # We store the trace map in a temporary key
+            result["_metadata_origins"] = track_origin(data, origin)
+        return result
+
+    return wrapper
+
+
+class BaseTraceableSettings(BaseSettings):
+    """Base template for all settings classes with origin tracking."""
+
+    # Private attribute to store the provenance map
+    _metadata_origins: dict[str, str] = PrivateAttr(default_factory=dict)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _prepare_metadata(cls, data: Any) -> Any:
+        """Intercept data origin and save."""
+        if isinstance(data, dict) and "_metadata_origins" in data:
+            cls._metadata_origins = data.pop("_metadata_origins")
+            return data
+        return data
+
+    @classmethod
+    def settings_customise_sources(
+        cls,
+        settings_cls: type[BaseSettings],
+        init_settings: PydanticBaseSettingsSource,
+        env_settings: PydanticBaseSettingsSource,
+        dotenv_settings: PydanticBaseSettingsSource,
+        file_secret_settings: PydanticBaseSettingsSource,
+    ) -> tuple[PydanticBaseSettingsSource, ...]:
+        """Define global source priority.
+
+        Wrap each source to track where values come from.
+        """
+        env_prefix = settings_cls.model_config.get("env_prefix", "")
+
+        current_env = os.getenv("APP_ENV", "base")
+        yaml_env_source = YamlEnvSource(settings_cls, current_env, env_prefix, settings_name=cls.__name__)
+        s3_source = S3SecretSource(settings_cls, wrapped_source=yaml_env_source())
+
+        return (
+            track_source(env_settings, "env_var"),
+            track_source(dotenv_settings, "dotenv_file"),
+            track_source(init_settings, "init_yaml"),
+            track_source(s3_source, "s3_source"),
+            track_source(yaml_env_source, f"yaml_{current_env}"),
+            track_source(file_secret_settings, "file_secret"),
+        )
+
+    def get_origin(self, field_path: str) -> str:
+        """Returns the source origin of a specific field (e.g., 'device.port')."""
+        return self._metadata_origins.get(field_path, "Default")
