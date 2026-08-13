@@ -1,4 +1,13 @@
-"""Load configuration."""
+"""Config file.
+
+========================================================================================================================
+Name:         pymodeller/config.py
+Description:  Load configuration.
+Project:      PyModeller
+
+Copyright ©2026 PyModeller. All rights reserved.
+========================================================================================================================
+"""
 
 import tomllib
 from functools import lru_cache

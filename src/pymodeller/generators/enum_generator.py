@@ -1,4 +1,13 @@
-"""Generator enum."""
+"""Enum generator.
+
+========================================================================================================================
+Name:         pymodeller/generators/enum_generator.py
+Description:  Generator enum.
+Project:      PyModeller
+
+Copyright ©2026 PyModeller. All rights reserved.
+========================================================================================================================
+"""
 
 from pathlib import Path
 from typing import Any

@@ -1,4 +1,13 @@
-"""Peewee generator v2 based on Jinja2 templates."""
+"""Peewee generator.
+
+========================================================================================================================
+Name:         pymodeller/generators/peewee_generator.py
+Description:  Peewee generator v2 based on Jinja2 templates.
+Project:      PyModeller
+
+Copyright ©2026 PyModeller. All rights reserved.
+========================================================================================================================
+"""
 
 from pathlib import Path
 

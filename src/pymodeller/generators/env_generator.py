@@ -1,4 +1,13 @@
-"""Env manager."""
+"""Env generator.
+
+========================================================================================================================
+Name:         pymodeller/generators/env_generator.py
+Description:  Env manager.
+Project:      PyModeller
+
+Copyright ©2026 PyModeller. All rights reserved.
+========================================================================================================================
+"""
 
 from typing import Any
 

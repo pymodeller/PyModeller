@@ -1,4 +1,13 @@
-"""Pydantic generator v2."""
+"""Pydantic generator.
+
+========================================================================================================================
+Name:         pymodeller/generators/pydantic_generator.py
+Description:  Pydantic generator v2.
+Project:      PyModeller
+
+Copyright ©2026 PyModeller. All rights reserved.
+========================================================================================================================
+"""
 
 from pathlib import Path
 
