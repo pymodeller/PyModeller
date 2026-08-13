@@ -101,3 +101,28 @@ sections:
         description: Specific threshold for the zone waterfall
         type: float
         required: false
+
+  - name: Zone
+    description: Zone configuration
+    type: peewee
+    env_prefix: ZONE
+    include_general: true
+    variables:
+      - name: START
+        description: Start point to process
+        type: int
+        default: 0
+        required: false
+        secret: false
+
+      - name: END
+        description: End point to process
+        type: int
+        default: 50
+        required: false
+        secret: false
+
+      - name: THRESHOLD
+        description: Specific threshold for the zone waterfall
+        type: float
+        required: false
