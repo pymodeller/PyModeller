@@ -23,7 +23,7 @@ from pymodeller.utils import get_variants, to_camel_case, to_snake_case
 logger = getLogger(__name__)
 
 # Default location of the spec file
-DEFAULT_SPEC_PATH = Path("env_data_model.yaml")
+DEFAULT_SPEC_PATH = Path("environtment.yaml")
 _PND_UINT8 = "pnd.NpNDArrayUint8"
 _PND_INT8 = "pnd.NpNDArrayInt8"
 _PND_F32 = "pnd.NpNDArrayFp32"
