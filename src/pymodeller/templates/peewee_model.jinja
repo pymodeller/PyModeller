@@ -14,9 +14,9 @@ from peewee import (
 
 class {{ class_name }}(Model):
     """{{ description }}."""
-    {% for var in variables %}
+    {% for var in variables | sort(attribute='name')%}
     {{ var.name }} = {{ var.field_type }}(
-        {%- for param in var.params %}{{ param }}{{ ", " if not loop.last }}{% endfor -%}
+        {%- for param in var.params | sort %}{{ param }}{{ ", " if not loop.last }}{% endfor -%}
     )
     {% endfor %}
 

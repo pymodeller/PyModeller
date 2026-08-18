@@ -49,7 +49,7 @@ class {{ class_name }}(BaseModel):
     type: Literal["{{ literal_name }}"] = Field(default="{{ literal_name }}", exclude=True)
     {% endif %}
 
-    {% for var in variables %}
+    {% for var in variables | sort(attribute='name') %}
     {{ var.name }}: {{ var.py_type }} = Field(
         {{ var.default_expr }},
         alias="{{ var.alias }}",
