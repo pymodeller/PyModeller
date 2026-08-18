@@ -1,4 +1,13 @@
-"""Load configuration."""
+"""Config file.
+
+========================================================================================================================
+Name:         pymodeller/config.py
+Description:  Load configuration.
+Project:      PyModeller
+
+Copyright ©2026 PyModeller. All rights reserved.
+========================================================================================================================
+"""
 
 import tomllib
 from functools import lru_cache
@@ -26,11 +35,6 @@ def load_codegen_config(toml_path: str | Path = Path("pyproject.toml")) -> dict[
 class CodegenConfig(BaseModel):
     """Configuration for code generation."""
 
-    spec: Path = Field(
-        default=Path("py_modeller.yaml"),
-        alias="spec",
-        description="Input file for generated models.",
-    )
     pydantic_out: Path | None = Field(
         default=None,
         alias="pydantic_out",

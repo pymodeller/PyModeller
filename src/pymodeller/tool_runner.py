@@ -1,4 +1,13 @@
-"""Tool runner."""
+"""Tool runner file.
+
+========================================================================================================================
+Name:         pymodeller/tool_runner.py
+Description:  Tool runner.
+Project:      PyModeller
+
+Copyright ©2026 PyModeller. All rights reserved.
+========================================================================================================================
+"""
 
 import shutil
 import subprocess  # ruff: ignore[suspicious-subprocess-import]

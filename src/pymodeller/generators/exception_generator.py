@@ -1,4 +1,13 @@
-"""Exception generator."""
+"""Exception generator.
+
+========================================================================================================================
+Name:         pymodeller/generators/exception_generator.py
+Description:  Exception generator.
+Project:      PyModeller
+
+Copyright ©2026 PyModeller. All rights reserved.
+========================================================================================================================
+"""
 
 from pathlib import Path
 

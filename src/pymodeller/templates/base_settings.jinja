@@ -6,8 +6,8 @@ from typing import Any
 from pydantic import PrivateAttr, model_validator
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 
-from .s3_secrets_source import S3SecretSource
-from .yaml_env_source import YamlEnvSource
+from .source.s3_secrets_source import S3SecretSource
+from .source.yaml_env_source import YamlEnvSource
 
 
 def track_origin(data: dict, origin: str, prefix: str = "", registry: dict | None = None) -> dict[str, str]:
@@ -85,7 +85,7 @@ class BaseTraceableSettings(BaseSettings):
         return (
             track_source(env_settings, "env_var"),
             track_source(dotenv_settings, "dotenv_file"),
-            track_source(init_settings, "init_yaml"),
+            track_source(init_settings, "init"),
             track_source(s3_source, "s3_source"),
             track_source(yaml_env_source, f"yaml_{current_env}"),
             track_source(file_secret_settings, "file_secret"),
@@ -94,3 +94,8 @@ class BaseTraceableSettings(BaseSettings):
     def get_origin(self, field_path: str) -> str:
         """Returns the source origin of a specific field (e.g., 'device.port')."""
         return self._metadata_origins.get(field_path, "Default")
+
+    def get_origins(self) -> dict:
+        """Returns the origins from each variable of the model."""
+        field_names = self.model_dump().keys()
+        return {k: self.get_origin(k) for k in field_names}

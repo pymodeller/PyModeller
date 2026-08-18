@@ -45,7 +45,9 @@ _CONFIG_TOML = "--config=pyproject.toml"
 
 
 def example(
-    spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.spec,
+    spec: Annotated[
+        Path, typer.Option("--spec", "-s", help="Path to environment.yaml")
+    ] = code_gen_conf.pymodeller_models,
     out: Annotated[Path, typer.Option("--out", "-o", help="Output path for .env.example")] = code_gen_conf.env_example,
     secrets_only: Annotated[bool, typer.Option("--secrets", "-ss", help="Flag for only secrets in .env")] = False,
 ) -> typer.Exit:
@@ -221,7 +223,7 @@ def codegen(
 
 
 def drift(
-    spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.spec,
+    spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.pymodeller_models,
     data_model: Annotated[
         Path | None, typer.Option("--data-model", "-d", help="Path for the generated settings module")
     ] = code_gen_conf.pydantic_out,
@@ -265,7 +267,7 @@ def drift(
 
 
 def sync(
-    spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.spec,
+    spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.pymodeller_models,
 ) -> typer.Exit:
     """Check if generated models are in sync with the YAML spec."""
     original_cwd = Path.cwd()

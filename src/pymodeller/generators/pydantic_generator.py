@@ -1,4 +1,13 @@
-"""Pydantic generator v2."""
+"""Pydantic generator.
+
+========================================================================================================================
+Name:         pymodeller/generators/pydantic_generator.py
+Description:  Pydantic generator v2.
+Project:      PyModeller
+
+Copyright ©2026 PyModeller. All rights reserved.
+========================================================================================================================
+"""
 
 from pathlib import Path
 
@@ -122,7 +131,14 @@ class PydanticGenerator:
 
         rendered_code = template.render()
 
-        file_path = out_path / f"{template_name}.py"
+        target_dir = out_path / "source" if "source" in template_name.lower() else out_path
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        init_file = target_dir / "__init__.py"
+        if not init_file.exists():
+            init_file.touch()
+
+        file_path = target_dir / f"{template_name}.py"
         file_path.write_text(rendered_code, encoding="utf-8")
 
     def generate_base_class(self, out_path: Path) -> None:

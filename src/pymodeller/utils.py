@@ -1,4 +1,13 @@
-"""Utils module."""
+"""Utils module.
+
+========================================================================================================================
+Name:         pymodeller/utils.py
+Description:  Utils module.
+Project:      PyModeller
+
+Copyright ©2026 PyModeller. All rights reserved.
+========================================================================================================================
+"""
 
 import hashlib
 import re
