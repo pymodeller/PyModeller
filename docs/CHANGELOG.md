@@ -2,6 +2,31 @@
 
 <!-- version list -->
 
+## v0.9.3 (2026-08-18)
+
+### Bug Fixes
+
+- Added headers
+  ([`3d0948a`](https://github.com/pymodeller/PyModeller/commit/3d0948a0b6061705ab83fe324848d6c5d811a21b))
+
+- Minor changes in templated and added docker-compose.yaml
+  ([`6ef7fbd`](https://github.com/pymodeller/PyModeller/commit/6ef7fbd47dc22dcfeb414c99b022b2f154cac72d))
+
+- Ordered atributes
+  ([`7e732a3`](https://github.com/pymodeller/PyModeller/commit/7e732a35e669532a263efde6957abfa44c828c8b))
+
+- Test package creation
+  ([`809bf54`](https://github.com/pymodeller/PyModeller/commit/809bf546da809ca3a53df26fc2af8ca40f52c58c))
+
+- Update templates
+  ([`f3d4865`](https://github.com/pymodeller/PyModeller/commit/f3d486505e7205f97dce35c1b4bbe26446e7333e))
+
+### Testing
+
+- Update test result
+  ([`71b4d70`](https://github.com/pymodeller/PyModeller/commit/71b4d70b66232f6f70a5acaf3fb14d1c9ace346e))
+
+
 ## v0.9.2 (2026-08-07)
 
 ### Bug Fixes
