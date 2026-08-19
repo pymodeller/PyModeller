@@ -13,7 +13,7 @@ import pyfiglet
 import typer
 from rich.console import Console
 
-from pymodeller.cli.commands import check, codegen, drift, example, generate_env, setup, show_version, yaml_file
+from pymodeller.cli.commands import check, codegen, example, generate_env, setup, show_version, yaml_file
 from pymodeller.cli.dev_tools import main_check, main_ci, main_test
 
 epilog = (
@@ -58,7 +58,6 @@ app.add_typer(env_app, name="env", help="Env tools to create .env files")
 app.command()(setup)
 app.command()(check)
 app.command()(codegen)
-app.command()(drift)
 
 
 def print_logo() -> None:

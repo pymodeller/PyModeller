@@ -15,7 +15,7 @@ import typer
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 from pymodeller.config import get_code_gen_config
-from pymodeller.loader import YAML_TYPE_MAP, EnvSection, EnvSpec, EnvVarSpec, SectionType, DestinationType
+from pymodeller.loader import YAML_TYPE_MAP, DestinationType, EnvSection, EnvSpec, EnvVarSpec, SectionType
 from pymodeller.utils import to_pascal_case, to_snake_case
 
 _YAML_HASH_MARKER = "# YAML-SHA256: "
@@ -26,7 +26,9 @@ code_gen_conf = get_code_gen_config()
 class PydanticGenerator:
     """Handles Pydantic model generation using Jinja2 templates."""
 
-    def __init__(self, destination: DestinationType = DestinationType.INFRASTRUCTURE, init_base_path: Path | None = None) -> None:
+    def __init__(
+        self, destination: DestinationType = DestinationType.INFRASTRUCTURE, init_base_path: Path | None = None
+    ) -> None:
         """Configura Jinja para leer desde el paquete pymodeller/templates."""
         self.env = Environment(loader=PackageLoader("pymodeller", "templates"), autoescape=select_autoescape())
         self.template = self.env.get_template("pydantic_template.jinja")
@@ -249,7 +251,9 @@ class PydanticGenerator:
         models_dir.mkdir(parents=True, exist_ok=True)
         return models_dir
 
-    def generate_files(self, yaml_hash: str, s: EnvSpec, out_model: Path, out_settings: Path, master: Path | None) -> tuple:
+    def generate_files(
+        self, yaml_hash: str, s: EnvSpec, out_model: Path, out_settings: Path, master: Path | None
+    ) -> tuple:
         """Generate pydantic files."""
         pydantic_sections_ = [s for s in s.sections if s.type != SectionType.PEEWEE]
         sections = [s for s in pydantic_sections_ if s.destination == self.destination_type]
@@ -292,7 +296,6 @@ class PydanticGenerator:
 
         if len(sections_models) > 0:
             self.generate_init(sections_models, out_model)
-
 
         # if master and len(sections_settings) > 0:
         #     self.generate_master(sections_settings, out_settings, master, yaml_hash)

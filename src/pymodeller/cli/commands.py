@@ -11,7 +11,6 @@ Copyright ©2026 PyModeller. All rights reserved.
 
 from __future__ import annotations
 
-import tempfile
 from pathlib import Path
 from typing import Annotated
 
@@ -27,11 +26,15 @@ from pymodeller.config import get_code_gen_config
 from pymodeller.generators.env_generator import EnvGenerator
 from pymodeller.generators.exception_generator import ExceptionGenerator
 from pymodeller.generators.peewee_generator import PeeweeGenerator
-from pymodeller.generators.pydantic_generator import _YAML_HASH_MARKER, PydanticGenerator
-from pymodeller.loader import load_env_spec, DestinationType
+from pymodeller.generators.pydantic_generator import PydanticGenerator
+from pymodeller.loader import DestinationType, load_env_spec
 from pymodeller.tool_runner import ToolRunner
-from pymodeller.utils import compare_dirs, deep_merge, file_hash, get_file_hash, write_env_file, \
-    ensure_init_py_in_subdirectories
+from pymodeller.utils import (
+    deep_merge,
+    ensure_init_py_in_subdirectories,
+    get_file_hash,
+    write_env_file,
+)
 from pymodeller.validator import validate_env
 
 # --- Constants & Defaults ---
@@ -48,9 +51,7 @@ _CONFIG_TOML = "--config=pyproject.toml"
 
 
 def example(
-    spec: Annotated[
-        Path, typer.Option("--spec", "-s", help="Path to environment.yaml")
-    ] = code_gen_conf.models_yaml,
+    spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to environment.yaml")] = code_gen_conf.models_yaml,
     out: Annotated[Path, typer.Option("--out", "-o", help="Output path for .env.example")] = code_gen_conf.env_example,
     secrets_only: Annotated[bool, typer.Option("--secrets", "-ss", help="Flag for only secrets in .env")] = False,
 ) -> typer.Exit:
@@ -158,17 +159,7 @@ def codegen(
     yaml_hash = get_file_hash(Path(spec))
 
     # 1. Resolve target destinations (single target or ALL configured destinations)
-    if model_type:
-        target_destinations = {model_type: code_gen_conf.get_destination(model_type)}
-    else:
-        target_destinations = {
-            name: dest.resolve_paths(code_gen_conf.base_dir)
-            for name, dest in code_gen_conf.destinations.items()
-        }
-
-    # Fallback to default destination if no destinations are defined in TOML
-    if not target_destinations:
-        target_destinations = {"infrastructure": code_gen_conf.get_destination("infrastructure")}
+    target_destinations = code_gen_conf.get_destinations(model_type)
 
     # 2. Iterate through each resolved target destination
     for target_type, dest in target_destinations.items():
@@ -189,7 +180,8 @@ def codegen(
         # Step 1: Generating Pydantic Models
         typer.secho(" Step 1: Generating Pydantic Models", bold=True)
         out_path, out_settings, models_dir = PydanticGenerator(
-            destination=enum_model_type, init_base_path=dest.import_init_base_class).generate_files(
+            destination=enum_model_type, init_base_path=dest.import_init_base_class
+        ).generate_files(
             yaml_hash,
             s,
             target_pydantic_model_folder,
@@ -210,12 +202,6 @@ def codegen(
 
             typer.secho(
                 f"      ✅ Pydantic models generated at {target_pydantic_model_folder}",
-                bold=True,
-                fg=typer.colors.CYAN,
-            )
-        else:
-            typer.secho(
-                f"      No declared pydantic models for destination [{target_type}]",
                 bold=True,
                 fg=typer.colors.CYAN,
             )
@@ -240,12 +226,6 @@ def codegen(
 
             typer.secho(
                 f"      ✅ Peewee models generated at {target_peewee_folder}",
-                bold=True,
-                fg=typer.colors.CYAN,
-            )
-        else:
-            typer.secho(
-                f"      No declared peewee models for destination [{target_type}]",
                 bold=True,
                 fg=typer.colors.CYAN,
             )
@@ -369,7 +349,8 @@ def codegen(
 #             )
 #
 #         if tmp_peewee_master.exists() and code_gen_conf.peewee_out.exists():
-#             master_diff.setdefault("peewee_master", file_hash(tmp_peewee_master) != file_hash(code_gen_conf.peewee_out))
+#             master_diff.setdefault("peewee_master",
+#                                    file_hash(tmp_peewee_master) != file_hash(code_gen_conf.peewee_out))
 #
 #         show_master_diff(master_diff)
 #         return typer.Exit(code=0)

@@ -14,7 +14,7 @@ from pathlib import Path
 import typer
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-from pymodeller.loader import DBField, EnvSection, EnvSpec, EnvVarSpec, SectionType, DestinationType
+from pymodeller.loader import DBField, DestinationType, EnvSection, EnvSpec, EnvVarSpec, SectionType
 from pymodeller.utils import to_snake_case
 
 

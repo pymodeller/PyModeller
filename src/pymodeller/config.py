@@ -9,12 +9,12 @@ Copyright ©2026 PyModeller. All rights reserved.
 ========================================================================================================================
 """
 
+import tomllib
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, Field
-import tomllib
 
 
 class DestinationConfig(BaseModel):
@@ -36,11 +36,7 @@ class DestinationConfig(BaseModel):
         return DestinationConfig(
             pydantic_model_folder=base_dir / self.pydantic_model_folder,
             pydantic_settings_folder=base_dir / self.pydantic_settings_folder,
-            pydantic_settings_init=(
-                base_dir / self.pydantic_settings_init
-                if self.pydantic_settings_init
-                else None
-            ),
+            pydantic_settings_init=(base_dir / self.pydantic_settings_init if self.pydantic_settings_init else None),
             peewee_folder=base_dir / self.peewee_folder,
             peewee_out=base_dir / self.peewee_out,
             exceptions_folder=base_dir / self.exceptions_folder,
@@ -80,6 +76,13 @@ class CodegenConfig(BaseModel):
             # Fallback to default destination if the model_type is not defined in TOML
             dest = DestinationConfig()
         return dest.resolve_paths(self.base_dir)
+
+    def get_destinations(self, model_type: str | None = None) -> dict[str, DestinationConfig]:
+        """Get dict of detinations."""
+        if model_type:
+            return {model_type: self.get_destination(model_type)}
+
+        return {name: dest.resolve_paths(self.base_dir) for name, dest in self.destinations.items()}
 
 
 def load_codegen_config(
