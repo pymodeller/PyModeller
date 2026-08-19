@@ -2,49 +2,55 @@
 exceptions:
   # --- Errores de Cliente (4xx) ---
 
-  - class_name: "EntityNotFound"
+  - class_name: EntityNotFound
     status_code: 404
-    detail: "The requested resource was not found."
-    description: "Raised when a database lookup by ID or unique field returns no results."
+    detail: The requested resource was not found.
+    description: Raised when a database lookup by ID or unique field returns no results.
 
-  - class_name: "Unauthorized"
+  - class_name: Unauthorized
     status_code: 401
-    detail: "Could not validate credentials."
-    description: "Raised when the Bearer token is missing, expired, or invalid."
+    detail: Could not validate credentials.
+    description: Raised when the Bearer token is missing, expired, or invalid.
 
-  - class_name: "Forbidden"
+  - class_name: Forbidden
     status_code: 403
-    detail: "You do not have sufficient permissions."
-    description: "Raised when the user is authenticated but lacks the required scopes or roles."
+    detail: You do not have sufficient permissions.
+    description: Raised when the user is authenticated but lacks the required scopes or roles.
 
-  - class_name: "Validation"
+  - class_name: Validation
     status_code: 422
-    detail: "The provided data is invalid."
-    description: "Raised when business logic validation fails (e.g., date ranges, unique constraints)."
+    detail: The provided data is invalid.
+    description: Raised when business logic validation fails (e.g., date ranges, unique constraints).
 
-  - class_name: "Conflict"
+  - class_name: Conflict
     status_code: 409
-    detail: "Resource already exists."
-    description: "Raised during creation if a unique constraint (like email) is violated."
+    detail: Resource already exists.
+    description: Raised during creation if a unique constraint (like email) is violated.
 
-  - class_name: "BadRequest"
+  - class_name: BadRequest
     status_code: 400
-    detail: "The request is malformed or contains invalid parameters."
-    description: "General purpose error for bad client input."
+    detail: The request is malformed or contains invalid parameters.
+    description: General purpose error for bad client input.
 
   # --- Errores de Servidor (5xx) ---
 
-  - class_name: "InternalDatabase"
+  - class_name: InternalDatabase
     status_code: 500
-    detail: "An internal error occurred while processing the data."
-    description: "Raised when the database connection fails or an unexpected SQL error occurs."
+    detail: An internal error occurred while processing the data.
+    description: Raised when the database connection fails or an unexpected SQL error occurs.
 
-  - class_name: "ExternalService"
+  - class_name: ExternalService
     status_code: 502
-    detail: "Error communicating with an upstream service."
-    description: "Raised when an external API call (e.g., Payment Gateway, Keycloak) fails."
+    detail: Error communicating with an upstream service.
+    description: Raised when an external API call (e.g., Payment Gateway, Keycloak) fails.
 
-  - class_name: "ServiceUnavailable"
+  - class_name: ServiceUnavailable
     status_code: 503
-    detail: "The service is temporarily overloaded or down for maintenance."
-    description: "Used for planned maintenance or circuit breaker triggers."
+    detail: The service is temporarily overloaded or down for maintenance.
+    description: Used for planned maintenance or circuit breaker triggers.
+
+  - class_name: Configuration
+    status_code: 500
+    detail: No configuration loaded property
+    description: The configuration doesn't load correctly.
+    is_http: false

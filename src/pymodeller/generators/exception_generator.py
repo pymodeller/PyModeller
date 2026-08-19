@@ -24,6 +24,7 @@ class ExceptionSpec(BaseModel):
     class_name: str = Field(..., alias="class_name")
     status_code: int = Field(500, alias="status_code")
     detail: str = Field("Internal Server Error", alias="detail")
+    is_http: bool = Field(True, alias="is_http")
     description: str = Field("General error", alias="description")
     destination: str = Field(default=DestinationType.INFRASTRUCTURE, alias="destination")
 
@@ -73,7 +74,10 @@ class ExceptionGenerator:
 
         for t in templates:
             template = self.env.get_template(t.name)
-            content = template.render(exceptions=specs) if len(dest_spec) > 1 else None
+            flag_http = 'http' in t.name
+
+            spect_ = [d for d in dest_spec if d.is_http == flag_http]
+            content = template.render(exceptions=spect_) if len(spect_) > 0 else None
             if content:
                 exception_dir.mkdir(parents=True, exist_ok=True)
                 file_path = exception_dir / f"{t.stem}.py"
