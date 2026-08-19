@@ -237,18 +237,12 @@ def codegen(
                 bold=True,
                 fg=typer.colors.BRIGHT_GREEN,
             )
-            content = ExceptionGenerator(destination=enum_model_type).generate(code_gen_conf.exceptions_yaml)
+            exception_dir = dest.exceptions_folder
+            content = ExceptionGenerator(
+                destination=enum_model_type).generate(code_gen_conf.exceptions_yaml, exception_dir)
 
-            if content:
-                exception_dir = dest.exceptions_folder
-                exception_dir.mkdir(parents=True, exist_ok=True)
-
-                file_path = exception_dir / "exceptions.py"
-                file_path.write_text(content, encoding="utf-8")
-                init_file_path = exception_dir / "__init__.py"
-                init_file_path.write_text("", encoding="utf-8")
-
-                for p in [file_path, init_file_path]:
+            if len(content):
+                for p in content:
                     ToolRunner.run_with_uv("ruff", ["check", str(p), _CONFIG_TOML, "--fix"])
                     ToolRunner.run_with_uv("ruff", ["format", str(p), _CONFIG_TOML])
 

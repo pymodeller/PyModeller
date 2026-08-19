@@ -59,15 +59,30 @@ class ExceptionGenerator:
         )
         self.destination = destination
 
-    def generate(self, yaml_path: Path) -> str | None:
+    def generate(self, yaml_path: Path, exception_dir: Path) -> list:
         """Lee el YAML, lo parsea y genera el contenido del archivo."""
         path = Path(yaml_path)
         if not path.exists():
             raise FileNotFoundError(f"El archivo {yaml_path} no existe.")
 
         specs = ExceptionParser.parse_yaml(path)
-
         dest_spec = [s for s in specs if s.destination == self.destination]
 
-        template = self.env.get_template("exceptions.jinja")
-        return template.render(exceptions=specs) if len(dest_spec) > 1 else None
+        templates = [Path("exceptions.jinja"), Path("http_exceptions.jinja")]
+        res = []
+
+        for t in templates:
+            template = self.env.get_template(t.name)
+            content = template.render(exceptions=specs) if len(dest_spec) > 1 else None
+            if content:
+                exception_dir.mkdir(parents=True, exist_ok=True)
+                file_path = exception_dir / f"{t.stem}.py"
+                file_path.write_text(content, encoding="utf-8")
+                res.append(file_path)
+
+        if len(res) > 0:
+            init_file_path = exception_dir / "__init__.py"
+            init_file_path.write_text("", encoding="utf-8")
+            res.append(init_file_path)
+
+        return res
