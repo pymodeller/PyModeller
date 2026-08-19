@@ -1,0 +1,238 @@
+models:
+  - name: General
+    description: Top-level application flags
+    type: settings
+    env_prefix: APP_
+    variables:
+      - name: ENV
+        description: Enable local development mode (disables some production guards)
+        type: str
+        default: local
+        required: false
+        secret: false
+      - name: host
+        description: Host
+        type: str
+        default: localhost
+        required: false
+      - name: port
+        description: App port
+        type: int
+        default: 8000
+        required: false
+      - name: minutes_refresh_conf
+        description: Minutes to refresh config
+        type: int
+        default: 5
+        required: false
+      - name: server_url
+        description: Host
+        type: str
+        default: server_url_local
+        required: false
+      - name: server_ws
+        description: Host
+        type: str
+        default: server_ws_local
+        required: false
+      - name: url_event
+        description: Host
+        type: str
+        default: url_event_local
+        required: false
+      - name: waterfall
+        description: Host
+        type: str
+        default: waterfall_name
+        required: false
+
+  # =============================================
+  # Process Configuration
+  # =============================================
+  - name: Process
+    description: Configuration for algorithm processing parameters
+    type: settings
+    include_general: false
+    env_prefix: PROCESSING
+    variables:
+      - name: frames_energy
+        description: Number of frames used for energy computation.
+        type: int
+        default: 10
+        required: false
+        secret: false
+
+      - name: threads_energy
+        description: Number of threads used for energy processing.
+        type: int
+        default: 10
+        required: false
+        secret: false
+
+      - name: token_value
+        description: just a token value
+        type: str
+        default: arn:aws:s3:my-bucket/Environment
+        required: false
+        secret: false
+
+  - name: NewObject
+    type: model
+    description: prueba objeto
+    include_general: false
+    variables:
+      - name: product_id
+        description: Product id
+        type: str
+        default: xxx777
+        required: false
+
+      - name: name
+        description: Product name
+        type: str
+        required: false
+
+      - name: quantity
+        description: Quantity
+        type: int
+        default: 0
+        required: false
+
+      - name: unit_price
+        description: Item unit price
+        type: float
+        default: 0
+        required: false
+
+  - name: orderCreated
+    description: Order creation
+    type: model
+    env_prefix: order_created
+    destination: domain
+    include_general: false
+    variables:
+      - name: EVENT_ID
+        description: Event id
+        type: str
+        default: 888xxx
+        required: false
+        secret: false
+
+      - name: ORDER_ID
+        description: Order id
+        type: str
+        default: 9999xxx
+        required: false
+        secret: false
+
+      - name: user_id
+        description: User id
+        type: str
+        required: false
+
+      - name: items
+        description: list of items
+        type: list
+        from_model: CartItem
+        default: []
+        required: false
+
+      - name: timestamp
+        description: Order timestamp
+        type: timestamp
+        default: timestamp.now
+        required: false
+
+  - name: CartItem
+    type: model
+    description: Cart item
+    include_general: false
+    destination: domain
+    variables:
+      - name: product_id
+        description: Product id
+        type: str
+        default: xxx111
+        required: false
+
+      - name: name
+        description: Product name
+        type: str
+        required: false
+
+      - name: quantity
+        description: Quantity
+        type: int
+        default: 0
+        required: false
+
+      - name: unit_price
+        description: Item unit price
+        type: float
+        default: 0
+        required: false
+
+  - name: orderCreated
+    description: Order creation
+    type: peewee
+    env_prefix: order_created
+    include_general: false
+    variables:
+      - name: EVENT_ID
+        description: Event id
+        type: str
+        default: xxx555
+        required: false
+        secret: false
+
+      - name: ORDER_ID
+        description: Order id
+        type: str
+        default: xxx999
+        required: false
+        secret: false
+
+      - name: user_id
+        description: User id
+        type: str
+        required: false
+
+      - name: items
+        description: list of items
+        type: list
+        default: []
+        required: false
+
+      - name: timestamp
+        description: Order timestamp
+        type: timestamp
+        default: timestamp.now
+        required: false
+
+  - name: CartItem
+    type: peewee
+    description: Cart item
+    include_general: false
+    variables:
+      - name: product_id
+        description: Product id
+        type: str
+        default: xxxxxx
+        required: false
+
+      - name: name
+        description: Product name
+        type: str
+        required: false
+
+      - name: quantity
+        description: Quantity
+        type: int
+        default: 0
+        required: false
+
+      - name: unit_price
+        description: Item unit price
+        type: float
+        default: 0
+        required: false

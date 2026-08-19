@@ -14,6 +14,7 @@ from pathlib import Path
 import yaml
 from jinja2 import Environment, PackageLoader, select_autoescape
 from pydantic import BaseModel, Field
+from pymodeller.loader import DestinationType
 
 
 class ExceptionSpec(BaseModel):
@@ -23,6 +24,7 @@ class ExceptionSpec(BaseModel):
     status_code: int = Field(500, alias="status_code")
     detail: str = Field("Internal Server Error", alias="detail")
     description: str = Field("General error", alias="description")
+    destination: str = Field(default=DestinationType.INFRASTRUCTURE, alias="destination")
 
 
 class ExceptionConfig(BaseModel):
@@ -46,7 +48,7 @@ class ExceptionParser:
 class ExceptionGenerator:
     """Service class to handle exception code generation logic."""
 
-    def __init__(self) -> None:
+    def __init__(self, destination: DestinationType = DestinationType.INFRASTRUCTURE) -> None:
         """Init exception generator."""
         self.env = Environment(
             loader=PackageLoader("pymodeller", "templates"),
@@ -54,8 +56,9 @@ class ExceptionGenerator:
             trim_blocks=True,
             lstrip_blocks=True,
         )
+        self.destination = destination
 
-    def generate(self, yaml_path: Path) -> str:
+    def generate(self, yaml_path: Path) -> str | None:
         """Lee el YAML, lo parsea y genera el contenido del archivo."""
         path = Path(yaml_path)
         if not path.exists():
@@ -63,5 +66,7 @@ class ExceptionGenerator:
 
         specs = ExceptionParser.parse_yaml(path)
 
+        dest_spec = [s for s in specs if s.destination == self.destination]
+
         template = self.env.get_template("exceptions.jinja")
-        return template.render(exceptions=specs)
+        return template.render(exceptions=specs) if len(dest_spec) > 1 else None

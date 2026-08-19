@@ -28,14 +28,17 @@ from pymodeller.generators.env_generator import EnvGenerator
 from pymodeller.generators.exception_generator import ExceptionGenerator
 from pymodeller.generators.peewee_generator import PeeweeGenerator
 from pymodeller.generators.pydantic_generator import _YAML_HASH_MARKER, PydanticGenerator
-from pymodeller.loader import load_env_spec
+from pymodeller.loader import load_env_spec, DestinationType
 from pymodeller.tool_runner import ToolRunner
-from pymodeller.utils import compare_dirs, deep_merge, file_hash, get_file_hash, write_env_file
+from pymodeller.utils import compare_dirs, deep_merge, file_hash, get_file_hash, write_env_file, \
+    ensure_init_py_in_subdirectories
 from pymodeller.validator import validate_env
 
 # --- Constants & Defaults ---
 
 code_gen_conf = get_code_gen_config()
+default_dest = code_gen_conf.get_destination("infrastructure")
+
 console = Console()
 
 _CONFIG_TOML = "--config=pyproject.toml"
@@ -47,7 +50,7 @@ _CONFIG_TOML = "--config=pyproject.toml"
 def example(
     spec: Annotated[
         Path, typer.Option("--spec", "-s", help="Path to environment.yaml")
-    ] = code_gen_conf.pymodeller_models,
+    ] = code_gen_conf.models_yaml,
     out: Annotated[Path, typer.Option("--out", "-o", help="Output path for .env.example")] = code_gen_conf.env_example,
     secrets_only: Annotated[bool, typer.Option("--secrets", "-ss", help="Flag for only secrets in .env")] = False,
 ) -> typer.Exit:
@@ -65,7 +68,7 @@ def example(
 
 
 def yaml_file(
-    spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to models.yaml")] = code_gen_conf.pymodeller_models,
+    spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to models.yaml")] = code_gen_conf.models_yaml,
     out: Annotated[
         Path, typer.Option("--out", "-o", help="Output path for environments.yaml")
     ] = code_gen_conf.environment_file,
@@ -117,7 +120,7 @@ def generate_env(
 
 
 def check(
-    spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.pymodeller_models,
+    spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.models_yaml,
     env: Annotated[Path, typer.Option("--env", "-e", help="Path to .env file")] = code_gen_conf.env,
 ) -> typer.Exit:
     """Validate current .env file against the specification."""
@@ -140,183 +143,236 @@ def check(
 
 
 def codegen(
-    spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.pymodeller_models,
-    pydantic_out: Annotated[
-        Path, typer.Option("--pydantic-out", "-pyo", help="Path for the generated Pydantic models")
-    ] = code_gen_conf.pydantic_folder,
-    peewee_out: Annotated[
-        Path, typer.Option("--peewee-out", "-pwo", help="Path for the generated Peewee models")
-    ] = code_gen_conf.peewee_folder,
-    pydantic_master: Annotated[
-        Path | None, typer.Option("--pydantic-master", "-pym", help="Path for the generated main Pydantic module")
-    ] = code_gen_conf.pydantic_out,
-    peewee_master: Annotated[
-        Path, typer.Option("--peewee-master", "-pem", help="Path for the generated main Peewee module")
-    ] = code_gen_conf.peewee_out,
+    spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.models_yaml,
+    model_type: Annotated[
+        str | None,
+        typer.Option(
+            "--model-type",
+            "-t",
+            help="Target specific destination type (e.g., 'infrastructure', 'domain'). Runs all if omitted.",
+        ),
+    ] = None,
 ) -> typer.Exit:
     """Generate typed Pydantic models for the environment."""
     s = load_env_spec(spec)
     yaml_hash = get_file_hash(Path(spec))
 
-    typer.secho(" Step 1: Generating Pydantic Models", bold=True)
-    out_path, models_dir = PydanticGenerator().generate_files(yaml_hash, s, pydantic_out, pydantic_master)
-
-    if out_path:
-        typer.secho("Step 1.A. Executing ruff commands over files generated", fg=typer.colors.BRIGHT_GREEN)
-
-        for p in [out_path, models_dir]:
-            if p and p.exists():
-                ToolRunner.run_with_uv("ruff", ["check", str(p), _CONFIG_TOML, "--fix"])
-                ToolRunner.run_with_uv("ruff", ["format", str(p), _CONFIG_TOML])
-
-        typer.secho(
-            f"      ✅ Pydantic models generated at {pydantic_out}",
-            bold=True,
-            fg=typer.colors.CYAN,
-        )
+    # 1. Resolve target destinations (single target or ALL configured destinations)
+    if model_type:
+        target_destinations = {model_type: code_gen_conf.get_destination(model_type)}
     else:
+        target_destinations = {
+            name: dest.resolve_paths(code_gen_conf.base_dir)
+            for name, dest in code_gen_conf.destinations.items()
+        }
+
+    # Fallback to default destination if no destinations are defined in TOML
+    if not target_destinations:
+        target_destinations = {"infrastructure": code_gen_conf.get_destination("infrastructure")}
+
+    # 2. Iterate through each resolved target destination
+    for target_type, dest in target_destinations.items():
+        enum_model_type = DestinationType(target_type)
         typer.secho(
-            "      No declared pydantic models",
+            f"\n🚀 Processing target destination: [{target_type.upper()}]",
             bold=True,
-            fg=typer.colors.CYAN,
+            fg=typer.colors.MAGENTA,
         )
 
-    typer.secho(" Step 2: Generating Peewee Models", bold=True)
-    p_path, pm_dir = PeeweeGenerator().generate_files(s, peewee_out, peewee_master)
+        # Determine paths with CLI overrides as priority
+        target_pydantic_model_folder = dest.pydantic_model_folder
+        target_pydantic_settings_folder = dest.pydantic_settings_folder
+        target_pydantic_master = dest.pydantic_settings_init
+        target_peewee_folder = dest.peewee_folder
+        target_peewee_master = dest.peewee_out
 
-    if p_path:
-        typer.secho("Step 2.A. Executing ruff commands over files generated", fg=typer.colors.BRIGHT_GREEN)
-        for p in [p_path, pm_dir]:
-            if p and p.exists():
-                ToolRunner.run_with_uv("ruff", ["check", str(p), _CONFIG_TOML, "--fix"])
-                ToolRunner.run_with_uv("ruff", ["format", str(p), _CONFIG_TOML])
-
-        typer.secho(
-            f"      ✅ Peewee models generated at {peewee_out}",
-            bold=True,
-            fg=typer.colors.CYAN,
-        )
-    else:
-        typer.secho(
-            "      No declared peewee models",
-            bold=True,
-            fg=typer.colors.CYAN,
+        # Step 1: Generating Pydantic Models
+        typer.secho(" Step 1: Generating Pydantic Models", bold=True)
+        out_path, out_settings, models_dir = PydanticGenerator(
+            destination=enum_model_type, init_base_path=dest.import_init_base_class).generate_files(
+            yaml_hash,
+            s,
+            target_pydantic_model_folder,
+            target_pydantic_settings_folder,
+            target_pydantic_master,
         )
 
-    if code_gen_conf.exceptions_file and code_gen_conf.exceptions_folder:
-        typer.secho(
-            f"Step 2: Creating exceptions class {code_gen_conf.exceptions_folder}",
-            bold=True,
-            fg=typer.colors.BRIGHT_GREEN,
-        )
-        content = ExceptionGenerator().generate(code_gen_conf.exceptions_file)
-        exception_dir = Path(code_gen_conf.exceptions_folder)
-        exception_dir.mkdir(parents=True, exist_ok=True)
-        file_path = exception_dir / "exceptions.py"
-        file_path.write_text(content, encoding="utf-8")
-        file_path = exception_dir / "__init__.py"
-        file_path.write_text("", encoding="utf-8")
-        ToolRunner.run_with_uv("ruff", ["check", str(file_path), _CONFIG_TOML, "--fix"])
-        ToolRunner.run_with_uv("ruff", ["format", str(file_path), _CONFIG_TOML])
-
-    return typer.Exit(code=0)
-
-
-def drift(
-    spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.pymodeller_models,
-    data_model: Annotated[
-        Path | None, typer.Option("--data-model", "-d", help="Path for the generated settings module")
-    ] = code_gen_conf.pydantic_out,
-) -> typer.Exit:
-    """Check drift between YAML spec and generated code."""
-    spec_path = Path(spec)
-    if not data_model:
-        typer.secho("❌ Data model path needed.", fg=typer.colors.RED)
-        raise typer.Exit(1)
-
-    dm_path = Path(data_model)
-    banner_full("Checking differences between YAML and models.")
-    if not dm_path.exists():
-        typer.secho("❌ Data model file missing. Run codegen first.", fg=typer.colors.RED)
-        raise typer.Exit(1)
-
-    current_hash = get_file_hash(spec_path)
-
-    stored_hash = None
-    with dm_path.open() as f:
-        for line in f:
-            if line.startswith(_YAML_HASH_MARKER):
-                stored_hash = line.replace(_YAML_HASH_MARKER, "").strip()
-                break
-
-    if current_hash != stored_hash:
-        typer.secho("❌ Drift detected! YAML spec has changed. Please run codegen.", fg=typer.colors.RED)
-        raise typer.Exit(1)
-    typer.secho(" No differences found. ", fg=typer.colors.CYAN)
-
-    banner_full("Checking differences between models and yaml.")
-    typer.secho(
-        " Executing following commands:\n 1. Create tmp files \n 2. Calculating hash of generated code",
-        fg=typer.colors.CYAN,
-    )
-
-    sync(spec)
-
-    typer.echo("✅ No drift detected. Files are in sync.")
-    return typer.Exit(code=0)
-
-
-def sync(
-    spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.pymodeller_models,
-) -> typer.Exit:
-    """Check if generated models are in sync with the YAML spec."""
-    original_cwd = Path.cwd()
-    banner_full("Creating temporal files", "spring_green1")
-    with tempfile.TemporaryDirectory(dir=".") as tmpdir:
-        tmpdir = Path(tmpdir).relative_to(Path.cwd())
-
-        tmp_pydantic_master = tmpdir / code_gen_conf.pydantic_out if code_gen_conf.pydantic_out else None
-        tmp_peewee_master = tmpdir / code_gen_conf.peewee_out
-        tmp_pydantic_folder = tmpdir / code_gen_conf.pydantic_folder
-        tmp_peewee_folder = tmpdir / code_gen_conf.peewee_folder
-
-        codegen(
-            spec=spec,
-            peewee_master=tmp_peewee_master,
-            pydantic_master=tmp_pydantic_master,
-            peewee_out=tmp_peewee_folder,
-            pydantic_out=tmp_pydantic_folder,
-        )
-
-        result_pydantic = compare_dirs(
-            tmpdir / code_gen_conf.pydantic_folder,
-            original_cwd / code_gen_conf.pydantic_folder,
-        )
-        result_peewee = compare_dirs(
-            tmpdir / code_gen_conf.peewee_folder,
-            original_cwd / code_gen_conf.peewee_folder,
-        )
-        banner_full("Comparing differences", "spring_green1")
-        print_diff("Pydantic", result_pydantic)
-        print_diff("Peewee", result_peewee)
-
-        master_diff = {}
-
-        if (
-            tmp_pydantic_master
-            and tmp_pydantic_master.exists()
-            and code_gen_conf.pydantic_out
-            and code_gen_conf.pydantic_out.exists()
-        ):
-            master_diff.setdefault(
-                "pydantic_master", file_hash(tmp_pydantic_master) != file_hash(code_gen_conf.pydantic_out)
+        if out_path:
+            typer.secho(
+                "Step 1.A. Executing ruff commands over files generated",
+                fg=typer.colors.BRIGHT_GREEN,
             )
 
-        if tmp_peewee_master.exists() and code_gen_conf.peewee_out.exists():
-            master_diff.setdefault("peewee_master", file_hash(tmp_peewee_master) != file_hash(code_gen_conf.peewee_out))
+            for p in [out_path, out_settings, models_dir]:
+                if p and p.exists():
+                    ToolRunner.run_with_uv("ruff", ["check", str(p), _CONFIG_TOML, "--fix"])
+                    ToolRunner.run_with_uv("ruff", ["format", str(p), _CONFIG_TOML])
 
-        show_master_diff(master_diff)
-        return typer.Exit(code=0)
+            typer.secho(
+                f"      ✅ Pydantic models generated at {target_pydantic_model_folder}",
+                bold=True,
+                fg=typer.colors.CYAN,
+            )
+        else:
+            typer.secho(
+                f"      No declared pydantic models for destination [{target_type}]",
+                bold=True,
+                fg=typer.colors.CYAN,
+            )
+
+        # Step 2: Generating Peewee Models
+        typer.secho(" Step 2: Generating Peewee Models", bold=True)
+        p_path, pm_dir = PeeweeGenerator(destination=enum_model_type).generate_files(
+            s,
+            target_peewee_folder,
+            target_peewee_master,
+        )
+
+        if p_path:
+            typer.secho(
+                "Step 2.A. Executing ruff commands over files generated",
+                fg=typer.colors.BRIGHT_GREEN,
+            )
+            for p in [p_path, pm_dir]:
+                if p and p.exists():
+                    ToolRunner.run_with_uv("ruff", ["check", str(p), _CONFIG_TOML, "--fix"])
+                    ToolRunner.run_with_uv("ruff", ["format", str(p), _CONFIG_TOML])
+
+            typer.secho(
+                f"      ✅ Peewee models generated at {target_peewee_folder}",
+                bold=True,
+                fg=typer.colors.CYAN,
+            )
+        else:
+            typer.secho(
+                f"      No declared peewee models for destination [{target_type}]",
+                bold=True,
+                fg=typer.colors.CYAN,
+            )
+
+        # Step 3: Generating Exception classes per destination
+        if code_gen_conf.exceptions_yaml and dest.exceptions_folder:
+            typer.secho(
+                f"Step 3: Creating exceptions class in {dest.exceptions_folder}",
+                bold=True,
+                fg=typer.colors.BRIGHT_GREEN,
+            )
+            content = ExceptionGenerator(destination=enum_model_type).generate(code_gen_conf.exceptions_yaml)
+
+            if content:
+                exception_dir = dest.exceptions_folder
+                exception_dir.mkdir(parents=True, exist_ok=True)
+
+                file_path = exception_dir / "exceptions.py"
+                file_path.write_text(content, encoding="utf-8")
+                init_file_path = exception_dir / "__init__.py"
+                init_file_path.write_text("", encoding="utf-8")
+
+                for p in [file_path, init_file_path]:
+                    ToolRunner.run_with_uv("ruff", ["check", str(p), _CONFIG_TOML, "--fix"])
+                    ToolRunner.run_with_uv("ruff", ["format", str(p), _CONFIG_TOML])
+
+    # 3. Check missing __init__.py files
+    ensure_init_py_in_subdirectories(code_gen_conf.base_dir)
+
+    return typer.Exit(code=0)
+
+
+# def drift(
+#     spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.models_yaml,
+#     data_model: Annotated[
+#         Path | None, typer.Option("--data-model", "-d", help="Path for the generated settings module")
+#     ] = default_dest.pydantic_out,
+# ) -> typer.Exit:
+#     """Check drift between YAML spec and generated code."""
+#     spec_path = Path(spec)
+#     if not data_model:
+#         typer.secho("❌ Data model path needed.", fg=typer.colors.RED)
+#         raise typer.Exit(1)
+#
+#     dm_path = Path(data_model)
+#     banner_full("Checking differences between YAML and models.")
+#     if not dm_path.exists():
+#         typer.secho("❌ Data model file missing. Run codegen first.", fg=typer.colors.RED)
+#         raise typer.Exit(1)
+#
+#     current_hash = get_file_hash(spec_path)
+#
+#     stored_hash = None
+#     with dm_path.open() as f:
+#         for line in f:
+#             if line.startswith(_YAML_HASH_MARKER):
+#                 stored_hash = line.replace(_YAML_HASH_MARKER, "").strip()
+#                 break
+#
+#     if current_hash != stored_hash:
+#         typer.secho("❌ Drift detected! YAML spec has changed. Please run codegen.", fg=typer.colors.RED)
+#         raise typer.Exit(1)
+#     typer.secho(" No differences found. ", fg=typer.colors.CYAN)
+#
+#     banner_full("Checking differences between models and yaml.")
+#     typer.secho(
+#         " Executing following commands:\n 1. Create tmp files \n 2. Calculating hash of generated code",
+#         fg=typer.colors.CYAN,
+#     )
+#
+#     sync(spec)
+#
+#     typer.echo("✅ No drift detected. Files are in sync.")
+#     return typer.Exit(code=0)
+#
+#
+# def sync(
+#     spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.models_yaml,
+# ) -> typer.Exit:
+#     """Check if generated models are in sync with the YAML spec."""
+#     original_cwd = Path.cwd()
+#     banner_full("Creating temporal files", "spring_green1")
+#     with tempfile.TemporaryDirectory(dir=".") as tmpdir:
+#         tmpdir = Path(tmpdir).relative_to(Path.cwd())
+#
+#         tmp_pydantic_master = tmpdir / code_gen_conf.pydantic_out if code_gen_conf.pydantic_out else None
+#         tmp_peewee_master = tmpdir / code_gen_conf.peewee_out
+#         tmp_pydantic_folder = tmpdir / code_gen_conf.pydantic_folder
+#         tmp_peewee_folder = tmpdir / code_gen_conf.peewee_folder
+#
+#         codegen(
+#             spec=spec,
+#             peewee_master=tmp_peewee_master,
+#             pydantic_master=tmp_pydantic_master,
+#             peewee_out=tmp_peewee_folder,
+#             pydantic_out=tmp_pydantic_folder,
+#         )
+#
+#         result_pydantic = compare_dirs(
+#             tmpdir / code_gen_conf.pydantic_folder,
+#             original_cwd / code_gen_conf.pydantic_folder,
+#         )
+#         result_peewee = compare_dirs(
+#             tmpdir / code_gen_conf.peewee_folder,
+#             original_cwd / code_gen_conf.peewee_folder,
+#         )
+#         banner_full("Comparing differences", "spring_green1")
+#         print_diff("Pydantic", result_pydantic)
+#         print_diff("Peewee", result_peewee)
+#
+#         master_diff = {}
+#
+#         if (
+#             tmp_pydantic_master
+#             and tmp_pydantic_master.exists()
+#             and code_gen_conf.pydantic_out
+#             and code_gen_conf.pydantic_out.exists()
+#         ):
+#             master_diff.setdefault(
+#                 "pydantic_master", file_hash(tmp_pydantic_master) != file_hash(code_gen_conf.pydantic_out)
+#             )
+#
+#         if tmp_peewee_master.exists() and code_gen_conf.peewee_out.exists():
+#             master_diff.setdefault("peewee_master", file_hash(tmp_peewee_master) != file_hash(code_gen_conf.peewee_out))
+#
+#         show_master_diff(master_diff)
+#         return typer.Exit(code=0)
 
 
 def show_version(value: bool) -> typer.Exit | None:
@@ -326,24 +382,24 @@ def show_version(value: bool) -> typer.Exit | None:
         raise typer.Exit(code=0)
 
 
-def show_master_diff(master_diff: dict) -> None:
-    """Show diff."""
-    has_diff = False
-
-    for name, diff in master_diff.items():
-        if diff:
-            has_diff = True
-
-            path = ""
-            if name == "pydantic_master":
-                path = code_gen_conf.pydantic_out
-            elif name == "peewee_master":
-                path = code_gen_conf.peewee_out
-
-            typer.secho(f" ❌ Modified: {path}", fg=typer.colors.RED)
-
-    if not has_diff:
-        typer.secho(" ✅ Master files are in sync", fg=typer.colors.GREEN, bold=True)
+# def show_master_diff(master_diff: dict) -> None:
+#     """Show diff."""
+#     has_diff = False
+#
+#     for name, diff in master_diff.items():
+#         if diff:
+#             has_diff = True
+#
+#             path = ""
+#             if name == "pydantic_master":
+#                 path = code_gen_conf.pydantic_out
+#             elif name == "peewee_master":
+#                 path = code_gen_conf.peewee_out
+#
+#             typer.secho(f" ❌ Modified: {path}", fg=typer.colors.RED)
+#
+#     if not has_diff:
+#         typer.secho(" ✅ Master files are in sync", fg=typer.colors.GREEN, bold=True)
 
 
 def print_diff(name: str, diff: dict) -> None:

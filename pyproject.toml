@@ -68,17 +68,46 @@ docs = [
     "pymdown-extensions>=10.21.2",
 ]
 
+# [tool.pymodeller]
+# pydantic_out="./src/event_driven/infrastructure/config/init_settings.py"
+# pydantic_folder="./src/event_driven/infrastructure/config/schemas"
+# peewee_folder="./src/event_driven/infrastructure/persistence/models"
+# peewee_out="./src/event_driven/infrastructure/persistence/connection.py"
+# exceptions_file="./pymodeller/exceptions.yaml"
+# exceptions_folder="./src/event_driven/exceptions"
+# environment_file="./environments.yaml"
+# generate_init_models=true
+# # import_settings_base_class="from config_das.models.base_settings import BaseTraceableSettings"
+# pymodeller_models="./pymodeller/models.yaml"
+
+
 [tool.pymodeller]
-pydantic_out="./src/das_control/models/init_settings.py"
-pydantic_folder="./src/das_control/models/schemas"
-peewee_folder="./src/das_control/models/entities"
-peewee_out="./src/das_control/models/db_models.py"
-exceptions_file="./pymodeller/exceptions.yaml"
-exceptions_folder="./src/das_control/exceptions"
-environment_file="./environments.yaml"
-generate_init_models=true
-# import_settings_base_class="from config_das.models.base_settings import BaseTraceableSettings"
-pymodeller_models="./pymodeller/models.yaml"
+base_dir = "./src/event_driven"
+
+# Archivos de entrada/configuración global
+models_yaml = "./pymodeller/pymodeller.yaml"
+exceptions_yaml = "./pymodeller/exceptions.yaml"
+environment_file = "./environments.yaml"
+generate_init_models = true
+
+# Destinos según el 'model_type'
+[tool.pymodeller.destinations.infrastructure]
+# import_settings_base_class="from config_das.models.base_settings import BaseTraceableSettings
+pydantic_model_folder = "infrastructure/config/schemas"
+pydantic_settings_folder = "infrastructure/config/settings"
+pydantic_settings_init = "infrastructure/config/init_settings.py"
+peewee_folder = "infrastructure/persistence/models"
+peewee_out = "infrastructure/persistence/connection.py"
+exceptions_folder = "infrastructure/exceptions"
+
+[tool.pymodeller.destinations.domain]
+import_settings_base_class="from event_driven.infrastructure.config.settings.base_settings import BaseTraceableSettings"
+pydantic_model_folder = "domain/schemas"
+pydantic_settings_folder = "domain/settings"
+pydantic_settings_init = "domain/init_settings.py"
+peewee_folder = "domain/persistence/models"
+peewee_out = "domain/persistence/connection.py"
+exceptions_folder = "domain/exceptions"
 
 
 [tool.ruff]

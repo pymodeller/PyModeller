@@ -15,7 +15,7 @@ import typer
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 from pymodeller.config import get_code_gen_config
-from pymodeller.loader import YAML_TYPE_MAP, EnvSection, EnvSpec, EnvVarSpec, SectionType
+from pymodeller.loader import YAML_TYPE_MAP, EnvSection, EnvSpec, EnvVarSpec, SectionType, DestinationType
 from pymodeller.utils import to_pascal_case, to_snake_case
 
 _YAML_HASH_MARKER = "# YAML-SHA256: "
@@ -26,10 +26,12 @@ code_gen_conf = get_code_gen_config()
 class PydanticGenerator:
     """Handles Pydantic model generation using Jinja2 templates."""
 
-    def __init__(self) -> None:
+    def __init__(self, destination: DestinationType = DestinationType.INFRASTRUCTURE, init_base_path: Path | None = None) -> None:
         """Configura Jinja para leer desde el paquete pymodeller/templates."""
         self.env = Environment(loader=PackageLoader("pymodeller", "templates"), autoescape=select_autoescape())
         self.template = self.env.get_template("pydantic_template.jinja")
+        self.destination_type = destination
+        self.init_base_path = init_base_path
 
     @staticmethod
     def get_python_type(var: EnvVarSpec) -> str:
@@ -113,7 +115,7 @@ class PydanticGenerator:
 
         context = {
             "class_name": class_name,
-            "import_pydantic_base": code_gen_conf.import_settings_base_class,
+            "import_pydantic_base": self.init_base_path,
             "is_settings": section.type == SectionType.SETTINGS,
             "description": f"Settings for the {section.name} section.",
             "env_prefix": section.env_prefix,
@@ -227,7 +229,7 @@ class PydanticGenerator:
 
         context = {
             "class_name": "GeneralSettings",
-            "import_pydantic_base": code_gen_conf.import_settings_base_class,
+            "import_pydantic_base": self.init_base_path,
             "env_prefix": general_section.env_prefix,
             "from_attributes": general_section.from_attributes,
             "flat_variables": flat_vars,
@@ -240,42 +242,62 @@ class PydanticGenerator:
 
         file_path.write_text(rendered_code, encoding="utf-8")
 
-    def generate_files(self, yaml_hash: str, s: EnvSpec, out: Path, master: Path | None) -> tuple:
+    @staticmethod
+    def check_dir(dir_path: Path) -> Path:
+        """Check if dir_path exists."""
+        models_dir = Path(dir_path)
+        models_dir.mkdir(parents=True, exist_ok=True)
+        return models_dir
+
+    def generate_files(self, yaml_hash: str, s: EnvSpec, out_model: Path, out_settings: Path, master: Path | None) -> tuple:
         """Generate pydantic files."""
-        sections = [s for s in s.sections if s.type != SectionType.PEEWEE]
+        pydantic_sections_ = [s for s in s.sections if s.type != SectionType.PEEWEE]
+        sections = [s for s in pydantic_sections_ if s.destination == self.destination_type]
 
         if len(sections) == 0:
             return None, None
 
-        models_dir = Path(out)
-        models_dir.mkdir(parents=True, exist_ok=True)
-
-        general_section: EnvSection = EnvSection(name=GENERAL)
-        sections_with_classes: list[EnvSection] = []
+        general_section: EnvSection | None = None
+        sections_settings: list[EnvSection | None] = []
+        sections_models: list[EnvSection | None] = []
 
         for sect in sections:
             if sect.name != GENERAL:
                 section_str = self.render_section(sect)
-                sections_with_classes.append(sect)
                 module_name, _ = self.generate_module_class_name(sect)
+
+                dir_ = out_model if sect.type == SectionType.MODEL else out_settings
+                adder_section = sections_models if sect.type == SectionType.MODEL else sections_settings
+                adder_section.append(sect)
+                models_dir = self.check_dir(dir_)
 
                 file_name = module_name + ".py"
                 file_path = models_dir / file_name
                 file_path.write_text(section_str, encoding="utf-8")
                 typer.echo(f"   Model: {file_path}")
             else:
-                general_section = sect
+                general_section = sect if sect.destination == self.destination_type else None
 
-        self.generate_general_settings(general_section, sections_with_classes, out)
-        self.generate_init(sections, out)
+        if general_section:
+            self.generate_general_settings(general_section, sections_settings, out_settings)
 
-        if not code_gen_conf.import_settings_base_class:
-            self.generate_base_class(out)
+        if len(sections_settings) > 0:
+            sections_settings.append(general_section)
+            if master:
+                self.generate_master(sections_settings, out_settings, master, yaml_hash)
+                typer.echo(f"   Out: {master}")
+            self.generate_init(sections_settings, out_settings)
+            if not self.init_base_path and len(sections_settings) > 0:
+                self.generate_base_class(out_settings)
 
-        if master:
-            self.generate_master(sections, out, master, yaml_hash)
-            typer.echo(f"   Out: {master}")
+        if len(sections_models) > 0:
+            self.generate_init(sections_models, out_model)
 
-        typer.echo(f"   Out: {out}")
 
-        return out, master
+        # if master and len(sections_settings) > 0:
+        #     self.generate_master(sections_settings, out_settings, master, yaml_hash)
+        #     typer.echo(f"   Out: {master}")
+
+        typer.echo(f"   Out: {out_model}")
+
+        return out_model, out_settings, master

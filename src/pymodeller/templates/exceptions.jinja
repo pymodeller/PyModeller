@@ -36,7 +36,7 @@ class CustomException(HTTPException):
         dict_ = generate_dict(self.description, self.detail, self.code)
 
         for key, value in dict_.items():
-            yield key, value
+            yield from (key, value)
 
 
 {% for exc in exceptions %}

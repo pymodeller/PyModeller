@@ -14,14 +14,14 @@ from pathlib import Path
 import typer
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-from pymodeller.loader import DBField, EnvSection, EnvSpec, EnvVarSpec, SectionType
+from pymodeller.loader import DBField, EnvSection, EnvSpec, EnvVarSpec, SectionType, DestinationType
 from pymodeller.utils import to_snake_case
 
 
 class PeeweeGenerator:
     """Handles Peewee model generation using Jinja2 templates."""
 
-    def __init__(self) -> None:
+    def __init__(self, destination: DestinationType = DestinationType.INFRASTRUCTURE) -> None:
         """Instance peewee generator."""
         self.env = Environment(loader=PackageLoader("pymodeller", "templates"), autoescape=select_autoescape())
         self.type_mapping = {
@@ -31,6 +31,7 @@ class PeeweeGenerator:
             "float": "FloatField",
             "datetime": "DateTimeField",
         }
+        self.destination_type = destination
 
     @staticmethod
     def generate_module_class_name(name: str) -> tuple:
@@ -166,7 +167,9 @@ class PeeweeGenerator:
 
     def generate_files(self, s: EnvSpec, out: Path, master: Path) -> tuple:
         """Main entry point to generate all Peewee files."""
-        sections = [sect for sect in s.sections if sect.type == SectionType.PEEWEE]
+        peewee_sections = [sect for sect in s.sections if sect.type == SectionType.PEEWEE]
+        sections = [s for s in peewee_sections if s.destination == self.destination_type]
+
         if not sections:
             return None, None
 

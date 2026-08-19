@@ -67,6 +67,18 @@ BOOL_FALSY: frozenset[str] = frozenset({"false", "0", "no", "off"})
 BOOL_VALUES: frozenset[str] = BOOL_TRUTHY | BOOL_FALSY
 
 
+class DestinationType(StrEnum):
+    """Model type."""
+
+    INFRASTRUCTURE = "infrastructure"
+    DOMAIN = "domain"
+
+    @classmethod
+    def _missing_(cls, value: object) -> None:
+        options = ", ".join([f"'{item.value}'" for item in cls])
+        raise ValueError(f"'{value}' is not a valid {cls.__name__}. Allowed options are: [{options}]")
+
+
 class SectionType(StrEnum):
     """Section type."""
 
@@ -164,6 +176,7 @@ class EnvSection:
     name: str
     description: str = ""
     env_prefix: str = ""
+    destination: DestinationType = DestinationType.INFRASTRUCTURE
     type: SectionType = SectionType.SETTINGS
     include_init_settings: bool = True
     include_general: bool = True
@@ -218,13 +231,13 @@ def load_env_spec(path: str | Path | None = None) -> EnvSpec:
         for file in yaml_files:
             with file.open(encoding="utf-8") as f:
                 data = yaml.safe_load(f) or {}
-                sections = data.get("sections", [])
+                sections = data.get("models", [])
                 if isinstance(sections, list):
                     raw_sections.extend(sections)
     else:
         with spec_path.open(encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
-            raw_sections = data.get("sections", [])
+            raw_sections = data.get("models", [])
 
     if not raw_sections:
         raise ValueError("Empty sections")
@@ -269,6 +282,7 @@ def load_env_spec(path: str | Path | None = None) -> EnvSpec:
         parsed_sections.append(
             EnvSection(
                 name=sec_name,
+                destination=raw_sec.get("destination", DestinationType.INFRASTRUCTURE),
                 description=raw_sec.get("description", "Auto-generated description"),
                 include_init_settings=raw_sec.get("include_init_settings", True),
                 include_general=raw_sec.get("include_general", True),

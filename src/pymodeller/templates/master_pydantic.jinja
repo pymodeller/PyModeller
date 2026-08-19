@@ -40,12 +40,12 @@ def get_{{ section.func_name }}({% if section.yaml_file %}path: Path | None = No
         item_list.append(data)
 
     values = {'items': item_list}
-    return {{ section.class_name }}.model_validate(values)
+    return {{ section.class_name }}(**values)
     {% else %}
     # Single file loading
     path = path if path else Path("{{ section.yaml_file }}")
     values = _read_yaml(path)
-    return {{ section.class_name }}.model_validate(values)
+    return {{ section.class_name }}(**values)
     {% endif %}
     {% else %}
     # Default instantiation (no YAML)

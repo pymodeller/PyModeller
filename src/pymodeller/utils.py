@@ -133,3 +133,37 @@ def deep_merge(base: dict, overrides: dict) -> dict:
         else:
             base[key] = value
     return base
+
+
+def ensure_init_py_in_subdirectories(root_dir: str | Path) -> list[Path]:
+    """Recursively walks through all directories starting from root_dir
+    and creates an empty __init__.py file if one does not exist.
+
+    Args:
+        root_dir: The target directory path to inspect.
+
+    Returns:
+        List of Path objects representing all __init__.py files created.
+    """
+    base_path = Path(root_dir)
+
+    if not base_path.exists():
+        raise FileNotFoundError(f"The specified path does not exist: {base_path}")
+
+    created_files: list[Path] = []
+
+    # Check the root directory itself first
+    root_init = base_path / "__init__.py"
+    if not root_init.exists():
+        root_init.touch()
+        created_files.append(root_init)
+
+    # Recursively traverse all subdirectories
+    for folder in base_path.rglob("*"):
+        if folder.is_dir():
+            init_file = folder / "__init__.py"
+            if not init_file.exists():
+                init_file.touch()
+                created_files.append(init_file)
+
+    return created_files
