@@ -55,6 +55,13 @@ sections:
     include_general: false
     env_prefix: PROCESSING
     variables:
+      - name: token_value
+        description: just a token value
+        type: str
+        default: arn:aws:s3:my-bucket/Environment
+        required: false
+        secret: false
+
       - name: frames_energy
         description: Number of frames used for energy computation.
         type: int
@@ -69,12 +76,7 @@ sections:
         required: false
         secret: false
 
-      - name: token_value
-        description: just a token value
-        type: str
-        default: arn:aws:s3:my-bucket/Environment
-        required: false
-        secret: false
+
 
 
   - name: Zone
