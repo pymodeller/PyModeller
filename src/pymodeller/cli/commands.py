@@ -23,6 +23,7 @@ from rich.text import Text
 
 from pymodeller import __version__
 from pymodeller.config import get_code_gen_config
+from pymodeller.generators.enum_generator import EnumGenerator
 from pymodeller.generators.env_generator import EnvGenerator
 from pymodeller.generators.exception_generator import ExceptionGenerator
 from pymodeller.generators.peewee_generator import PeeweeGenerator
@@ -236,6 +237,23 @@ def codegen(
                 for p in content:
                     ToolRunner.run_with_uv("ruff", ["check", str(p), _CONFIG_TOML, "--fix"])
                     ToolRunner.run_with_uv("ruff", ["format", str(p), _CONFIG_TOML])
+
+        # Step 4: Generating Exception classes per destination
+        if dest.enumerations_folder:
+            typer.secho(
+                f"Step 4: Creating enumerations class in {dest.enumerations_folder}",
+                bold=True,
+                fg=typer.colors.BRIGHT_GREEN,
+            )
+            exception_dir = dest.enumerations_folder
+            content = EnumGenerator(
+                destination=enum_model_type).generate(code_gen_conf.models_yaml, exception_dir)
+
+            if len(content):
+                for p in content:
+                    ToolRunner.run_with_uv("ruff", ["check", str(p), _CONFIG_TOML, "--fix"])
+                    ToolRunner.run_with_uv("ruff", ["format", str(p), _CONFIG_TOML])
+
 
     # 3. Check missing __init__.py files
     ensure_init_py_in_subdirectories(code_gen_conf.base_dir)

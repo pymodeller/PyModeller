@@ -13,41 +13,84 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from pydantic import BaseModel, Field
+from jinja2 import Environment, PackageLoader, select_autoescape
+import re
+from pymodeller.loader import DestinationType
+
+
+class EnumerationSpec(BaseModel):
+    """Spec enum."""
+    name: str = Field(..., alias="name")
+    destination: DestinationType = DestinationType.INFRASTRUCTURE
+    options: list[str] = Field(..., alias='options')
+    description: str = Field(..., alias="description")
+
+
+class EnumerationConfig(BaseModel):
+    """Config enum."""
+
+    enumerations: list[EnumerationSpec] = Field(..., alias="enumerations")
+
+
+class EnumerationParser:
+    """Lee el archivo YAML y lo convierte en objetos validados."""
+
+    @staticmethod
+    def parse_yaml(path: Path) -> list[EnumerationSpec]:
+        """Parse yaml."""
+        with open(path, encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+            config = EnumerationConfig(enumerations=data.get("enumerations", []))
+            return config.enumerations
 
 
 class EnumGenerator:
     """Generator to transform YAML definitions into Python Enum classes."""
 
+    def __init__(self, destination: DestinationType = DestinationType.INFRASTRUCTURE) -> None:
+        """Init exception generator."""
+        self.env = Environment(
+            loader=PackageLoader("pymodeller", "templates"),
+            autoescape=select_autoescape(),
+            trim_blocks=True,
+            lstrip_blocks=True,
+        )
+        self.destination = destination
+
     @staticmethod
-    def generate(yaml_path: Path, output_path: Path) -> None:
-        """Reads the YAML file and writes a Python module with Enum classes.
+    def _to_snake_case(name: str) -> str:
+        return re.sub(r'(?<!^)(?=[A-Z])', '_', name).lower()
 
-        Args:
-            yaml_path: Path to the input YAML configuration.
-            output_path: Path where the .py file will be created.
-        """
-        with open(yaml_path) as f:
-            data: dict[str, Any] = yaml.safe_load(f)
+    def generate(self, yaml_path: Path, enum_dir: Path) -> list:
+        """Lee el YAML, lo parsea y genera un archivo por cada enumeration."""
+        path = Path(yaml_path)
+        if not path.exists():
+            raise FileNotFoundError(f"El archivo {yaml_path} no existe.")
 
-        lines = ['"""Auto-generated Enums from YAML spec."""', "from enum import Enum", "", ""]
+        specs = EnumerationParser.parse_yaml(path)
+        dest_spec = [s for s in specs if s.destination == self.destination]
 
-        for enum_name, config in data.items():
-            base_type = config.get("type", "str")
-            values = config.get("values", {})
+        if not dest_spec:
+            return []
 
-            lines.append(f"class {enum_name}(Enum):")
-            lines.append(f'    """{enum_name} auto-generated enum."""')
-            lines.append("")
+        enum_dir.mkdir(parents=True, exist_ok=True)
+        template = self.env.get_template("enumerate.jinja")
+        res = []
 
-            for key, value in values.items():
-                # Format value based on type
-                formatted_value = f'"{value}"' if base_type == "str" else value
+        for spec in dest_spec:
+            content = template.render(spec=spec)
 
-                lines.append(f"    {key.upper()} = {formatted_value}")
+            filename = f"{self._to_snake_case(spec.name)}.py"
+            file_path = enum_dir / filename
+            file_path.write_text(content, encoding="utf-8")
+            res.append(file_path)
 
-            lines.append("")  # Space between classes
+        init_file_path = enum_dir / "__init__.py"
+        init_file_path.write_text("", encoding="utf-8")
+        res.append(init_file_path)
 
-        output_path.write_text("\n".join(lines), encoding="utf-8")
+        return res
 
 
 # Quick usage example

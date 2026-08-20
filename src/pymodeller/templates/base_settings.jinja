@@ -4,7 +4,7 @@ import os
 from typing import Any
 
 from pydantic import PrivateAttr, model_validator
-from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
+from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
 
 from .source.source_s3_secrets import S3SecretSource
 from .source.source_yaml_env import YamlEnvSource

@@ -36,18 +36,22 @@ class DestinationConfig(BaseModel):
     test_folder: Path = Path("tests")
 
     exceptions_folder: Path = Path("exceptions")
+    enumerations_folder: Path = Path("enumerations")
 
-    def resolve_paths(self, base_dir: Path, test_dir: Path) -> "DestinationConfig":
+    def resolve_paths(self, base_dir: Path, test_dir: Path, destination_type: DestinationType) -> "DestinationConfig":
         """Resolve relative paths by prepending the project base directory."""
         return DestinationConfig(
-            pydantic_model_folder=base_dir / self.pydantic_model_folder,
-            pydantic_settings_folder=base_dir / self.pydantic_settings_folder,
-            pydantic_settings_init=(base_dir / self.pydantic_settings_init if self.pydantic_settings_init else None),
-            peewee_folder=base_dir / self.peewee_folder,
-            peewee_out=base_dir / self.peewee_out,
-            exceptions_folder=base_dir / self.exceptions_folder,
+            destination_type=destination_type,
+            pydantic_model_folder=base_dir / destination_type /self.pydantic_model_folder,
+            pydantic_settings_folder=base_dir / destination_type /  self.pydantic_settings_folder,
+            pydantic_settings_init=(base_dir / destination_type / self.pydantic_settings_init
+                                    if self.pydantic_settings_init else None),
+            peewee_folder=base_dir / destination_type / self.peewee_folder,
+            peewee_out=base_dir / destination_type / self.peewee_out,
+            exceptions_folder=base_dir / destination_type / self.exceptions_folder,
             test_folder=test_dir,
             base_dir=base_dir,
+            enumerations_folder=base_dir / destination_type / self.enumerations_folder,
         )
 
 
@@ -89,14 +93,14 @@ class CodegenConfig(BaseModel):
         if not dest:
             # Fallback to default destination if the model_type is not defined in TOML
             dest = DestinationConfig()
-        return dest.resolve_paths(self.base_dir, self.test_dir)
+        return dest.resolve_paths(self.base_dir, self.test_dir, model_type)
 
-    def get_destinations(self, model_type: DestinationType | None = None) -> dict[DestinationType, DestinationConfig]:
+    def get_destinations(self, model_type: DestinationType = DestinationType.INFRASTRUCTURE) -> dict[DestinationType, DestinationConfig]:
         """Get dict of detinations."""
         if model_type:
             return {model_type: self.get_destination(model_type)}
 
-        return {name: dest.resolve_paths(self.base_dir, self.test_dir) for name, dest in self.destinations.items()}
+        return {name: dest.resolve_paths(self.base_dir, self.test_dir, name) for name, dest in self.destinations.items()}
 
 
 def load_codegen_config(
