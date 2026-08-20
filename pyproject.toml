@@ -70,6 +70,7 @@ docs = [
 
 [tool.pymodeller]
 base_dir = "./src/event_driven"
+test_dir = "./tests"
 
 # Archivos de entrada/configuración global
 models_yaml = "./pymodeller/pymodeller.yaml"

@@ -172,22 +172,13 @@ def codegen(
 
         # Determine paths with CLI overrides as priority
         target_pydantic_model_folder = dest.pydantic_model_folder
-        target_pydantic_settings_folder = dest.pydantic_settings_folder
-        target_pydantic_master = dest.pydantic_settings_init
+
         target_peewee_folder = dest.peewee_folder
         target_peewee_master = dest.peewee_out
 
         # Step 1: Generating Pydantic Models
         typer.secho(" Step 1: Generating Pydantic Models", bold=True)
-        out_path, out_settings, models_dir = PydanticGenerator(
-            destination=enum_model_type, init_base_path=dest.import_init_base_class
-        ).generate_files(
-            yaml_hash,
-            s,
-            target_pydantic_model_folder,
-            target_pydantic_settings_folder,
-            target_pydantic_master,
-        )
+        out_path, out_settings, models_dir = PydanticGenerator(destination_conf=dest).generate_files(yaml_hash, s)
 
         if out_path:
             typer.secho(

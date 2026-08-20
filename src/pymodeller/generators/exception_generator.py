@@ -69,7 +69,7 @@ class ExceptionGenerator:
         specs = ExceptionParser.parse_yaml(path)
         dest_spec = [s for s in specs if s.destination == self.destination]
 
-        templates = [Path("exceptions.jinja"), Path("http_exceptions.jinja")]
+        templates = [Path("exceptions.jinja"), Path("exceptions_http.jinja")]
         res = []
 
         for t in templates:

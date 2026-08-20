@@ -1,0 +1,12 @@
+import pytest
+from {{ import_path }} import {{ class_name }}
+
+def test_raise_{{ class_name | lower }}():
+    """Verifica el lanzamiento y mensaje de la excepción."""
+    with pytest.raises({{ class_name }}) as exc_info:
+        raise {{ class_name }}("Error de prueba")
+
+    assert "Error de prueba" in str(exc_info.value)
+    {% if is_http_exception %}
+    assert hasattr(exc_info.value, "status_code")
+    {% endif %}

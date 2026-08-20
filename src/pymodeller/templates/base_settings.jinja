@@ -6,8 +6,8 @@ from typing import Any
 from pydantic import PrivateAttr, model_validator
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 
-from .source.s3_secrets_source import S3SecretSource
-from .source.yaml_env_source import YamlEnvSource
+from .source.source_s3_secrets import S3SecretSource
+from .source.source_yaml_env import YamlEnvSource
 
 
 def track_origin(data: dict, origin: str, prefix: str = "", registry: dict | None = None) -> dict[str, str]:
@@ -53,6 +53,10 @@ class BaseTraceableSettings(BaseSettings):
 
     # Private attribute to store the provenance map
     _metadata_origins: dict[str, str] = PrivateAttr(default_factory=dict)
+
+    model_config = SettingsConfigDict(
+        extra="ignore",
+    )
 
     @model_validator(mode="before")
     @classmethod

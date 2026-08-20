@@ -15,12 +15,15 @@ from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, Field
+from pymodeller.loader import DestinationType
 
 
 class DestinationConfig(BaseModel):
     """Output path configuration for a specific model type (e.g., infrastructure, domain)."""
 
     import_init_base_class: Path | None = None
+
+    destination_type: DestinationType = DestinationType.INFRASTRUCTURE
 
     pydantic_model_folder: Path = Path("infraestructure/config/schemas")
     pydantic_settings_folder: Path = Path("infrastructure/config/settings")
@@ -29,9 +32,12 @@ class DestinationConfig(BaseModel):
     peewee_folder: Path = Path("persistence/models")
     peewee_out: Path = Path("persistence/connection.py")
 
+    base_dir: Path = Path("./src")
+    test_folder: Path = Path("tests")
+
     exceptions_folder: Path = Path("exceptions")
 
-    def resolve_paths(self, base_dir: Path) -> "DestinationConfig":
+    def resolve_paths(self, base_dir: Path, test_dir: Path) -> "DestinationConfig":
         """Resolve relative paths by prepending the project base directory."""
         return DestinationConfig(
             pydantic_model_folder=base_dir / self.pydantic_model_folder,
@@ -40,6 +46,8 @@ class DestinationConfig(BaseModel):
             peewee_folder=base_dir / self.peewee_folder,
             peewee_out=base_dir / self.peewee_out,
             exceptions_folder=base_dir / self.exceptions_folder,
+            test_folder=test_dir,
+            base_dir=base_dir,
         )
 
 
@@ -50,6 +58,12 @@ class CodegenConfig(BaseModel):
         default=Path("./src/event_driven"),
         description="Base root path used to resolve relative destination paths.",
         alias="base_dir",
+    )
+
+    test_dir: Path = Field(
+        default=Path("./test"),
+        description="Test root path used to resolve relative destination paths.",
+        alias="test_dir",
     )
 
     # Global file inputs/settings
@@ -67,22 +81,22 @@ class CodegenConfig(BaseModel):
     env_example: Path = Field(default=Path(".env.example"))
 
     # Mapping of target environments: {"infrastructure": DestinationConfig, "domain": DestinationConfig}
-    destinations: dict[str, DestinationConfig] = Field(default_factory=dict)
+    destinations: dict[DestinationType, DestinationConfig] = Field(default_factory=dict)
 
-    def get_destination(self, model_type: str = "infrastructure") -> DestinationConfig:
+    def get_destination(self, model_type: DestinationType = DestinationType.INFRASTRUCTURE) -> DestinationConfig:
         """Retrieve destination paths for a given model type with resolved base paths."""
         dest = self.destinations.get(model_type)
         if not dest:
             # Fallback to default destination if the model_type is not defined in TOML
             dest = DestinationConfig()
-        return dest.resolve_paths(self.base_dir)
+        return dest.resolve_paths(self.base_dir, self.test_dir)
 
-    def get_destinations(self, model_type: str | None = None) -> dict[str, DestinationConfig]:
+    def get_destinations(self, model_type: DestinationType | None = None) -> dict[DestinationType, DestinationConfig]:
         """Get dict of detinations."""
         if model_type:
             return {model_type: self.get_destination(model_type)}
 
-        return {name: dest.resolve_paths(self.base_dir) for name, dest in self.destinations.items()}
+        return {name: dest.resolve_paths(self.base_dir, self.test_dir) for name, dest in self.destinations.items()}
 
 
 def load_codegen_config(

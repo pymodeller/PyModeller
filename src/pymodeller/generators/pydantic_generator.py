@@ -14,8 +14,8 @@ from pathlib import Path
 import typer
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-from pymodeller.config import get_code_gen_config
-from pymodeller.loader import YAML_TYPE_MAP, DestinationType, EnvSection, EnvSpec, EnvVarSpec, SectionType
+from pymodeller.config import get_code_gen_config, DestinationConfig
+from pymodeller.loader import YAML_TYPE_MAP, EnvSection, EnvSpec, EnvVarSpec, SectionType
 from pymodeller.utils import to_pascal_case, to_snake_case
 
 _YAML_HASH_MARKER = "# YAML-SHA256: "
@@ -26,14 +26,14 @@ code_gen_conf = get_code_gen_config()
 class PydanticGenerator:
     """Handles Pydantic model generation using Jinja2 templates."""
 
-    def __init__(
-        self, destination: DestinationType = DestinationType.INFRASTRUCTURE, init_base_path: Path | None = None
-    ) -> None:
+    def __init__(self, destination_conf: DestinationConfig) -> None:
         """Configura Jinja para leer desde el paquete pymodeller/templates."""
+        self.destination_config = destination_conf
         self.env = Environment(loader=PackageLoader("pymodeller", "templates"), autoescape=select_autoescape())
         self.template = self.env.get_template("pydantic_template.jinja")
-        self.destination_type = destination
-        self.init_base_path = init_base_path
+        self.init_base_path = destination_conf.import_init_base_class
+        self.test_dir = destination_conf.test_folder
+        self.base_dir = destination_conf.base_dir
 
     @staticmethod
     def get_python_type(var: EnvVarSpec) -> str:
@@ -129,6 +129,17 @@ class PydanticGenerator:
 
         return self.template.render(context)
 
+    def _get_import_path(self, base_dir: Path, file_path: Path) -> str:
+        """Convierte una ruta de archivo (ej. src/event_driven/infrastructure/config/settings/base_settings.py)
+        en una ruta de importación de Python (ej. event_driven.infrastructure.config.settings.base_settings).
+        """
+        # Elimina la extensión .py
+        relative_path = file_path.with_suffix("")
+
+        # Filtra 'src' o '.' si existen en los componentes de la ruta
+        parts = [p for p in relative_path.parts if p not in (".", "src")]
+        return ".".join(parts)
+
     def save_template(self, out_path: Path, template_name: str = "") -> None:
         """Save the Jinja template."""
         template = self.env.get_template(f"{template_name}.jinja")
@@ -147,10 +158,42 @@ class PydanticGenerator:
 
     def generate_base_class(self, out_path: Path) -> None:
         """Generates the static base class needed for tracking."""
-        templates = ["base_settings", "yaml_env_source", "s3_secrets_source"]
+        templates = ["base_settings", "source_yaml_env", "source_s3_secrets"]
 
         for t in templates:
             self.save_template(out_path, t)
+
+        self.generate_base_settings_test(out_path)
+
+    def generate_base_settings_test(self, out_path: Path) -> None:
+        """Generates the test file for BaseTraceableSettings."""
+        # Ruta final donde reside la clase base generada (ej. ./src/event_driven/infrastructure/config/settings/base_settings.py)
+        base_settings_file = out_path / "base_settings.py"
+
+        # Obtener la ruta de importación de Python automáticamente
+        import_path = self._get_import_path(self.base_dir, base_settings_file)
+
+        # Determinar la carpeta de test equivalente replicando la estructura
+        # Reemplaza la ruta base por test_dir
+        relative_subpath = out_path.relative_to(self.base_dir) if out_path.is_relative_to(self.base_dir) else out_path
+        test_target_dir = self.test_dir / relative_subpath
+        test_target_dir.mkdir(parents=True, exist_ok=True)
+
+        # Asegurar __init__.py en carpetas de test
+        init_file = test_target_dir / "__init__.py"
+        if not init_file.exists():
+            init_file.touch()
+
+        # Renderizar la plantilla jinja del test con el import_path calculado
+        template = self.env.get_template("test_base_settings.jinja")
+        rendered_code = template.render(
+            import_path=import_path,
+            class_name="BaseTraceableSettings"
+        )
+
+        # Guardar el archivo de test con prefijo test_
+        test_file_path = test_target_dir / "test_base_settings.py"
+        test_file_path.write_text(rendered_code, encoding="utf-8")
 
     def generate_init(self, sections: list, out_path: Path) -> None:
         """sections_info debe ser una lista de dicts."""
@@ -176,7 +219,7 @@ class PydanticGenerator:
 
     def generate_master(self, sections: list, folder: Path, out_path: Path, yaml_hash: str) -> None:
         """Generate master file."""
-        template = self.env.get_template("master_pydantic.jinja")
+        template = self.env.get_template("pydantic_master.jinja")
 
         sections_context = []
         for s in sections:
@@ -252,11 +295,14 @@ class PydanticGenerator:
         return models_dir
 
     def generate_files(
-        self, yaml_hash: str, s: EnvSpec, out_model: Path, out_settings: Path, master: Path | None
-    ) -> tuple:
+        self, yaml_hash: str, s: EnvSpec) -> tuple:
         """Generate pydantic files."""
+        out_model = self.destination_config.pydantic_model_folder
+        out_settings = self.destination_config.pydantic_settings_folder
+        master = self.destination_config.pydantic_settings_init
+
         pydantic_sections_ = [s for s in s.sections if s.type != SectionType.PEEWEE]
-        sections = [s for s in pydantic_sections_ if s.destination == self.destination_type]
+        sections = [s for s in pydantic_sections_ if s.destination == self.destination_config.destination_type]
 
         if len(sections) == 0:
             return None, None
@@ -280,7 +326,7 @@ class PydanticGenerator:
                 file_path.write_text(section_str, encoding="utf-8")
                 typer.echo(f"   Model: {file_path}")
             else:
-                general_section = sect if sect.destination == self.destination_type else None
+                general_section = sect if sect.destination == self.destination_config.destination_type else None
 
         if general_section:
             self.generate_general_settings(general_section, sections_settings, out_settings)
@@ -296,10 +342,6 @@ class PydanticGenerator:
 
         if len(sections_models) > 0:
             self.generate_init(sections_models, out_model)
-
-        # if master and len(sections_settings) > 0:
-        #     self.generate_master(sections_settings, out_settings, master, yaml_hash)
-        #     typer.echo(f"   Out: {master}")
 
         typer.echo(f"   Out: {out_model}")
 

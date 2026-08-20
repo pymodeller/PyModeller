@@ -1,0 +1,70 @@
+import os
+from typing import Any, Dict, Generator
+from unittest.mock import MagicMock, patch
+
+import pytest
+from {{ import_path }} import {{ class_name }}
+
+
+@pytest.fixture(autouse=True)
+def mock_aws_clients() -> Generator[Dict[str, MagicMock], None, None]:
+    """Mock AWS S3 and Secrets Manager clients to prevent external calls during tests."""
+    mock_s3 = MagicMock()
+    mock_sm = MagicMock()
+
+    # Simple default mocks to avoid errors if invoked
+    mock_s3.get_object.return_value = {"Body": MagicMock(read=lambda: b"mocked_s3_value")}
+    mock_sm.get_secret_value.return_value = {"SecretString": "mocked_sm_value"}
+
+    # Mock low-level client getters in the source module   {% set parent_module = import_path.rsplit('.', 1)[0] %}
+    path_to_source = "{{ parent_module }}.source.source_s3_secrets"
+    s3_path = f"{path_to_source}.get_s3_client"
+    sm_path = f"{path_to_source}.get_secrets_manager_client"
+    with patch(s3_path, return_value=mock_s3), \
+         patch(sm_path, return_value=mock_sm):
+        yield {"s3": mock_s3, "sm": mock_sm}
+
+
+def test_instantiation_{{ class_name | lower }}_with_defaults() -> None:
+    """Verify that {{ class_name }} instantiates correctly with default or init values."""
+    # Direct instantiation passing test arguments
+    test_args: Dict[str, Any] = {{ dummy_init_args | default("{}") }}
+    settings: {{ class_name }} = {{ class_name }}(**test_args)
+
+    assert settings is not None
+
+    # Verify that get_origins() returns a dictionary containing property keys
+    origins: Dict[str, str] = settings.get_origins()
+    assert isinstance(origins, dict)
+
+    # Every field passed in init should have 'init' as its origin
+    for field_name in test_args.keys():
+        assert settings.get_origin(field_name) == "init"
+
+
+def test_env_var_override_{{ class_name | lower }}(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Verify that environment variables override values and set origin to 'env_var'."""
+    prefix: str = str({{ class_name }}.model_config.get("env_prefix", ""))
+
+    {% if sample_field_name %}
+    # Test overriding a specific field (e.g., {{ sample_field_name }})
+    env_key: str = f"{prefix}{{ sample_field_name }}".upper()
+    monkeypatch.setenv(env_key, "{{ sample_field_test_value }}")
+
+    settings: {{ class_name }} = {{ class_name }}()
+    assert getattr(settings, "{{ sample_field_name }}") == "{{ sample_field_test_value }}"
+    assert settings.get_origin("{{ sample_field_name }}") == "env_var"
+    {% else %}
+    # If no dynamic fields were passed to the template, instantiate and validate basic structure
+    settings: {{ class_name }} = {{ class_name }}()
+    origins: Dict[str, str] = settings.get_origins()
+    assert isinstance(origins, dict)
+    {% endif %}
+
+
+def test_unknown_field_origin_{{ class_name | lower }}() -> None:
+    """Verify fallback to 'Default' for fields that are not explicitly tracked."""
+    test_args: Dict[str, Any] = {{ dummy_init_args | default("{}") }}
+    settings: {{ class_name }} = {{ class_name }}(**test_args)
+
+    assert settings.get_origin("non_existing_field_xyz") == "Default"

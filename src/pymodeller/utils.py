@@ -167,3 +167,13 @@ def ensure_init_py_in_subdirectories(root_dir: str | Path) -> list[Path]:
                 created_files.append(init_file)
 
     return created_files
+
+
+def get_import_path(base_dir: str, subfolder: str, file_name: str) -> str:
+    """ Convierte './src/event_driven' + 'domain/schemas' + 'user.py'
+        en 'event_driven.domain.schemas.user'
+    """
+    path = Path(base_dir) / subfolder / file_name
+    # Elimina la extensión .py y omite la carpeta raíz de código (ej. 'src') si no es un paquete
+    parts = [p for p in path.with_suffix('').parts if p not in ('.', 'src')]
+    return ".".join(parts)
