@@ -77,17 +77,26 @@ class EnumGenerator:
         enum_dir.mkdir(parents=True, exist_ok=True)
         template = self.env.get_template("enumerate.jinja")
         res = []
-
+        models_data: list[dict[str, str]] = []
         for spec in dest_spec:
             content = template.render(spec=spec)
 
-            filename = f"{self._to_snake_case(spec.name)}.py"
+            module_name = self._to_snake_case(spec.name)
+
+            filename = f"{module_name}.py"
             file_path = enum_dir / filename
             file_path.write_text(content, encoding="utf-8")
             res.append(file_path)
 
+            models_data.append({
+                "module": module_name,
+                "class_name": spec.name + 'Type',
+            })
+
+        init_template = self.env.get_template("init.jinja")
+        init_content = init_template.render(models=models_data)
         init_file_path = enum_dir / "__init__.py"
-        init_file_path.write_text("", encoding="utf-8")
+        init_file_path.write_text(init_content, encoding="utf-8")
         res.append(init_file_path)
 
         return res

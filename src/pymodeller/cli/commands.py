@@ -255,8 +255,18 @@ def codegen(
                     ToolRunner.run_with_uv("ruff", ["format", str(p), _CONFIG_TOML])
 
 
-    # 3. Check missing __init__.py files
-    ensure_init_py_in_subdirectories(code_gen_conf.base_dir)
+    # 5. Check missing __init__.py files
+    typer.secho(
+        "Step 5: Creating missing __init__.py files",
+        bold=True,
+        fg=typer.colors.BRIGHT_GREEN,
+    )
+    files_ = ensure_init_py_in_subdirectories(code_gen_conf.base_dir)
+    if len(files_) > 0:
+        for p in files_:
+            ToolRunner.run_with_uv("ruff", ["check", str(p), _CONFIG_TOML, "--fix"])
+            ToolRunner.run_with_uv("ruff", ["format", str(p), _CONFIG_TOML])
+
 
     return typer.Exit(code=0)
 

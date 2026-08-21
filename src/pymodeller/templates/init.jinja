@@ -1,11 +1,10 @@
-"""AUTO-GENERATED MODELS PACKAGE. """
+"""AUTO-GENERATED MODELS PACKAGE."""
 
-{% for model in models %}
+{% for model in models -%}
 from .{{ model.module }} import {{ model.class_name }}
-{%- endfor %}
-
+{% endfor %}
 __all__ = [
-    {%- for model in models %}
-    "{{ model.class_name }}"{{ "," if not loop.last }}
-    {%- endfor %}
+{% for model in models -%}
+    "{{ model.class_name }}"{% if not loop.last %},{% endif %}
+{% endfor %}
 ]

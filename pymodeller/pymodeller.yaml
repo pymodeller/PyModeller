@@ -6,6 +6,14 @@ enumerations:
       - RabbitMQ
       - Local
       - Kafka
+  - name: Threads
+    destination: infrastructure
+    description: Types of threads.
+    options:
+      - inventory
+      - notification
+      - order
+      - payment
 
 models:
   - name: General
@@ -113,7 +121,7 @@ models:
         default: 0
         required: false
 
-  - name: orderCreated
+  - name: order created
     description: Order creation
     type: model
     env_prefix: order_created
@@ -152,7 +160,7 @@ models:
         default: timestamp.now
         required: false
 
-  - name: CartItem
+  - name: Cart item
     type: model
     description: Cart item
     include_general: false
@@ -181,7 +189,7 @@ models:
         default: 0
         required: false
 
-  - name: orderCreated
+  - name: order created
     description: Order creation
     type: peewee
     env_prefix: order_created
@@ -218,7 +226,7 @@ models:
         default: timestamp.now
         required: false
 
-  - name: CartItem
+  - name: Cart item
     type: peewee
     description: Cart item
     include_general: false

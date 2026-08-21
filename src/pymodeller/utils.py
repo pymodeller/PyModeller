@@ -12,7 +12,8 @@ Copyright ©2026 PyModeller. All rights reserved.
 import hashlib
 import re
 from pathlib import Path
-
+from jinja2 import Environment, PackageLoader, select_autoescape
+import ast
 
 def get_file_hash(path: Path) -> str:
     """Compute SHA-256 hash of a file."""
@@ -135,6 +136,51 @@ def deep_merge(base: dict, overrides: dict) -> dict:
     return base
 
 
+def generate_init_file(
+    package_dir: Path | str
+) -> Path:
+    """Inspecciona los archivos .py de un directorio, extrae las clases
+
+    y utiliza Jinja2 para generar el __init__.py ordenado alfabéticamente.
+    """
+    env = Environment(loader=PackageLoader("pymodeller", "templates"), autoescape=select_autoescape())
+
+    package_path = Path(package_dir)
+    models_data: list[dict[str, str]] = []
+
+    # 1. Escanear todos los archivos .py (omitiendo __init__.py)
+    for file_path in package_path.glob("*.py"):
+        if file_path.name == "__init__.py":
+            continue
+
+        module_name = file_path.stem
+        code = file_path.read_text(encoding="utf-8")
+
+        # 2. Extraer los nombres de las clases definidas en el archivo con AST
+        tree = ast.parse(code)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ClassDef):
+                if node.name not in ["Meta"]:
+                    models_data.append(
+                        {
+                            "module": module_name,
+                            "class_name": node.name,
+                        }
+                    )
+
+    # 3. Ordenar alfabéticamente por nombre de la clase
+    models_data.sort(key=lambda x: x["class_name"])
+
+    # 4. Renderizar con Jinja2
+    template = env.get_template("init.jinja")
+    init_content = template.render(models=models_data)
+
+    # 5. Escribir el __init__.py
+    init_path = package_path / "__init__.py"
+    init_path.write_text(init_content, encoding="utf-8")
+    return init_path
+
+
 def ensure_init_py_in_subdirectories(root_dir: str | Path) -> list[Path]:
     """Recursively walks through all directories starting from root_dir
     and creates an empty __init__.py file if one does not exist.
@@ -153,18 +199,17 @@ def ensure_init_py_in_subdirectories(root_dir: str | Path) -> list[Path]:
     created_files: list[Path] = []
 
     # Check the root directory itself first
-    root_init = base_path / "__init__.py"
-    if not root_init.exists():
-        root_init.touch()
-        created_files.append(root_init)
+    directories = [d for d in base_path.rglob("*") if d.is_dir()]
+    directories.sort(reverse=True)
+    directories.append(base_path)
 
-    # Recursively traverse all subdirectories
-    for folder in base_path.rglob("*"):
-        if folder.is_dir():
-            init_file = folder / "__init__.py"
-            if not init_file.exists():
-                init_file.touch()
-                created_files.append(init_file)
+    # 2. Process each directory and generate its __init__.py file
+    for folder in directories:
+        init_file = folder / "__init__.py"
+        # Check if __init__.py doesn't exist OR if it exists but is completely empty (size == 0)
+        if not init_file.exists() or init_file.stat().st_size == 0:
+            generated_path = generate_init_file(folder)
+            created_files.append(generated_path)
 
     return created_files
 
