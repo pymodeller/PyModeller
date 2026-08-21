@@ -139,6 +139,7 @@ class EnvVarSpec:
     required: bool = False
     secret: bool = False
     from_model: str | None = None
+    from_enum: str | None = None
     exclude: bool = False
     section: str = ""
     alias: str = ""
@@ -263,6 +264,7 @@ def load_env_spec(path: str | Path | None = None) -> EnvSpec:
                     name=to_snake_case(raw_name),
                     description=v.get("description", ""),
                     from_model=v.get("from_model", None),
+                    from_enum=v.get("from_enum", None),
                     type=type_,
                     default=v.get("default"),
                     required=bool(v.get("required", False)),

@@ -90,7 +90,7 @@ class EnumGenerator:
 
             models_data.append({
                 "module": module_name,
-                "class_name": spec.name + 'Type',
+                "class_name": spec.name + 'Enum',
             })
 
         init_template = self.env.get_template("init.jinja")

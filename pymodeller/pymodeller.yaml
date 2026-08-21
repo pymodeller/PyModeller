@@ -93,6 +93,47 @@ models:
         required: false
         secret: false
 
+  - name: Queue Config
+    description: Broker Configuration.
+    type: model
+    include_general: false
+    variables:
+      - name: exchange
+        description: exchange name
+        type: str
+      - name: topic_or_queue
+        description: topic or queue name
+        type: str
+      - name: broker_type
+        description: Broker type 'Local', 'Kafka' or 'RabbitMQ'.
+        type: str
+        from_enum: Brokers
+        default: kafka
+
+  - name: Thread Config
+    description: Thread configuration
+    type: model
+    include_general: false
+    variables:
+      - name: name
+        description: Thread name.
+        type: str
+      - name: input
+        description: Input configuration.
+        from_model: Queue Config
+      - name: output
+        description: Output configuration.
+        from_model: Queue Config
+
+  - name: Threads Configuration
+    description: Threads configuration
+    type: settings
+    variables:
+      - name: configuration
+        description: threads configurations
+        type: list
+        from_model: Thread Config
+
   - name: NewObject
     type: model
     description: prueba objeto

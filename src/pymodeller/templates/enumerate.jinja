@@ -3,7 +3,7 @@
 from enum import StrEnum
 
 
-class {{ spec.name }}Type(StrEnum):
+class {{ spec.name }}Enum(StrEnum):
     """{{ spec.description }}"""
 
     {% for option in spec.options | sort %}

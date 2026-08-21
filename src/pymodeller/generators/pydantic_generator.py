@@ -43,16 +43,19 @@ class PydanticGenerator:
 
         base = YAML_TYPE_MAP.get(var.type, "str")
 
-        if var.from_model:
-            name = to_pascal_case(to_snake_case(var.from_model))
-            model_name = f"{name}Model"
-            base = f"list[{model_name}]" if var.type == "list" else model_name
+        if raw_name := (var.from_model or var.from_enum):
+            suffix = "Model" if var.from_model else "Enum"
+            name = to_pascal_case(to_snake_case(raw_name))
+            type_name = f"{name}{suffix}"
+            base = f"list[{type_name}]" if var.type == "list" else type_name
 
         return f"Optional[{base}]" if not var.required and var.default is None else base
 
     @staticmethod
     def get_default_expr(var: EnvVarSpec) -> str:
         """Generate the default value expression for the Field."""
+        if var.type == "list":
+            f= 1
         if var.secret:
             return f'default=SecretStr("{var.default or ""}")'
         if var.type == "Path":
@@ -61,14 +64,20 @@ class PydanticGenerator:
             return "..."
         if var.type == "bool":
             return f"default={str(var.default).lower() == 'true'}"
-        if isinstance(var.default, (int, float)):
+        if isinstance(var.default, (int, float, list)):
             return f"default={var.default}"
         if var.default in ["[]", "set", "{}"]:
             return f"default={var.default}"
-        if not var.default:
-            return "default=None"
 
-        return f"default={var.default}()" if var.from_model is not None else f'default="{var.default}"'
+        if var.from_model is not None:
+            return f"default={var.default}()"
+        elif var.from_enum is not None:
+            enum_class = f"{to_pascal_case(to_snake_case(var.from_enum))}Enum"
+            return f"default={enum_class}.{var.default.upper()}"
+        elif var.default:
+            return f'default="{var.default}"'
+        else:
+            return "default=None"
 
     @staticmethod
     def generate_module_class_name(section: EnvSection) -> tuple:
@@ -105,12 +114,20 @@ class PydanticGenerator:
                 "description": var.description,
                 "exclude": var.exclude,
             })
-
+        path_model = self.destination_config.pydantic_model_folder
+        path_enum = self.destination_config.enumerations_folder
         extra_imports = []
         for var in section.variables:
-            if var.from_model:
-                snake_case = to_snake_case(var.from_model)
-                extra_imports.append(f"from .{snake_case} import {to_pascal_case(snake_case)}Model")
+            if target := (var.from_model or var.from_enum):
+                is_model = bool(var.from_model)
+                suffix = "Model" if is_model else "Enum"
+                path = path_model if is_model else path_enum
+
+                snake_case = to_snake_case(target)
+                class_name = f"{to_pascal_case(snake_case)}{suffix}"
+                import_module = ".".join(path.relative_to("src").parts).lstrip(".")
+
+                extra_imports.append(f"from {import_module} import {class_name}")
 
         _, class_name = self.generate_module_class_name(section)
         literal_name = to_pascal_case(to_snake_case(section.name))

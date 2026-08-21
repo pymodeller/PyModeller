@@ -187,10 +187,9 @@ def codegen(
                 fg=typer.colors.BRIGHT_GREEN,
             )
 
-            for p in [out_path, out_settings, models_dir]:
-                if p and p.exists():
-                    ToolRunner.run_with_uv("ruff", ["check", str(p), _CONFIG_TOML, "--fix"])
-                    ToolRunner.run_with_uv("ruff", ["format", str(p), _CONFIG_TOML])
+            file_paths = [str(p) for p in [out_path, out_settings, models_dir] if p.exists()]
+            ToolRunner.run_with_uv("ruff", ["check", *file_paths, _CONFIG_TOML, "--fix"])
+            ToolRunner.run_with_uv("ruff", ["format", *file_paths, _CONFIG_TOML])
 
             typer.secho(
                 f"      ✅ Pydantic models generated at {target_pydantic_model_folder}",
@@ -211,10 +210,11 @@ def codegen(
                 "Step 2.A. Executing ruff commands over files generated",
                 fg=typer.colors.BRIGHT_GREEN,
             )
-            for p in [p_path, pm_dir]:
-                if p and p.exists():
-                    ToolRunner.run_with_uv("ruff", ["check", str(p), _CONFIG_TOML, "--fix"])
-                    ToolRunner.run_with_uv("ruff", ["format", str(p), _CONFIG_TOML])
+
+            if len(file_paths):
+                file_paths = [str(p) for p in [p_path, pm_dir] if p.exists()]
+                ToolRunner.run_with_uv("ruff", ["check", *file_paths, _CONFIG_TOML, "--fix"])
+                ToolRunner.run_with_uv("ruff", ["format", *file_paths, _CONFIG_TOML])
 
             typer.secho(
                 f"      ✅ Peewee models generated at {target_peewee_folder}",
@@ -234,9 +234,9 @@ def codegen(
                 destination=enum_model_type).generate(code_gen_conf.exceptions_yaml, exception_dir)
 
             if len(content):
-                for p in content:
-                    ToolRunner.run_with_uv("ruff", ["check", str(p), _CONFIG_TOML, "--fix"])
-                    ToolRunner.run_with_uv("ruff", ["format", str(p), _CONFIG_TOML])
+                file_paths = [str(p) for p in content]
+                ToolRunner.run_with_uv("ruff", ["check", *file_paths, _CONFIG_TOML, "--fix"])
+                ToolRunner.run_with_uv("ruff", ["format", *file_paths, _CONFIG_TOML])
 
         # Step 4: Generating Exception classes per destination
         if dest.enumerations_folder:
@@ -250,9 +250,9 @@ def codegen(
                 destination=enum_model_type).generate(code_gen_conf.models_yaml, exception_dir)
 
             if len(content):
-                for p in content:
-                    ToolRunner.run_with_uv("ruff", ["check", str(p), _CONFIG_TOML, "--fix"])
-                    ToolRunner.run_with_uv("ruff", ["format", str(p), _CONFIG_TOML])
+                file_paths = [str(p) for p in content]
+                ToolRunner.run_with_uv("ruff", ["check", *file_paths, _CONFIG_TOML, "--fix"])
+                ToolRunner.run_with_uv("ruff", ["format", *file_paths, _CONFIG_TOML])
 
 
     # 5. Check missing __init__.py files
@@ -262,10 +262,11 @@ def codegen(
         fg=typer.colors.BRIGHT_GREEN,
     )
     files_ = ensure_init_py_in_subdirectories(code_gen_conf.base_dir)
-    if len(files_) > 0:
-        for p in files_:
-            ToolRunner.run_with_uv("ruff", ["check", str(p), _CONFIG_TOML, "--fix"])
-            ToolRunner.run_with_uv("ruff", ["format", str(p), _CONFIG_TOML])
+
+    if len(files_):
+        file_paths = [str(p) for p in files_]
+        ToolRunner.run_with_uv("ruff", ["check", *file_paths, _CONFIG_TOML, "--fix"])
+        ToolRunner.run_with_uv("ruff", ["format", *file_paths, _CONFIG_TOML])
 
 
     return typer.Exit(code=0)
