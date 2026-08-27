@@ -54,30 +54,33 @@ class PydanticGenerator:
     @staticmethod
     def get_default_expr(var: EnvVarSpec) -> str:
         """Generate the default value expression for the Field."""
-        if var.type == "list":
-            f= 1
-        if var.secret:
-            return f'default=SecretStr("{var.default or ""}")'
-        if var.type == "Path":
-            return f'default=Path("{var.default}")'
+
         if var.required and var.default is None:
             return "..."
+
+        if var.secret:
+            return f'default=SecretStr("{var.default or ""}")'
+
+        if var.type == "datetime":
+            return f'default=datetime.now()'
+
+        if var.type == "Path":
+            return f'default=Path("{var.default}")'
+
         if var.type == "bool":
             return f"default={str(var.default).lower() == 'true'}"
-        if isinstance(var.default, (int, float, list)):
-            return f"default={var.default}"
-        if var.default in ["[]", "set", "{}"]:
+
+        if isinstance(var.default, (int, float, list, dict)) or var.default in ("[]", "set", "{}"):
             return f"default={var.default}"
 
         if var.from_model is not None:
-            return f"default={var.default}()"
-        elif var.from_enum is not None:
+            return f"default={var.default}" if var.default else "default=None"
+
+        if var.from_enum is not None:
             enum_class = f"{to_pascal_case(to_snake_case(var.from_enum))}Enum"
             return f"default={enum_class}.{var.default.upper()}"
-        elif var.default:
-            return f'default="{var.default}"'
-        else:
-            return "default=None"
+
+        return f'default="{var.default}"' if var.default else "default=None"
 
     @staticmethod
     def generate_module_class_name(section: EnvSection) -> tuple:
@@ -264,6 +267,9 @@ class PydanticGenerator:
         """Render general settings."""
         template = self.env.get_template("general_settings.jinja")
 
+        imports = []
+        path_model = self.destination_config.pydantic_model_folder
+        path_enum = self.destination_config.enumerations_folder
         flat_vars = []
         for var in general_section.variables:
             flat_vars.append({
@@ -274,9 +280,19 @@ class PydanticGenerator:
                 "validation_alias": var.validation_alias,
                 "description": var.description,
             })
+            if target := var.from_enum:
+                is_model = bool(var.from_model)
+                suffix = "Model" if is_model else "Enum"
+                path = path_model if is_model else path_enum
+
+                snake_case = to_snake_case(target)
+                class_name = f"{to_pascal_case(snake_case)}{suffix}"
+                import_module = ".".join(path.relative_to("src").parts).lstrip(".")
+
+                imports.append(f"from {import_module} import {class_name}")
 
         nested_context = []
-        imports = []
+
 
         for sect in nested_sections_list:
             if not sect.include_general:

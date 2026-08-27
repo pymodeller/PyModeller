@@ -171,6 +171,22 @@ def codegen(
             fg=typer.colors.MAGENTA,
         )
 
+        # Step 1: Generating Exception classes per destination
+        if dest.enumerations_folder:
+            typer.secho(
+                f"Step 1: Creating enumerations class in {dest.enumerations_folder}",
+                bold=True,
+                fg=typer.colors.BRIGHT_GREEN,
+            )
+            exception_dir = dest.enumerations_folder
+            content = EnumGenerator(
+                destination=enum_model_type).generate(code_gen_conf.models_yaml, exception_dir)
+
+            if len(content):
+                file_paths = [str(p) for p in content]
+                ToolRunner.run_with_uv("ruff", ["check", *file_paths, _CONFIG_TOML, "--fix"])
+                ToolRunner.run_with_uv("ruff", ["format", *file_paths, _CONFIG_TOML])
+
         # Determine paths with CLI overrides as priority
         target_pydantic_model_folder = dest.pydantic_model_folder
 
@@ -178,12 +194,12 @@ def codegen(
         target_peewee_master = dest.peewee_out
 
         # Step 1: Generating Pydantic Models
-        typer.secho(" Step 1: Generating Pydantic Models", bold=True)
+        typer.secho(" Step 2: Generating Pydantic Models", bold=True)
         out_path, out_settings, models_dir = PydanticGenerator(destination_conf=dest).generate_files(yaml_hash, s)
 
         if out_path:
             typer.secho(
-                "Step 1.A. Executing ruff commands over files generated",
+                "Step 2.A. Executing ruff commands over files generated",
                 fg=typer.colors.BRIGHT_GREEN,
             )
 
@@ -198,7 +214,7 @@ def codegen(
             )
 
         # Step 2: Generating Peewee Models
-        typer.secho(" Step 2: Generating Peewee Models", bold=True)
+        typer.secho(" Step 3: Generating Peewee Models", bold=True)
         p_path, pm_dir = PeeweeGenerator(destination=enum_model_type).generate_files(
             s,
             target_peewee_folder,
@@ -207,7 +223,7 @@ def codegen(
 
         if p_path:
             typer.secho(
-                "Step 2.A. Executing ruff commands over files generated",
+                "Step 3.A. Executing ruff commands over files generated",
                 fg=typer.colors.BRIGHT_GREEN,
             )
 
@@ -225,7 +241,7 @@ def codegen(
         # Step 3: Generating Exception classes per destination
         if code_gen_conf.exceptions_yaml and dest.exceptions_folder:
             typer.secho(
-                f"Step 3: Creating exceptions class in {dest.exceptions_folder}",
+                f"Step 4: Creating exceptions class in {dest.exceptions_folder}",
                 bold=True,
                 fg=typer.colors.BRIGHT_GREEN,
             )
@@ -238,28 +254,11 @@ def codegen(
                 ToolRunner.run_with_uv("ruff", ["check", *file_paths, _CONFIG_TOML, "--fix"])
                 ToolRunner.run_with_uv("ruff", ["format", *file_paths, _CONFIG_TOML])
 
-        # Step 4: Generating Exception classes per destination
-        if dest.enumerations_folder:
-            typer.secho(
-                f"Step 4: Creating enumerations class in {dest.enumerations_folder}",
-                bold=True,
-                fg=typer.colors.BRIGHT_GREEN,
-            )
-            exception_dir = dest.enumerations_folder
-            content = EnumGenerator(
-                destination=enum_model_type).generate(code_gen_conf.models_yaml, exception_dir)
-
-            if len(content):
-                file_paths = [str(p) for p in content]
-                ToolRunner.run_with_uv("ruff", ["check", *file_paths, _CONFIG_TOML, "--fix"])
-                ToolRunner.run_with_uv("ruff", ["format", *file_paths, _CONFIG_TOML])
-
-
     # 5. Check missing __init__.py files
     typer.secho(
-        "Step 5: Creating missing __init__.py files",
+        "🚀 Creating missing __init__.py files",
         bold=True,
-        fg=typer.colors.BRIGHT_GREEN,
+        fg=typer.colors.MAGENTA,
     )
     files_ = ensure_init_py_in_subdirectories(code_gen_conf.base_dir)
 
