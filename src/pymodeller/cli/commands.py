@@ -41,7 +41,7 @@ from pymodeller.validator import validate_env
 # --- Constants & Defaults ---
 
 code_gen_conf = get_code_gen_config()
-default_dest = code_gen_conf.get_destination("infrastructure")
+default_dest = code_gen_conf.get_destination(DestinationType.INFRASTRUCTURE)
 
 console = Console()
 

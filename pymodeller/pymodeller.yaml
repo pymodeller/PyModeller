@@ -74,6 +74,7 @@ models:
     type: settings
     include_general: false
     env_prefix: PROCESSING
+    pyproject_toml_table_header: tool,process
     variables:
       - name: frames_energy
         description: Number of frames used for energy computation.
@@ -201,7 +202,7 @@ models:
       - name: timestamp
         description: Order timestamp
         type: datetime
-        required: false
+
 
   - name: CartItem
     type: model

@@ -10,11 +10,12 @@ Copyright ©2026 PyModeller. All rights reserved.
 """
 
 from pathlib import Path
+from typing import Optional
 
 import typer
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-from pymodeller.config import get_code_gen_config, DestinationConfig
+from pymodeller.config import get_code_gen_config, DestinationConfig, SourceType
 from pymodeller.loader import YAML_TYPE_MAP, EnvSection, EnvSpec, EnvVarSpec, SectionType
 from pymodeller.utils import to_pascal_case, to_snake_case
 
@@ -144,6 +145,7 @@ class PydanticGenerator:
             "from_attributes": section.from_attributes,
             "variables": variables_context,
             "extra_imports": list(set(extra_imports)),
+            "pyproject_toml_table_header": section.pyproject_toml_table_header,
             "literal_name": literal_name if (section.include_literal and section.type == SectionType.MODEL) else None,
         }
 
@@ -160,11 +162,14 @@ class PydanticGenerator:
         parts = [p for p in relative_path.parts if p not in (".", "src")]
         return ".".join(parts)
 
-    def save_template(self, out_path: Path, template_name: str = "") -> None:
+    def save_template(self, out_path: Path, template_name: str = "", context: Optional[dict] = None) -> None:
         """Save the Jinja template."""
+        if not context:
+            context = {}
+
         template = self.env.get_template(f"{template_name}.jinja")
 
-        rendered_code = template.render()
+        rendered_code = template.render(context)
 
         target_dir = out_path / "source" if "source" in template_name.lower() else out_path
         target_dir.mkdir(parents=True, exist_ok=True)
@@ -179,9 +184,16 @@ class PydanticGenerator:
     def generate_base_class(self, out_path: Path) -> None:
         """Generates the static base class needed for tracking."""
         templates = ["base_settings", "source_yaml_env", "source_s3_secrets"]
+        str_sources = [source.value for source in code_gen_conf.enabled_sources]
+        context_ = {
+            "enabled_sources": str_sources,
+            "is_yaml": str(SourceType.YAML) in str_sources,
+            "env_prefix": code_gen_conf.env_prefix
+        }
 
         for t in templates:
-            self.save_template(out_path, t)
+            context = context_ if t == "base_settings" else {}
+            self.save_template(out_path, t, context)
 
         self.generate_base_settings_test(out_path)
 
@@ -314,6 +326,8 @@ class PydanticGenerator:
             "nested_sections": nested_context,
             "imports": imports,
         }
+        if code_gen_conf.pyproject_toml_table_header:
+            context["pyproject_toml_table_header"] =  tuple(code_gen_conf.pyproject_toml_table_header)
 
         rendered_code = template.render(context)
         file_path = out / "general_settings.py"

@@ -15,6 +15,7 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from logging import getLogger
 from pathlib import Path
+from typing import Optional
 
 import yaml
 
@@ -187,6 +188,7 @@ class EnvSection:
     yaml_file: Path | None = None
     include_literal: bool = False  # This is for fastapi
     variables: list[EnvVarSpec] = field(default_factory=list)
+    pyproject_toml_table_header: Optional[list[str]] = field(default=None)
 
 
 @dataclass
@@ -280,11 +282,14 @@ def load_env_spec(path: str | Path | None = None) -> EnvSpec:
 
         db_info = raw_sec.get("database", None)
         db_ = DBSpec(**db_info) if db_info else None
-
+        _pytoml_vals = raw_sec.get("pyproject_toml_table_header", None)
+        if _pytoml_vals:
+            _pytoml_vals = tuple(_pytoml_vals.strip().split(','))
         parsed_sections.append(
             EnvSection(
                 name=sec_name,
                 destination=raw_sec.get("destination", DestinationType.INFRASTRUCTURE),
+                pyproject_toml_table_header=_pytoml_vals,
                 description=raw_sec.get("description", "Auto-generated description"),
                 include_init_settings=raw_sec.get("include_init_settings", True),
                 include_general=raw_sec.get("include_general", True),

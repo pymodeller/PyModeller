@@ -10,12 +10,24 @@ Copyright ©2026 PyModeller. All rights reserved.
 """
 
 import tomllib
+from enum import Enum
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+from pydantic_settings import (
+    BaseSettings,
+    PydanticBaseSettingsSource,
+    PyprojectTomlConfigSettingsSource,
+    SettingsConfigDict,
+)
 from pymodeller.loader import DestinationType
+
+
+class SourceType(str, Enum):
+    YAML = "yaml"
+    S3 = "s3"
 
 
 class DestinationConfig(BaseModel):
@@ -55,8 +67,13 @@ class DestinationConfig(BaseModel):
         )
 
 
-class CodegenConfig(BaseModel):
+class CodegenConfig(BaseSettings):
     """Main configuration model for code generation."""
+
+    model_config = SettingsConfigDict(
+        pyproject_toml_table_header=("tool", "pymodeller"),
+        extra="ignore",
+    )
 
     base_dir: Path = Field(
         default=Path("./src/event_driven"),
@@ -84,8 +101,47 @@ class CodegenConfig(BaseModel):
     env: Path = Field(default=Path(".env"))
     env_example: Path = Field(default=Path(".env.example"))
 
+    enabled_sources: list[SourceType] = Field(
+        default_factory=lambda: [SourceType.YAML],
+        description="List of sources",
+    )
+
+    env_prefix: str = Field(default="APP_ENV")
+
+    pyproject_toml_table_header: Optional[list[str]] = Field(
+        default=None,
+        description="Optional table header path in pyproject.toml (e.g., ['tool', 'my_app'])",
+    )
+
     # Mapping of target environments: {"infrastructure": DestinationConfig, "domain": DestinationConfig}
     destinations: dict[DestinationType, DestinationConfig] = Field(default_factory=dict)
+
+    @field_validator("enabled_sources", "pyproject_toml_table_header", mode="before")
+    @classmethod
+    def parse_enabled_sources(cls, v: Any) -> Any:
+        """Parse 'yaml,s3' string from TOML into list of SourceType."""
+        if isinstance(v, str):
+            v = [item.strip().lower() for item in v.split(",") if item.strip()]
+        if isinstance(v, list):
+            return [
+                item.strip().lower() if isinstance(item, str) else item
+                for item in v
+            ]
+        return v
+
+    @classmethod
+    def settings_customise_sources(
+            cls,
+            settings_cls: type[BaseSettings],
+            init_settings: PydanticBaseSettingsSource,
+            env_settings: PydanticBaseSettingsSource,
+            dotenv_settings: PydanticBaseSettingsSource,
+            file_secret_settings: PydanticBaseSettingsSource,
+    ) -> tuple[PydanticBaseSettingsSource, ...]:
+        return (
+            init_settings,
+            PyprojectTomlConfigSettingsSource(settings_cls),
+        )
 
     def get_destination(self, model_type: DestinationType = DestinationType.INFRASTRUCTURE) -> DestinationConfig:
         """Retrieve destination paths for a given model type with resolved base paths."""
@@ -103,23 +159,7 @@ class CodegenConfig(BaseModel):
         return {name: dest.resolve_paths(self.base_dir, self.test_dir, name) for name, dest in self.destinations.items()}
 
 
-def load_codegen_config(
-    toml_path: str | Path = Path("pyproject.toml"),
-) -> dict[str, Any]:
-    """Load values from section [tool.pymodeller] in pyproject.toml."""
-    toml_path = Path(toml_path)
-
-    if not toml_path.exists():
-        raise FileNotFoundError(f"TOML configuration file not found: {toml_path}")
-
-    with toml_path.open("rb") as f:
-        data = tomllib.load(f)
-
-    return data.get("tool", {}).get("pymodeller", {})
-
-
 @lru_cache(maxsize=1)
 def get_code_gen_config() -> CodegenConfig:
     """Retrieve and instantiate cached code generation configuration."""
-    config_dict = load_codegen_config()
-    return CodegenConfig(**config_dict)
+    return CodegenConfig()

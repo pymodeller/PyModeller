@@ -35,6 +35,9 @@ class {{ class_name }}(BaseTraceableSettings):
         extra="ignore",
         populate_by_name=True,
         env_prefix_target="all",
+        {% if pyproject_toml_table_header %}
+        pyproject_toml_table_header={{ pyproject_toml_table_header }},
+        {% endif %}
     )
 
     # --- Flat variables (General Section) ---
