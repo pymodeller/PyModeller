@@ -74,7 +74,7 @@ class ExceptionGenerator:
 
         for t in templates:
             template = self.env.get_template(t.name)
-            flag_http = 'http' in t.name
+            flag_http = "http" in t.name
 
             spect_ = [d for d in dest_spec if d.is_http == flag_http]
             content = template.render(exceptions=spect_) if len(spect_) > 0 else None

@@ -9,11 +9,10 @@ Copyright ©2026 PyModeller. All rights reserved.
 ========================================================================================================================
 """
 
-import tomllib
-from enum import Enum
+from enum import StrEnum
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 from pydantic_settings import (
@@ -22,10 +21,13 @@ from pydantic_settings import (
     PyprojectTomlConfigSettingsSource,
     SettingsConfigDict,
 )
+
 from pymodeller.loader import DestinationType
 
 
-class SourceType(str, Enum):
+class SourceType(StrEnum):
+    """Source type."""
+
     YAML = "yaml"
     S3 = "s3"
 
@@ -54,10 +56,11 @@ class DestinationConfig(BaseModel):
         """Resolve relative paths by prepending the project base directory."""
         return DestinationConfig(
             destination_type=destination_type,
-            pydantic_model_folder=base_dir / destination_type /self.pydantic_model_folder,
-            pydantic_settings_folder=base_dir / destination_type /  self.pydantic_settings_folder,
-            pydantic_settings_init=(base_dir / destination_type / self.pydantic_settings_init
-                                    if self.pydantic_settings_init else None),
+            pydantic_model_folder=base_dir / destination_type / self.pydantic_model_folder,
+            pydantic_settings_folder=base_dir / destination_type / self.pydantic_settings_folder,
+            pydantic_settings_init=(
+                base_dir / destination_type / self.pydantic_settings_init if self.pydantic_settings_init else None
+            ),
             peewee_folder=base_dir / destination_type / self.peewee_folder,
             peewee_out=base_dir / destination_type / self.peewee_out,
             exceptions_folder=base_dir / destination_type / self.exceptions_folder,
@@ -108,7 +111,7 @@ class CodegenConfig(BaseSettings):
 
     env_prefix: str = Field(default="APP_ENV")
 
-    pyproject_toml_table_header: Optional[list[str]] = Field(
+    pyproject_toml_table_header: list[str] | None = Field(
         default=None,
         description="Optional table header path in pyproject.toml (e.g., ['tool', 'my_app'])",
     )
@@ -123,21 +126,23 @@ class CodegenConfig(BaseSettings):
         if isinstance(v, str):
             v = [item.strip().lower() for item in v.split(",") if item.strip()]
         if isinstance(v, list):
-            return [
-                item.strip().lower() if isinstance(item, str) else item
-                for item in v
-            ]
+            return [item.strip().lower() if isinstance(item, str) else item for item in v]
         return v
 
     @classmethod
     def settings_customise_sources(
-            cls,
-            settings_cls: type[BaseSettings],
-            init_settings: PydanticBaseSettingsSource,
-            env_settings: PydanticBaseSettingsSource,
-            dotenv_settings: PydanticBaseSettingsSource,
-            file_secret_settings: PydanticBaseSettingsSource,
+        cls,
+        settings_cls: type[BaseSettings],
+        init_settings: PydanticBaseSettingsSource,
+        env_settings: PydanticBaseSettingsSource,
+        dotenv_settings: PydanticBaseSettingsSource,
+        file_secret_settings: PydanticBaseSettingsSource,
     ) -> tuple[PydanticBaseSettingsSource, ...]:
+        """Customizes the configuration loading order for settings.
+
+        Prioritizes constructor arguments (`init_settings`) first, followed by
+        values parsed from the `pyproject.toml` file source.
+        """
         return (
             init_settings,
             PyprojectTomlConfigSettingsSource(settings_cls),
@@ -151,12 +156,16 @@ class CodegenConfig(BaseSettings):
             dest = DestinationConfig()
         return dest.resolve_paths(self.base_dir, self.test_dir, model_type)
 
-    def get_destinations(self, model_type: DestinationType = DestinationType.INFRASTRUCTURE) -> dict[DestinationType, DestinationConfig]:
+    def get_destinations(
+        self, model_type: DestinationType = DestinationType.INFRASTRUCTURE
+    ) -> dict[DestinationType, DestinationConfig]:
         """Get dict of detinations."""
         if model_type:
             return {model_type: self.get_destination(model_type)}
 
-        return {name: dest.resolve_paths(self.base_dir, self.test_dir, name) for name, dest in self.destinations.items()}
+        return {
+            name: dest.resolve_paths(self.base_dir, self.test_dir, name) for name, dest in self.destinations.items()
+        }
 
 
 @lru_cache(maxsize=1)

@@ -10,12 +10,11 @@ Copyright ©2026 PyModeller. All rights reserved.
 """
 
 from pathlib import Path
-from typing import Optional
 
 import typer
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-from pymodeller.config import get_code_gen_config, DestinationConfig, SourceType
+from pymodeller.config import DestinationConfig, SourceType, get_code_gen_config
 from pymodeller.loader import YAML_TYPE_MAP, EnvSection, EnvSpec, EnvVarSpec, SectionType
 from pymodeller.utils import to_pascal_case, to_snake_case
 
@@ -42,7 +41,7 @@ class PydanticGenerator:
         if var.secret:
             return "SecretStr"
 
-        base = YAML_TYPE_MAP.get(var.type, "str")
+        base = YAML_TYPE_MAP.get(var.type, str(var.type))
 
         if raw_name := (var.from_model or var.from_enum):
             suffix = "Model" if var.from_model else "Enum"
@@ -55,7 +54,6 @@ class PydanticGenerator:
     @staticmethod
     def get_default_expr(var: EnvVarSpec) -> str:
         """Generate the default value expression for the Field."""
-
         if var.required and var.default is None:
             return "..."
 
@@ -63,7 +61,7 @@ class PydanticGenerator:
             return f'default=SecretStr("{var.default or ""}")'
 
         if var.type == "datetime":
-            return f'default=datetime.now()'
+            return "default=datetime.now()"
 
         if var.type == "Path":
             return f'default=Path("{var.default}")'
@@ -77,7 +75,7 @@ class PydanticGenerator:
         if var.from_model is not None:
             return f"default={var.default}" if var.default else "default=None"
 
-        if var.from_enum is not None:
+        if var.from_enum is not None and var.default is not None:
             enum_class = f"{to_pascal_case(to_snake_case(var.from_enum))}Enum"
             return f"default={enum_class}.{var.default.upper()}"
 
@@ -135,7 +133,7 @@ class PydanticGenerator:
 
         _, class_name = self.generate_module_class_name(section)
         literal_name = to_pascal_case(to_snake_case(section.name))
-
+        val_ = tuple(section.pyproject_toml_table_header or ())
         context = {
             "class_name": class_name,
             "import_pydantic_base": self.init_base_path,
@@ -145,7 +143,7 @@ class PydanticGenerator:
             "from_attributes": section.from_attributes,
             "variables": variables_context,
             "extra_imports": list(set(extra_imports)),
-            "pyproject_toml_table_header": section.pyproject_toml_table_header,
+            "pyproject_toml_table_header": val_ if section.pyproject_toml_table_header else None,
             "literal_name": literal_name if (section.include_literal and section.type == SectionType.MODEL) else None,
         }
 
@@ -162,7 +160,7 @@ class PydanticGenerator:
         parts = [p for p in relative_path.parts if p not in (".", "src")]
         return ".".join(parts)
 
-    def save_template(self, out_path: Path, template_name: str = "", context: Optional[dict] = None) -> None:
+    def save_template(self, out_path: Path, template_name: str = "", context: dict | None = None) -> None:
         """Save the Jinja template."""
         if not context:
             context = {}
@@ -188,7 +186,7 @@ class PydanticGenerator:
         context_ = {
             "enabled_sources": str_sources,
             "is_yaml": str(SourceType.YAML) in str_sources,
-            "env_prefix": code_gen_conf.env_prefix
+            "env_prefix": code_gen_conf.env_prefix,
         }
 
         for t in templates:
@@ -199,31 +197,22 @@ class PydanticGenerator:
 
     def generate_base_settings_test(self, out_path: Path) -> None:
         """Generates the test file for BaseTraceableSettings."""
-        # Ruta final donde reside la clase base generada (ej. ./src/event_driven/infrastructure/config/settings/base_settings.py)
         base_settings_file = out_path / "base_settings.py"
 
         # Obtener la ruta de importación de Python automáticamente
         import_path = self._get_import_path(self.base_dir, base_settings_file)
 
-        # Determinar la carpeta de test equivalente replicando la estructura
-        # Reemplaza la ruta base por test_dir
         relative_subpath = out_path.relative_to(self.base_dir) if out_path.is_relative_to(self.base_dir) else out_path
         test_target_dir = self.test_dir / relative_subpath
         test_target_dir.mkdir(parents=True, exist_ok=True)
 
-        # Asegurar __init__.py en carpetas de test
         init_file = test_target_dir / "__init__.py"
         if not init_file.exists():
             init_file.touch()
 
-        # Renderizar la plantilla jinja del test con el import_path calculado
         template = self.env.get_template("test_base_settings.jinja")
-        rendered_code = template.render(
-            import_path=import_path,
-            class_name="BaseTraceableSettings"
-        )
+        rendered_code = template.render(import_path=import_path, class_name="BaseTraceableSettings")
 
-        # Guardar el archivo de test con prefijo test_
         test_file_path = test_target_dir / "test_base_settings.py"
         test_file_path.write_text(rendered_code, encoding="utf-8")
 
@@ -305,7 +294,6 @@ class PydanticGenerator:
 
         nested_context = []
 
-
         for sect in nested_sections_list:
             if not sect.include_general:
                 continue
@@ -327,7 +315,7 @@ class PydanticGenerator:
             "imports": imports,
         }
         if code_gen_conf.pyproject_toml_table_header:
-            context["pyproject_toml_table_header"] =  tuple(code_gen_conf.pyproject_toml_table_header)
+            context["pyproject_toml_table_header"] = code_gen_conf.pyproject_toml_table_header
 
         rendered_code = template.render(context)
         file_path = out / "general_settings.py"
@@ -341,8 +329,7 @@ class PydanticGenerator:
         models_dir.mkdir(parents=True, exist_ok=True)
         return models_dir
 
-    def generate_files(
-        self, yaml_hash: str, s: EnvSpec) -> tuple:
+    def generate_files(self, yaml_hash: str, s: EnvSpec) -> tuple:
         """Generate pydantic files."""
         out_model = self.destination_config.pydantic_model_folder
         out_settings = self.destination_config.pydantic_settings_folder

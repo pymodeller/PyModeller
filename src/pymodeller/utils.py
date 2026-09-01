@@ -9,11 +9,13 @@ Copyright ©2026 PyModeller. All rights reserved.
 ========================================================================================================================
 """
 
+import ast
 import hashlib
 import re
 from pathlib import Path
+
 from jinja2 import Environment, PackageLoader, select_autoescape
-import ast
+
 
 def get_file_hash(path: Path) -> str:
     """Compute SHA-256 hash of a file."""
@@ -136,12 +138,17 @@ def deep_merge(base: dict, overrides: dict) -> dict:
     return base
 
 
-def generate_init_file(
-    package_dir: Path | str
-) -> Path:
-    """Inspecciona los archivos .py de un directorio, extrae las clases
+def generate_init_file(package_dir: Path | str) -> Path:
+    """Inspects Python files within a directory, extracts classes, and generates an __init__.py file.
 
-    y utiliza Jinja2 para generar el __init__.py ordenado alfabéticamente.
+    Scans all `.py` files inside the target directory, gathers exported class definitions,
+    and uses a Jinja2 template to generate an alphabetically sorted `__init__.py`.
+
+    Args:
+        package_dir: The directory path containing the Python files to inspect.
+
+    Returns:
+        Path: The file path to the generated `__init__.py`.
     """
     env = Environment(loader=PackageLoader("pymodeller", "templates"), autoescape=select_autoescape())
 
@@ -159,14 +166,11 @@ def generate_init_file(
         # 2. Extraer los nombres de las clases definidas en el archivo con AST
         tree = ast.parse(code)
         for node in ast.walk(tree):
-            if isinstance(node, ast.ClassDef):
-                if node.name not in ["Meta"]:
-                    models_data.append(
-                        {
-                            "module": module_name,
-                            "class_name": node.name,
-                        }
-                    )
+            if isinstance(node, ast.ClassDef) and node.name not in ["Meta"]:
+                models_data.append({
+                    "module": module_name,
+                    "class_name": node.name,
+                })
 
     # 3. Ordenar alfabéticamente por nombre de la clase
     models_data.sort(key=lambda x: x["class_name"])
@@ -215,10 +219,21 @@ def ensure_init_py_in_subdirectories(root_dir: str | Path) -> list[Path]:
 
 
 def get_import_path(base_dir: str, subfolder: str, file_name: str) -> str:
-    """ Convierte './src/event_driven' + 'domain/schemas' + 'user.py'
-        en 'event_driven.domain.schemas.user'
+    """Converts a file path structure into a valid Python dot-notation import path.
+
+    Example:
+        `'./src/event_driven'`, `'domain/schemas'`, `'user.py'`
+        becomes `'event_driven.domain.schemas.user'`
+
+    Args:
+        base_dir: The base directory path (e.g., './src/event_driven').
+        subfolder: The relative subfolder path (e.g., 'domain/schemas').
+        file_name: The target filename (e.g., 'user.py').
+
+    Returns:
+        str: The dot-separated Python import module path.
     """
     path = Path(base_dir) / subfolder / file_name
-    # Elimina la extensión .py y omite la carpeta raíz de código (ej. 'src') si no es un paquete
-    parts = [p for p in path.with_suffix('').parts if p not in ('.', 'src')]
+    # Strip the .py extension and skip the root code folder (e.g., 'src') if it is not a package
+    parts = [p for p in path.with_suffix("").parts if p not in (".", "src")]
     return ".".join(parts)

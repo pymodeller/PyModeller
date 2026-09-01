@@ -9,21 +9,22 @@ Copyright ©2026 PyModeller. All rights reserved.
 ========================================================================================================================
 """
 
+import re
 from pathlib import Path
-from typing import Any
 
 import yaml
-from pydantic import BaseModel, Field
 from jinja2 import Environment, PackageLoader, select_autoescape
-import re
+from pydantic import BaseModel, Field
+
 from pymodeller.loader import DestinationType
 
 
 class EnumerationSpec(BaseModel):
     """Spec enum."""
+
     name: str = Field(..., alias="name")
     destination: DestinationType = DestinationType.INFRASTRUCTURE
-    options: list[str] = Field(..., alias='options')
+    options: list[str] = Field(..., alias="options")
     description: str = Field(..., alias="description")
 
 
@@ -60,7 +61,7 @@ class EnumGenerator:
 
     @staticmethod
     def _to_snake_case(name: str) -> str:
-        return re.sub(r'(?<!^)(?=[A-Z])', '_', name).lower()
+        return re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
 
     def generate(self, yaml_path: Path, enum_dir: Path) -> list:
         """Lee el YAML, lo parsea y genera un archivo por cada enumeration."""
@@ -90,7 +91,7 @@ class EnumGenerator:
 
             models_data.append({
                 "module": module_name,
-                "class_name": spec.name + 'Enum',
+                "class_name": spec.name + "Enum",
             })
 
         init_template = self.env.get_template("init.jinja")
@@ -100,8 +101,3 @@ class EnumGenerator:
         res.append(init_file_path)
 
         return res
-
-
-# Quick usage example
-if __name__ == "__main__":
-    EnumGenerator.generate(Path("enums.yaml"), Path("generated_enums.py"))

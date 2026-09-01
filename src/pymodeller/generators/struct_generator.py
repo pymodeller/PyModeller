@@ -9,15 +9,19 @@ Copyright ©2026 PyModeller. All rights reserved.
 ========================================================================================================================
 """
 
-from pathlib import Path
 import re
+from pathlib import Path
+
 import yaml
 from jinja2 import Environment, PackageLoader, select_autoescape
-from pymodeller.loader import DestinationType
 from pydantic import BaseModel, Field
+
+from pymodeller.loader import DestinationType
+
 
 class StructFieldSpec(BaseModel):
     """Spec para un campo dentro de un struct."""
+
     name: str = Field(..., alias="name")
     type: str = Field(..., alias="type")
     description: str = Field(default="", alias="description")
@@ -25,6 +29,7 @@ class StructFieldSpec(BaseModel):
 
 class StructSpec(BaseModel):
     """Spec struct."""
+
     name: str = Field(..., alias="name")
     destination: DestinationType = DestinationType.INFRASTRUCTURE
     description: str = Field(default="", alias="description")
@@ -33,6 +38,7 @@ class StructSpec(BaseModel):
 
 class StructConfig(BaseModel):
     """Config struct."""
+
     structs: list[StructSpec] = Field(..., alias="structs")
 
 
@@ -63,7 +69,7 @@ class StructGenerator:
 
     @staticmethod
     def _to_snake_case(name: str) -> str:
-        return re.sub(r'(?<!^)(?=[A-Z])', '_', name).lower()
+        return re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
 
     def generate(self, yaml_path: Path, output_dir: Path) -> list[Path]:
         """Lee el YAML, lo parsea y genera un archivo por cada struct."""

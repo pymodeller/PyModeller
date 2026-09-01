@@ -1,9 +1,9 @@
 """Env-spec loader.
 
 ========================================================================================================================
-Name:         core/env/loader.py
-Description:  Parses env_data_model.yaml into typed Python dataclasses that represent
-              every environment variable defined for the project.
+Name:        core/env/loader.py
+Description: Parses env_data_model.yaml into typed Pydantic models that represent
+             every environment variable defined for the project.
 
 Copyright ©2026 PyModeller. All rights reserved.
 ========================================================================================================================
@@ -11,199 +11,207 @@ Copyright ©2026 PyModeller. All rights reserved.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from enum import StrEnum
-from logging import getLogger
+from logging import Logger, getLogger
 from pathlib import Path
-from typing import Optional
+from typing import Any
 
 import yaml
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from pymodeller.utils import get_variants, to_camel_case, to_snake_case
 
-logger = getLogger(__name__)
+logger: Logger = getLogger(__name__)
 
-# Default location of the spec file
-DEFAULT_SPEC_PATH = Path("environtment.yaml")
-_PND_UINT8 = "pnd.NpNDArrayUint8"
-_PND_INT8 = "pnd.NpNDArrayInt8"
-_PND_F32 = "pnd.NpNDArrayFp32"
-_PATH = "Path"
-_FLOAT = "float"
-_INT = "int"
-_STR = "str"
-_BOOL = "bool"
-_ANY = "Any"
-
-# Single source of truth for YAML type -> Python type name normalization
-YAML_TYPE_MAP: dict[str, str] = {
-    "string": _STR,
-    "integer": _INT,
-    "number": _FLOAT,
-    "secret": _STR,  # Normalized to str + secret flag in __post_init__
-    "boolean": _BOOL,
-    "object": "object",
-    "datetime": "datetime",
-    "model": "model",
-    "list": "list",
-    "dict": "dict",
-    _ANY.lower(): _ANY,
-    _ANY: _ANY,
-    _STR: _STR,
-    _INT: _INT,
-    _FLOAT: _FLOAT,
-    _BOOL: _BOOL,
-    _PATH.lower(): _PATH,
-    _PATH: _PATH,
-    _PND_INT8: _PND_INT8,
-    _PND_UINT8: _PND_UINT8,
-    _PND_F32: _PND_F32,
-    _PND_INT8.lower(): _PND_INT8,
-    _PND_UINT8.lower(): _PND_UINT8,
-    _PND_F32.lower(): _PND_F32,
-}
+DEFAULT_SPEC_PATH: Path = Path("environment.yaml")
 
 BOOL_TRUTHY: frozenset[str] = frozenset({"true", "1", "yes", "on"})
 BOOL_FALSY: frozenset[str] = frozenset({"false", "0", "no", "off"})
 BOOL_VALUES: frozenset[str] = BOOL_TRUTHY | BOOL_FALSY
 
+# Mapping from raw YAML type strings to normalized Python type names
+YAML_TYPE_MAP: dict[str, str] = {
+    "string": "str",
+    "integer": "int",
+    "number": "float",
+    "secret": "str",
+    "boolean": "bool",
+    "object": "object",
+    "datetime": "datetime",
+    "model": "model",
+    "list": "list",
+    "dict": "dict",
+    "path": "Path",
+    "pnd.ndarrayint8": "pnd.NpNDArrayInt8",
+    "pnd.ndarrayuint8": "pnd.NpNDArrayUint8",
+    "pnd.ndarrayfp32": "pnd.NpNDArrayFp32",
+}
+
 
 class DestinationType(StrEnum):
-    """Model type."""
+    """Destination module layer for the generated model."""
 
     INFRASTRUCTURE = "infrastructure"
     DOMAIN = "domain"
 
-    @classmethod
-    def _missing_(cls, value: object) -> None:
-        options = ", ".join([f"'{item.value}'" for item in cls])
-        raise ValueError(f"'{value}' is not a valid {cls.__name__}. Allowed options are: [{options}]")
-
 
 class SectionType(StrEnum):
-    """Section type."""
+    """Categorization for environment configuration sections."""
 
     SETTINGS = "settings"
     MODEL = "model"
     PEEWEE = "peewee"
 
-    @classmethod
-    def _missing_(cls, value: object) -> None:
-        options = ", ".join([f"'{item.value}'" for item in cls])
-        raise ValueError(f"'{value}' is not a valid {cls.__name__}. Allowed options are: [{options}]")
 
+class DBField(BaseModel):
+    """Database column specification for ORM code generation."""
 
-@dataclass(frozen=True)
-class DBSpec:
-    """Configuration for Peewee/DB."""
-
-    primary_key: list[str] | None = None
-    table_name: str | None = None
-    schema: str | None = None
-    indexes: list[dict] | None = None
-    constraints: list[str] | None = None
-
-
-@dataclass(frozen=True)
-class DBField:
-    """Entry configuration."""
-
-    max_length: int | None = None
+    max_length: int | None = Field(default=None)
     allow_null: bool = False
     index: bool = False
     unique: bool = False
-    column_name: str | None = None
-
+    column_name: str | None = Field(default=None)
     primary_key: bool = False
-    constraints: list[str] | None = None
-
-    foreign_key: str | None = None
-    backref: str | None = None
-    on_delete: str | None = None
-
-    choices: list[str] | None = None
-
-    max_digits: int | None = None
-    decimal_places: int | None = None
-
-    default_callable: str | None = None
+    constraints: list[str] | None = Field(default=None)
+    foreign_key: str | None = Field(default=None)
+    backref: str | None = Field(default=None)
+    on_delete: str | None = Field(default=None)
+    choices: list[str] | None = Field(default=None)
+    max_digits: int | None = Field(default=None)
+    decimal_places: int | None = Field(default=None)
+    default_callable: str | None = Field(default=None)
 
 
-@dataclass(frozen=True)
-class EnvVarSpec:
+class DBSpec(BaseModel):
+    """Database table-level configuration for Peewee models."""
+
+    primary_key: list[str] | None = Field(default=None)
+    table_name: str | None = Field(default=None)
+    schema_db: str | None = Field(
+        default=None,
+        alias="schema",
+        description="Database schema name",
+    )
+    indexes: list[dict[str, Any]] | None = Field(default=None)
+    constraints: list[str] | None = Field(default=None)
+
+
+class EnvVarSpec(BaseModel):
     """Specification for a single environment variable."""
 
     name: str
     description: str = ""
     type: str = "str"
-    default: str | None = None
+    default: Any | None = Field(default=None)
     required: bool = False
     secret: bool = False
-    from_model: str | None = None
-    from_enum: str | None = None
+    from_model: str | None = Field(default=None)
+    from_enum: str | None = Field(default=None)
     exclude: bool = False
     section: str = ""
     alias: str = ""
-    validation_alias: str = ""
-    env_name: str = ""  # Final ENV var name (e.g., SERVER__HOST)
-    db_spec: DBField | None = None
+    validation_alias: list[str] | str = ""
+    env_name: str = ""
+    db_spec: DBField | None = Field(default=None)
 
-    def __post_init__(self) -> None:
-        """Derive alias and handle secret type sugar."""
-        # Auto-generate camelCase alias if not provided
+    @field_validator("name", mode="before")
+    @classmethod
+    def normalize_name(cls, v: str) -> str:
+        """Normalize the variable name to snake_case."""
+        return to_snake_case(v)
+
+    @field_validator("type", mode="before")
+    @classmethod
+    def normalize_type(cls, v: str) -> str:
+        """Map generic or YAML type names to standardized Python types."""
+        return YAML_TYPE_MAP.get(str(v).lower(), str(v))
+
+    @model_validator(mode="after")
+    def compute_derived_fields(self) -> EnvVarSpec:
+        """Derive aliases, environmental names, and secret status post-initialization."""
+        # 1. Fallback to camelCase alias if not explicitly declared
         if not self.alias:
-            object.__setattr__(self, "alias", to_camel_case(self.name))
+            self.alias = to_camel_case(self.name)
 
-        search_prefix = ["arn:aws:", "s3://"]
+        # 2. Generate case variations for validation alias if absent
+        if not self.validation_alias:
+            self.validation_alias = get_variants(self.name)
 
-        if self.default and isinstance(self.default, str) and any(p in self.default for p in search_prefix):
-            object.__setattr__(self, "type", "secret")
+        # 3. Automatically detect secrets via URI/ARN patterns
+        search_prefixes: tuple[str, ...] = ("arn:aws:", "s3://")
+        if self.default and isinstance(self.default, str) and any(p in self.default for p in search_prefixes):
+            self.secret = True
 
-        # 'secret' type is a shortcut for type: str + secret: true
+        # 4. Handle 'secret' sugar syntax (maps to type: str + secret: true)
         if self.type == "secret":
-            object.__setattr__(self, "type", "str")
-            object.__setattr__(self, "secret", True)
+            self.type = "str"
+            self.secret = True
+
+        return self
 
     def display_value(self) -> str:
-        """Return a masked or real default value for documentation purposes."""
-        if self.secret:
+        """Return a masked or plain default value suitable for documentation output."""
+        if self.secret or self.default is None:
             return ""
-        return str(self.default) if self.default is not None else ""
+        return str(self.default)
 
 
-@dataclass
-class EnvSection:
-    """A named group of environment variables."""
+class EnvSection(BaseModel):
+    """A logical grouping of related environment variables."""
 
-    name: str
-    description: str = ""
+    name: str = "Default"
+    description: str = "Auto-generated description"
     env_prefix: str = ""
     destination: DestinationType = DestinationType.INFRASTRUCTURE
-    type: SectionType = SectionType.SETTINGS
+    type: SectionType = SectionType.MODEL
     include_init_settings: bool = True
     include_general: bool = True
+    include_literal: bool = True
     from_attributes: bool = True
     attr: str = ""
-    database: DBSpec | None = None
-    yaml_file: Path | None = None
-    include_literal: bool = False  # This is for fastapi
-    variables: list[EnvVarSpec] = field(default_factory=list)
-    pyproject_toml_table_header: Optional[list[str]] = field(default=None)
+    database: DBSpec | None = Field(default=None)
+    yaml_file: Path | None = Field(default=None)
+    variables: list[EnvVarSpec] = Field(default_factory=list)
+    pyproject_toml_table_header: list[str] | None = Field(default=None)
+
+    @field_validator("env_prefix", mode="before")
+    @classmethod
+    def uppercase_prefix(cls, v: str) -> str:
+        """Ensure environmental variable prefix is uppercase."""
+        return v.upper() if v else ""
+
+    @field_validator("pyproject_toml_table_header", mode="before")
+    @classmethod
+    def parse_pyproject_header(cls, v: object) -> list[str] | None:
+        """Parse comma-separated string headers into a list of strings."""
+        if isinstance(v, str):
+            return [x.strip() for x in v.split(",") if x.strip()]
+        return v  # type: ignore[return-value]
+
+    @model_validator(mode="after")
+    def propagate_section_to_variables(self) -> EnvSection:
+        """Propagate section metadata and environment prefixes down to child variables."""
+        prefix: str = self.env_prefix
+        for var in self.variables:
+            var.section = self.name
+            if not var.env_name:
+                var.env_name = f"{prefix}_{var.name}" if prefix else var.name
+        return self
 
 
-@dataclass
-class EnvSpec:
-    """Full specification parsed from the YAML file."""
+class EnvSpec(BaseModel):
+    """Complete specification container parsed from YAML source files."""
 
-    sections: list[EnvSection] = field(default_factory=list)
+    sections: list[EnvSection] = Field(default_factory=list)
 
     @property
     def all_vars(self) -> list[EnvVarSpec]:
-        """Flat list of all variable specifications."""
+        """Get a flattened list of all variable specifications across sections."""
         return [var for section in self.sections for var in section.variables]
 
-    def validate_no_duplicates(self) -> None:
-        """Ensure no collisions between environment names or Python aliases."""
+    @model_validator(mode="after")
+    def validate_no_duplicates(self) -> EnvSpec:
+        """Ensure no name collisions exist between env variable keys or Python aliases."""
         seen_env: set[str] = set()
 
         for sec in self.sections:
@@ -217,92 +225,41 @@ class EnvSpec:
                     raise ValueError(f"Duplicate Python alias: {var.alias}")
                 seen_env.add(var.env_name)
                 seen_alias.add(var.alias)
+        return self
 
 
 def load_env_spec(path: str | Path | None = None) -> EnvSpec:
-    """Load and parse the env_spec YAML file."""
-    spec_path = Path(path or DEFAULT_SPEC_PATH)
+    """Load and parse the environment specification file or directory containing YAML specs.
+
+    Args:
+        path: Path to a YAML file or directory containing spec files. Defaults to DEFAULT_SPEC_PATH.
+
+    Returns:
+        EnvSpec: Fully validated specification model populated from YAML content.
+
+    Raises:
+        FileNotFoundError: If the designated spec path does not exist.
+        ValueError: If no section definitions were found.
+    """
+    spec_path: Path = Path(path or DEFAULT_SPEC_PATH)
 
     if not spec_path.exists():
         raise FileNotFoundError(f"Spec file not found: {spec_path.absolute()}")
 
-    raw_sections = []
+    raw_sections: list[dict[str, Any]] = []
 
     if spec_path.is_dir():
-        yaml_files = list(spec_path.glob("*.yaml")) + list(spec_path.glob("*.yml"))
-
+        yaml_files: list[Path] = list(spec_path.glob("*.yaml")) + list(spec_path.glob("*.yml"))
         for file in yaml_files:
             with file.open(encoding="utf-8") as f:
-                data = yaml.safe_load(f) or {}
-                sections = data.get("models", [])
-                if isinstance(sections, list):
-                    raw_sections.extend(sections)
+                data: dict[str, Any] = yaml.safe_load(f) or {}
+                raw_sections.extend(data.get("models", []))
     else:
         with spec_path.open(encoding="utf-8") as f:
-            data = yaml.safe_load(f) or {}
+            data: dict[str, Any] = yaml.safe_load(f) or {}
             raw_sections = data.get("models", [])
 
     if not raw_sections:
         raise ValueError("Empty sections")
 
-    parsed_sections = []
-
-    for raw_sec in raw_sections:
-        sec_name = raw_sec.get("name", "Default")
-        prefix = raw_sec.get("env_prefix", "").upper()
-
-        # Parse variables within the section
-        vars_list = []
-        for v in raw_sec.get("variables", []):
-            raw_name = v["name"]
-            env_name = f"{prefix}_{raw_name}" if prefix else raw_name
-
-            db_finfo = v.get("db_spec", None)
-            db_f_ = DBField(**db_finfo) if db_finfo else None
-
-            type_ = YAML_TYPE_MAP.get(str(v.get("type", "str")).lower(), "str")
-            vars_list.append(
-                EnvVarSpec(
-                    name=to_snake_case(raw_name),
-                    description=v.get("description", ""),
-                    from_model=v.get("from_model", None),
-                    from_enum=v.get("from_enum", None),
-                    type=type_,
-                    default=v.get("default"),
-                    required=bool(v.get("required", False)),
-                    secret=bool(v.get("secret", False)),
-                    section=sec_name,
-                    alias=v.get("alias", ""),
-                    exclude=bool(v.get("exclude", False)),
-                    db_spec=db_f_,
-                    validation_alias=get_variants(raw_name),
-                    env_name=env_name,
-                )
-            )
-
-        db_info = raw_sec.get("database", None)
-        db_ = DBSpec(**db_info) if db_info else None
-        _pytoml_vals = raw_sec.get("pyproject_toml_table_header", None)
-        if _pytoml_vals:
-            _pytoml_vals = tuple(_pytoml_vals.strip().split(','))
-        parsed_sections.append(
-            EnvSection(
-                name=sec_name,
-                destination=raw_sec.get("destination", DestinationType.INFRASTRUCTURE),
-                pyproject_toml_table_header=_pytoml_vals,
-                description=raw_sec.get("description", "Auto-generated description"),
-                include_init_settings=raw_sec.get("include_init_settings", True),
-                include_general=raw_sec.get("include_general", True),
-                include_literal=raw_sec.get("include_literal", True),
-                yaml_file=raw_sec.get("yaml_file", None),
-                from_attributes=raw_sec.get("from_attributes", True),
-                env_prefix=prefix,
-                variables=vars_list,
-                type=SectionType(raw_sec.get("type", SectionType.MODEL.value)),
-                database=db_,
-            )
-        )
-
-    spec = EnvSpec(sections=parsed_sections)
-    spec.validate_no_duplicates()
-    return spec
+    return EnvSpec(sections=raw_sections)

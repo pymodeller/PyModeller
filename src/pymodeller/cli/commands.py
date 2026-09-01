@@ -22,7 +22,7 @@ from rich.panel import Panel
 from rich.text import Text
 
 from pymodeller import __version__
-from pymodeller.config import get_code_gen_config
+from pymodeller.config import DestinationConfig, get_code_gen_config
 from pymodeller.generators.enum_generator import EnumGenerator
 from pymodeller.generators.env_generator import EnvGenerator
 from pymodeller.generators.exception_generator import ExceptionGenerator
@@ -147,11 +147,12 @@ def check(
 def codegen(
     spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.models_yaml,
     model_type: Annotated[
-        str | None,
+        DestinationType | None,
         typer.Option(
             "--model-type",
             "-t",
             help="Target specific destination type (e.g., 'infrastructure', 'domain'). Runs all if omitted.",
+            case_sensitive=False,
         ),
     ] = None,
 ) -> typer.Exit:
@@ -160,7 +161,7 @@ def codegen(
     yaml_hash = get_file_hash(Path(spec))
 
     # 1. Resolve target destinations (single target or ALL configured destinations)
-    target_destinations = code_gen_conf.get_destinations(model_type)
+    target_destinations: dict[DestinationType, DestinationConfig] = code_gen_conf.get_destinations(model_type)
 
     # 2. Iterate through each resolved target destination
     for target_type, dest in target_destinations.items():
@@ -179,8 +180,7 @@ def codegen(
                 fg=typer.colors.BRIGHT_GREEN,
             )
             exception_dir = dest.enumerations_folder
-            content = EnumGenerator(
-                destination=enum_model_type).generate(code_gen_conf.models_yaml, exception_dir)
+            content = EnumGenerator(destination=enum_model_type).generate(code_gen_conf.models_yaml, exception_dir)
 
             if len(content):
                 file_paths = [str(p) for p in content]
@@ -227,10 +227,9 @@ def codegen(
                 fg=typer.colors.BRIGHT_GREEN,
             )
 
-            if len(file_paths):
-                file_paths = [str(p) for p in [p_path, pm_dir] if p.exists()]
-                ToolRunner.run_with_uv("ruff", ["check", *file_paths, _CONFIG_TOML, "--fix"])
-                ToolRunner.run_with_uv("ruff", ["format", *file_paths, _CONFIG_TOML])
+            file_paths = [str(p) for p in [p_path, pm_dir] if p.exists()]
+            ToolRunner.run_with_uv("ruff", ["check", *file_paths, _CONFIG_TOML, "--fix"])
+            ToolRunner.run_with_uv("ruff", ["format", *file_paths, _CONFIG_TOML])
 
             typer.secho(
                 f"      ✅ Peewee models generated at {target_peewee_folder}",
@@ -246,8 +245,9 @@ def codegen(
                 fg=typer.colors.BRIGHT_GREEN,
             )
             exception_dir = dest.exceptions_folder
-            content = ExceptionGenerator(
-                destination=enum_model_type).generate(code_gen_conf.exceptions_yaml, exception_dir)
+            content = ExceptionGenerator(destination=enum_model_type).generate(
+                code_gen_conf.exceptions_yaml, exception_dir
+            )
 
             if len(content):
                 file_paths = [str(p) for p in content]
@@ -266,7 +266,6 @@ def codegen(
         file_paths = [str(p) for p in files_]
         ToolRunner.run_with_uv("ruff", ["check", *file_paths, _CONFIG_TOML, "--fix"])
         ToolRunner.run_with_uv("ruff", ["format", *file_paths, _CONFIG_TOML])
-
 
     return typer.Exit(code=0)
 

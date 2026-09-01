@@ -9,16 +9,25 @@ Copyright ©2026 PyModeller. All rights reserved.
 ========================================================================================================================
 """
 
-from pathlib import Path
 import re
-from typing import Generic, Type, TypeVar
+from pathlib import Path
+from typing import Generic, TypeVar
+
 import yaml
 from jinja2 import Environment, PackageLoader, select_autoescape
 from pydantic import BaseModel
+
 from pymodeller.loader import DestinationType
 
+
+class NamedModel(BaseModel):
+    """Base model ensuring the presence of a 'name' attribute."""
+
+    name: str
+
+
 # Type variable constrained to Pydantic BaseModels
-T = TypeVar("T", bound=BaseModel)
+T = TypeVar("T", bound=NamedModel)
 
 
 class BaseGenerator(Generic[T]):
@@ -29,7 +38,7 @@ class BaseGenerator(Generic[T]):
 
     yaml_section: str
     template_name: str
-    model_class: Type[T]
+    model_class: type[T]
     class_suffix: str = ""
     package_name: str = "pymodeller"
     templates_folder: str = "templates"
@@ -58,7 +67,7 @@ class BaseGenerator(Generic[T]):
         Returns:
             str: The converted snake_case string.
         """
-        return re.sub(r'(?<!^)(?=[A-Z])', '_', name).lower()
+        return re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
 
     def parse_yaml(self, path: Path) -> list[T]:
         """Parse and validate items from a YAML file using the subclass model class.
@@ -85,7 +94,7 @@ class BaseGenerator(Generic[T]):
         Returns:
             str: The formatted class name.
         """
-        name: str = getattr(spec, "name")
+        name: str = spec.name
         return f"{name}{self.class_suffix}"
 
     def generate(self, yaml_path: Path, output_dir: Path) -> list[Path]:
@@ -106,9 +115,7 @@ class BaseGenerator(Generic[T]):
             raise FileNotFoundError(f"The file {yaml_path} does not exist.")
 
         specs: list[T] = self.parse_yaml(path)
-        dest_specs: list[T] = [
-            s for s in specs if getattr(s, "destination", self.destination) == self.destination
-        ]
+        dest_specs: list[T] = [s for s in specs if getattr(s, "destination", self.destination) == self.destination]
 
         if not dest_specs:
             return []
@@ -120,7 +127,7 @@ class BaseGenerator(Generic[T]):
 
         # Render individual module files
         for spec in dest_specs:
-            name: str = getattr(spec, "name")
+            name: str = spec.name
             content: str = template.render(spec=spec)
             module_name: str = self._to_snake_case(name)
 
