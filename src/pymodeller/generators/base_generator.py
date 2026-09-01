@@ -11,7 +11,7 @@ Copyright ©2026 PyModeller. All rights reserved.
 
 import re
 from pathlib import Path
-from typing import Generic, TypeVar
+from typing import TypeVar
 
 import yaml
 from jinja2 import Environment, PackageLoader, select_autoescape
@@ -30,7 +30,7 @@ class NamedModel(BaseModel):
 T = TypeVar("T", bound=NamedModel)
 
 
-class BaseGenerator(Generic[T]):
+class BaseGenerator[T: NamedModel]:
     """Abstract base generator for creating Python code from Jinja2 templates and YAML specs.
 
     Subclasses must define `yaml_section`, `template_name`, and `model_class`.
@@ -104,11 +104,11 @@ class BaseGenerator(Generic[T]):
             yaml_path (Path): Path to the source YAML file.
             output_dir (Path): Destination directory where files will be created.
 
-        Raises:
-            FileNotFoundError: If the provided YAML file path does not exist.
-
         Returns:
             list[Path]: List of generated file paths, including `__init__.py`.
+
+        Raises:
+            FileNotFoundError: If the provided YAML file path does not exist.
         """
         path = Path(yaml_path)
         if not path.exists():

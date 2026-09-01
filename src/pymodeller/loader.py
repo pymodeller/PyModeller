@@ -206,7 +206,7 @@ class EnvSpec(BaseModel):
 
     @property
     def all_vars(self) -> list[EnvVarSpec]:
-        """Get a flattened list of all variable specifications across sections."""
+        """A flattened list of all variable specifications across sections."""
         return [var for section in self.sections for var in section.variables]
 
     @model_validator(mode="after")

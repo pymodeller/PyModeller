@@ -147,14 +147,14 @@ def check(
 def codegen(
     spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.models_yaml,
     model_type: Annotated[
-        DestinationType | None,
+        DestinationType,
         typer.Option(
             "--model-type",
             "-t",
             help="Target specific destination type (e.g., 'infrastructure', 'domain'). Runs all if omitted.",
             case_sensitive=False,
         ),
-    ] = None,
+    ] = DestinationType.INFRASTRUCTURE,
 ) -> typer.Exit:
     """Generate typed Pydantic models for the environment."""
     s = load_env_spec(spec)
