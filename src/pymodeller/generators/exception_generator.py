@@ -2,7 +2,7 @@
 
 ========================================================================================================================
 Name:         pymodeller/generators/exception_generator.py
-Description:  Exception generator.
+Description:  Exception generator extending BaseGenerator.
 Project:      PyModeller
 
 Copyright ©2026 PyModeller. All rights reserved.
@@ -11,14 +11,13 @@ Copyright ©2026 PyModeller. All rights reserved.
 
 from pathlib import Path
 
-import yaml
-from jinja2 import Environment, PackageLoader, select_autoescape
-from pydantic import BaseModel, Field
+from pydantic import Field
 
+from pymodeller.generators.base_generator import BaseGenerator, NamedModel
 from pymodeller.loader import DestinationType
 
 
-class ExceptionSpec(BaseModel):
+class ExceptionSpec(NamedModel):
     """Esquema de validación para cada excepción en el YAML."""
 
     class_name: str = Field(..., alias="class_name")
@@ -26,67 +25,55 @@ class ExceptionSpec(BaseModel):
     detail: str = Field("Internal Server Error", alias="detail")
     is_http: bool = Field(True, alias="is_http")
     description: str = Field("General error", alias="description")
-    destination: str = Field(default=DestinationType.INFRASTRUCTURE, alias="destination")
+    destination: DestinationType = Field(default=DestinationType.INFRASTRUCTURE, alias="destination")
+
+    @property
+    def name(self) -> str:
+        """Satisface la interfaz NamedModel utilizando class_name."""
+        return self.class_name
 
 
-class ExceptionConfig(BaseModel):
-    """Contenedor para la lista de excepciones."""
-
-    exceptions: list[ExceptionSpec]
-
-
-class ExceptionParser:
-    """Lee el archivo YAML y lo convierte en objetos validados."""
-
-    @staticmethod
-    def parse_yaml(path: Path) -> list[ExceptionSpec]:
-        """Parse yaml."""
-        with open(path, encoding="utf-8") as f:
-            data = yaml.safe_load(f)
-            config = ExceptionConfig(exceptions=data.get("exceptions", []))
-            return config.exceptions
-
-
-class ExceptionGenerator:
+class ExceptionGenerator(BaseGenerator[ExceptionSpec]):
     """Service class to handle exception code generation logic."""
 
-    def __init__(self, destination: DestinationType = DestinationType.INFRASTRUCTURE) -> None:
-        """Init exception generator."""
-        self.env = Environment(
-            loader=PackageLoader("pymodeller", "templates"),
-            autoescape=select_autoescape(),
-            trim_blocks=True,
-            lstrip_blocks=True,
-        )
-        self.destination = destination
+    yaml_section: str = "exceptions"
+    template_name: str = "exceptions.jinja"
+    model_class: type[ExceptionSpec] = ExceptionSpec
 
-    def generate(self, yaml_path: Path, exception_dir: Path) -> list:
-        """Lee el YAML, lo parsea y genera el contenido del archivo."""
+    def generate(self, yaml_path: Path, output_dir: Path) -> list[Path]:
+        """Lee el YAML, filtra por destino y genera los módulos agrupados de excepciones."""
         path = Path(yaml_path)
         if not path.exists():
             raise FileNotFoundError(f"El archivo {yaml_path} no existe.")
 
-        specs = ExceptionParser.parse_yaml(path)
-        dest_spec = [s for s in specs if s.destination == self.destination]
+        specs: list[ExceptionSpec] = self.parse_yaml(path)
+        dest_specs: list[ExceptionSpec] = [
+            s for s in specs if getattr(s, "destination", self.destination) == self.destination
+        ]
 
-        templates = [Path("exceptions.jinja"), Path("exceptions_http.jinja")]
-        res = []
+        if not dest_specs:
+            return []
 
-        for t in templates:
-            template = self.env.get_template(t.name)
-            flag_http = "http" in t.name
+        output_dir.mkdir(parents=True, exist_ok=True)
+        templates = ["exceptions.jinja", "exceptions_http.jinja"]
+        generated_files: list[Path] = []
 
-            spect_ = [d for d in dest_spec if d.is_http == flag_http]
-            content = template.render(exceptions=spect_) if len(spect_) > 0 else None
-            if content:
-                exception_dir.mkdir(parents=True, exist_ok=True)
-                file_path = exception_dir / f"{t.stem}.py"
+        for template_name in templates:
+            flag_http = "http" in template_name
+            target_specs = [spec for spec in dest_specs if spec.is_http == flag_http]
+
+            if target_specs:
+                template = self.env.get_template(template_name)
+                content = template.render(exceptions=target_specs)
+
+                file_stem = Path(template_name).stem
+                file_path = output_dir / f"{file_stem}.py"
                 file_path.write_text(content, encoding="utf-8")
-                res.append(file_path)
+                generated_files.append(file_path)
 
-        if len(res) > 0:
-            init_file_path = exception_dir / "__init__.py"
+        if generated_files:
+            init_file_path = output_dir / "__init__.py"
             init_file_path.write_text("", encoding="utf-8")
-            res.append(init_file_path)
+            generated_files.append(init_file_path)
 
-        return res
+        return generated_files

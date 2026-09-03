@@ -42,7 +42,7 @@ class TestPydanticGeneratorHelpers(unittest.TestCase):
         """Test Python type resolution using YAML_TYPE_MAP and optional wrapping."""
         # Non-required without default -> Optional[str]
         var_opt: EnvVarSpec = EnvVarSpec(name="description", type="string", required=False)
-        self.assertEqual(PydanticGenerator.get_python_type(var_opt), "Optional[str]")
+        self.assertEqual(PydanticGenerator.get_python_type(var_opt), "str | None")
 
         # Required field -> str
         var_req: EnvVarSpec = EnvVarSpec(name="description", type="string", required=True)
@@ -56,8 +56,8 @@ class TestPydanticGeneratorHelpers(unittest.TestCase):
             name="items", type="list", from_model="item_detail", required=True
         )
 
-        self.assertEqual(PydanticGenerator.get_python_type(var_model), "Optional[UserDetailModel]")
-        self.assertEqual(PydanticGenerator.get_python_type(var_enum), "Optional[UserRoleEnum]")
+        self.assertEqual(PydanticGenerator.get_python_type(var_model), "UserDetailModel | None")
+        self.assertEqual(PydanticGenerator.get_python_type(var_enum), "UserRoleEnum | None")
         self.assertEqual(PydanticGenerator.get_python_type(var_list_model), "list[ItemDetailModel]")
 
     def test_get_default_expr_variations(self) -> None:
