@@ -23,11 +23,7 @@ from rich.text import Text
 
 from pymodeller import __version__
 from pymodeller.config import DestinationConfig, get_code_gen_config
-from pymodeller.generators.enum_generator import EnumGenerator
-from pymodeller.generators.env_generator import EnvGenerator
-from pymodeller.generators.exception_generator import ExceptionGenerator
-from pymodeller.generators.peewee_generator import PeeweeGenerator
-from pymodeller.generators.pydantic_generator import PydanticGenerator
+from pymodeller.generators import EnumGenerator, EnvGenerator, ExceptionGenerator, PydanticGenerator, PeeweeGenerator
 from pymodeller.loader import DestinationType, load_env_spec
 from pymodeller.tool_runner import ToolRunner
 from pymodeller.utils import (

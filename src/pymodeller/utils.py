@@ -155,7 +155,6 @@ def generate_init_file(package_dir: Path | str) -> Path:
     package_path = Path(package_dir)
     models_data: list[dict[str, str]] = []
 
-    # 1. Escanear todos los archivos .py (omitiendo __init__.py)
     for file_path in package_path.glob("*.py"):
         if file_path.name == "__init__.py":
             continue
@@ -172,14 +171,11 @@ def generate_init_file(package_dir: Path | str) -> Path:
                     "class_name": node.name,
                 })
 
-    # 3. Ordenar alfabéticamente por nombre de la clase
     models_data.sort(key=lambda x: x["class_name"])
 
-    # 4. Renderizar con Jinja2
     template = env.get_template("init.jinja")
     init_content = template.render(models=models_data)
 
-    # 5. Escribir el __init__.py
     init_path = package_path / "__init__.py"
     init_path.write_text(init_content, encoding="utf-8")
     return init_path

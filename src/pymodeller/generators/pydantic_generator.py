@@ -49,7 +49,7 @@ class PydanticGenerator:
             type_name = f"{name}{suffix}"
             base = f"list[{type_name}]" if var.type == "list" else type_name
 
-        return f"Optional[{base}]" if not var.required and var.default is None else base
+        return f"{base} | None" if not var.required and var.default is None else base
 
     @staticmethod
     def get_default_expr(var: EnvVarSpec) -> str:
@@ -193,7 +193,7 @@ class PydanticGenerator:
             context = context_ if t == "base_settings" else {}
             self.save_template(out_path, t, context)
 
-        self.generate_base_settings_test(out_path)
+        # self.generate_base_settings_test(out_path)
 
     def generate_base_settings_test(self, out_path: Path) -> None:
         """Generates the test file for BaseTraceableSettings."""
