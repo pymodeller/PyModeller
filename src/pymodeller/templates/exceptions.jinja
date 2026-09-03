@@ -17,7 +17,7 @@ class BaseCustomError(Exception):
         self.description = description
 
 
-{% for exc in exceptions | sort(attribute='class_name') %}
+{% for exc in specs | sort(attribute='class_name') %}
 class {{ exc.class_name }}Error(BaseCustomError):
     """{{ exc.description }}"""
 

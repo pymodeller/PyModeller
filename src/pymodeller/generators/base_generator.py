@@ -40,16 +40,30 @@ class BaseGenerator[T: NamedModel]:
     template_name: str
     model_class: type[T]
     class_suffix: str = ""
+    single_file: bool = False
+    output_filename: str | None = None
     package_name: str = "pymodeller"
     templates_folder: str = "templates"
 
-    def __init__(self, destination: DestinationType = DestinationType.INFRASTRUCTURE) -> None:
+    def __init__(
+        self,
+        destination: DestinationType = DestinationType.INFRASTRUCTURE,
+        single_file: bool | None = None,
+        output_filename: str | None = None,
+    ) -> None:
         """Initialize the base generator with environment settings and destination target.
 
         Args:
             destination (DestinationType): Target architectural layer for code generation.
+            single_file (bool | None): Override class-level single_file setting if provided.
+            output_filename (str | None): Custom target filename when using single_file mode.
         """
         self.destination: DestinationType = destination
+        if single_file is not None:
+            self.single_file = single_file
+        if output_filename is not None:
+            self.output_filename = output_filename
+
         self.env: Environment = Environment(
             loader=PackageLoader(self.package_name, self.templates_folder),
             autoescape=select_autoescape(),
@@ -97,6 +111,20 @@ class BaseGenerator[T: NamedModel]:
         name: str = spec.name
         return f"{name}{self.class_suffix}"
 
+    def _get_single_output_filename(self) -> str:
+        """Resolve the target output filename for single-file mode.
+
+        Returns:
+            str: The target file name ending with .py extension.
+        """
+        if self.output_filename:
+            target = self.output_filename
+        else:
+            target = self.yaml_section
+
+        target = self._to_snake_case(target)
+        return target if target.endswith(".py") else f"{target}.py"
+
     def generate(self, yaml_path: Path, output_dir: Path) -> list[Path]:
         """Read YAML definitions, render Jinja2 templates, and write generated files.
 
@@ -125,20 +153,37 @@ class BaseGenerator[T: NamedModel]:
         generated_files: list[Path] = []
         models_data: list[dict[str, str]] = []
 
-        # Render individual module files
-        for spec in dest_specs:
-            name: str = spec.name
-            content: str = template.render(spec=spec)
-            module_name: str = self._to_snake_case(name)
+        if self.single_file:
+            # Single destination file for all parsed specifications
+            file_name = self._get_single_output_filename()
+            file_path = output_dir / file_name
 
-            file_path: Path = output_dir / f"{module_name}.py"
+            # Render template passing the entire list of specifications
+            content = template.render(specs=dest_specs, items=dest_specs)
             file_path.write_text(content, encoding="utf-8")
             generated_files.append(file_path)
 
-            models_data.append({
-                "module": module_name,
-                "class_name": self.get_class_name(spec),
-            })
+            module_name = file_path.stem
+            for spec in dest_specs:
+                models_data.append({
+                    "module": module_name,
+                    "class_name": self.get_class_name(spec),
+                })
+        else:
+            # Individual module per specification
+            for spec in dest_specs:
+                name: str = spec.name
+                content: str = template.render(spec=spec)
+                module_name: str = self._to_snake_case(name)
+
+                file_path: Path = output_dir / f"{module_name}.py"
+                file_path.write_text(content, encoding="utf-8")
+                generated_files.append(file_path)
+
+                models_data.append({
+                    "module": module_name,
+                    "class_name": self.get_class_name(spec),
+                })
 
         # Render module package __init__.py file
         init_template = self.env.get_template("init.jinja")

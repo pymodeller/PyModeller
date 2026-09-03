@@ -23,7 +23,8 @@ from rich.text import Text
 
 from pymodeller import __version__
 from pymodeller.config import DestinationConfig, get_code_gen_config
-from pymodeller.generators import EnumGenerator, EnvGenerator, ExceptionGenerator, PydanticGenerator, PeeweeGenerator
+from pymodeller.generators import EnumGenerator, EnvGenerator, ExceptionGenerator, PydanticGenerator, PeeweeGenerator, \
+    HttpExceptionGenerator
 from pymodeller.loader import DestinationType, load_env_spec
 from pymodeller.tool_runner import ToolRunner
 from pymodeller.utils import (
@@ -241,10 +242,13 @@ def codegen(
                 fg=typer.colors.BRIGHT_GREEN,
             )
             exception_dir = dest.exceptions_folder
-            content = ExceptionGenerator(destination=enum_model_type).generate(
+            content_exp = ExceptionGenerator(destination=enum_model_type).generate(
                 code_gen_conf.exceptions_yaml, exception_dir
             )
-
+            content_http = HttpExceptionGenerator(destination=enum_model_type).generate(
+                code_gen_conf.exceptions_yaml, exception_dir
+            )
+            content = [*content_exp, *content_http]
             if len(content):
                 file_paths = [str(p) for p in content]
                 ToolRunner.run_with_uv("ruff", ["check", *file_paths, _CONFIG_TOML, "--fix"])
