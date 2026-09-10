@@ -35,6 +35,6 @@ class StructGenerator(BaseGenerator[StructSpec]):
     """Generator to transform YAML definitions into Python Struct/Data classes."""
 
     yaml_section: str = "structs"
+    class_suffix: str = "Struct"
     template_name: str = "struct.jinja"
     model_class: type[StructSpec] = StructSpec
-    class_suffix: str = ""

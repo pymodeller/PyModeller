@@ -40,7 +40,7 @@ class CustomException(HTTPException):
 
 
 {% for exc in specs | sort(attribute='class_name')%}
-class {{ exc.class_name }}Exception(CustomException):
+class {{ exc.class_name }}(CustomException):
     """{{ exc.description }}"""
 
     def __init__(

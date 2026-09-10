@@ -18,7 +18,7 @@ class BaseCustomError(Exception):
 
 
 {% for exc in specs | sort(attribute='class_name') %}
-class {{ exc.class_name }}Error(BaseCustomError):
+class {{ exc.class_name }}(BaseCustomError):
     """{{ exc.description }}"""
 
     def __init__(

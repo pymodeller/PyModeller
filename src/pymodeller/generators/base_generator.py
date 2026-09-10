@@ -41,26 +41,28 @@ class BaseGenerator[T: NamedModel]:
     model_class: type[T]
     class_suffix: str = ""
     single_file: bool = False
+    accumulate_imports: bool = False
     output_filename: str | None = None
     package_name: str = "pymodeller"
     templates_folder: str = "templates"
 
+    __saved_imports__: list[dict] = []
+
     def __init__(
         self,
         destination: DestinationType = DestinationType.INFRASTRUCTURE,
-        single_file: bool | None = None,
+        accumulate_imports: bool = False,
         output_filename: str | None = None,
     ) -> None:
         """Initialize the base generator with environment settings and destination target.
 
         Args:
             destination (DestinationType): Target architectural layer for code generation.
-            single_file (bool | None): Override class-level single_file setting if provided.
+            accumulate_imports (bool | None): Override class-level accumulate_imports setting if provided.
             output_filename (str | None): Custom target filename when using single_file mode.
         """
         self.destination: DestinationType = destination
-        if single_file is not None:
-            self.single_file = single_file
+        self.accumulate_imports = accumulate_imports
         if output_filename is not None:
             self.output_filename = output_filename
 
@@ -143,7 +145,12 @@ class BaseGenerator[T: NamedModel]:
             raise FileNotFoundError(f"The file {yaml_path} does not exist.")
 
         specs: list[T] = self.parse_yaml(path)
-        dest_specs: list[T] = [s for s in specs if getattr(s, "destination", self.destination) == self.destination]
+        #dest_specs: list[T] = [s for s in specs if getattr(s, "destination", self.destination) == self.destination]
+        dest_specs: list[T] = [
+            s.model_copy(update={"name": f"{self.get_class_name(s)}"})
+            for s in specs
+            if getattr(s, "destination", self.destination) == self.destination
+        ]
 
         if not dest_specs:
             return []
@@ -151,7 +158,7 @@ class BaseGenerator[T: NamedModel]:
         output_dir.mkdir(parents=True, exist_ok=True)
         template = self.env.get_template(self.template_name)
         generated_files: list[Path] = []
-        models_data: list[dict[str, str]] = []
+        models_data: list[dict[str, str]] = [] if len(self.__saved_imports__) == 0 else self.__saved_imports__
 
         if self.single_file:
             # Single destination file for all parsed specifications
@@ -167,14 +174,14 @@ class BaseGenerator[T: NamedModel]:
             for spec in dest_specs:
                 models_data.append({
                     "module": module_name,
-                    "class_name": self.get_class_name(spec),
+                    "class_name": spec.name,
                 })
         else:
             # Individual module per specification
             for spec in dest_specs:
                 name: str = spec.name
                 content: str = template.render(spec=spec)
-                module_name: str = self._to_snake_case(name)
+                module_name: str = self._to_snake_case(name.removesuffix(self.class_suffix))
 
                 file_path: Path = output_dir / f"{module_name}.py"
                 file_path.write_text(content, encoding="utf-8")
@@ -182,7 +189,7 @@ class BaseGenerator[T: NamedModel]:
 
                 models_data.append({
                     "module": module_name,
-                    "class_name": self.get_class_name(spec),
+                    "class_name": spec.name,
                 })
 
         # Render module package __init__.py file
@@ -191,5 +198,8 @@ class BaseGenerator[T: NamedModel]:
         init_file_path: Path = output_dir / "__init__.py"
         init_file_path.write_text(init_content, encoding="utf-8")
         generated_files.append(init_file_path)
+
+        if self.accumulate_imports:
+            self.__saved_imports__.extend(models_data)
 
         return generated_files

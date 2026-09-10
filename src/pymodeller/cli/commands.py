@@ -144,14 +144,14 @@ def check(
 def codegen(
     spec: Annotated[Path, typer.Option("--spec", "-s", help="Path to env_spec.yaml")] = code_gen_conf.models_yaml,
     model_type: Annotated[
-        DestinationType,
+        DestinationType | None,
         typer.Option(
             "--model-type",
             "-t",
             help="Target specific destination type (e.g., 'infrastructure', 'domain'). Runs all if omitted.",
             case_sensitive=False,
         ),
-    ] = DestinationType.INFRASTRUCTURE,
+    ] = None,
 ) -> typer.Exit:
     """Generate typed Pydantic models for the environment."""
     s = load_env_spec(spec)
@@ -242,7 +242,7 @@ def codegen(
                 fg=typer.colors.BRIGHT_GREEN,
             )
             exception_dir = dest.exceptions_folder
-            content_exp = ExceptionGenerator(destination=enum_model_type).generate(
+            content_exp = ExceptionGenerator(destination=enum_model_type, accumulate_imports=True).generate(
                 code_gen_conf.exceptions_yaml, exception_dir
             )
             content_http = HttpExceptionGenerator(destination=enum_model_type).generate(

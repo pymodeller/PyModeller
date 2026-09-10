@@ -157,7 +157,7 @@ class CodegenConfig(BaseSettings):
         return dest.resolve_paths(self.base_dir, self.test_dir, model_type)
 
     def get_destinations(
-        self, model_type: DestinationType = DestinationType.INFRASTRUCTURE
+        self, model_type: DestinationType | None = DestinationType.INFRASTRUCTURE
     ) -> dict[DestinationType, DestinationConfig]:
         """Get dict of detinations."""
         if model_type:

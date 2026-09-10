@@ -44,6 +44,7 @@ class ExceptionGenerator(BaseGenerator[ExceptionSpec]):
 
     yaml_section: str = "exceptions"
     template_name: str = "exceptions.jinja"
+    class_suffix: str = "Error"
     model_class: type[ExceptionSpec] = ExceptionSpec
     single_file: bool = True
 
@@ -64,10 +65,11 @@ class HttpExceptionGenerator(BaseGenerator[HttpExceptionSpec]):
     """Generator to transform YAML definitions into HTTP Exception classes."""
 
     yaml_section: str = "exceptions"
+    single_file: bool = True
+    class_suffix: str = "Exception"
     output_filename: str = "http_exceptions"
     template_name: str = "exceptions_http.jinja"
     model_class: type[HttpExceptionSpec] = HttpExceptionSpec
-    single_file: bool = True
 
     def parse_yaml(self, path: Path) -> list[HttpExceptionSpec]:
         """Parse YAML file and retrieve only HTTP exceptions.
