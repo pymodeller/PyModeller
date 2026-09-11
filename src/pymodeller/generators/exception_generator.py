@@ -1,8 +1,8 @@
-"""Exception generator.
+"""Exception generators.
 
 ========================================================================================================================
 Name:         pymodeller/generators/exception_generator.py
-Description:  Exception generator.
+Description:  Domain and HTTP Exception generators extending BaseGenerator.
 Project:      PyModeller
 
 Copyright ©2026 PyModeller. All rights reserved.
@@ -11,57 +11,73 @@ Copyright ©2026 PyModeller. All rights reserved.
 
 from pathlib import Path
 
-import yaml
-from jinja2 import Environment, PackageLoader, select_autoescape
-from pydantic import BaseModel, Field
+from pydantic import Field, computed_field
+
+from pymodeller.generators.base_generator import BaseGenerator, NamedModel
+from pymodeller.loader import DestinationType
 
 
-class ExceptionSpec(BaseModel):
-    """Esquema de validación para cada excepción en el YAML."""
+class ExceptionSpec(NamedModel):
+    """Validation schema for domain or standard exceptions defined in YAML."""
 
-    class_name: str = Field(..., alias="class_name")
+    name: str = Field(..., alias="class_name")
+    description: str = Field("General error", alias="description")
+    destination: DestinationType = Field(default=DestinationType.INFRASTRUCTURE, alias="destination")
+
+    @computed_field
+    @property
+    def class_name(self) -> str:
+        """Alias property to maintain compatibility with templates expecting 'class_name'."""
+        return self.name
+
+
+class HttpExceptionSpec(ExceptionSpec):
+    """Validation schema for HTTP exceptions, including status code and error details."""
+
     status_code: int = Field(500, alias="status_code")
     detail: str = Field("Internal Server Error", alias="detail")
-    description: str = Field("General error", alias="description")
 
 
-class ExceptionConfig(BaseModel):
-    """Contenedor para la lista de excepciones."""
+class ExceptionGenerator(BaseGenerator[ExceptionSpec]):
+    """Generator to transform YAML definitions into standard Python Exception classes."""
 
-    exceptions: list[ExceptionSpec]
+    yaml_section: str = "exceptions"
+    template_name: str = "exceptions.jinja"
+    class_suffix: str = "Error"
+    model_class: type[ExceptionSpec] = ExceptionSpec
+    single_file: bool = True
+
+    def parse_yaml(self, path: Path) -> list[ExceptionSpec]:
+        """Parse YAML file and retrieve only non-HTTP exceptions.
+
+        Args:
+            path (Path): Path to the target YAML configuration file.
+
+        Returns:
+            list[ExceptionSpec]: Filtered list of standard exception specifications.
+        """
+        all_specs = super().parse_yaml(path)
+        return [spec for spec in all_specs if not spec.is_http]
 
 
-class ExceptionParser:
-    """Lee el archivo YAML y lo convierte en objetos validados."""
+class HttpExceptionGenerator(BaseGenerator[HttpExceptionSpec]):
+    """Generator to transform YAML definitions into HTTP Exception classes."""
 
-    @staticmethod
-    def parse_yaml(path: Path) -> list[ExceptionSpec]:
-        """Parse yaml."""
-        with open(path, encoding="utf-8") as f:
-            data = yaml.safe_load(f)
-            config = ExceptionConfig(exceptions=data.get("exceptions", []))
-            return config.exceptions
+    yaml_section: str = "exceptions"
+    single_file: bool = True
+    class_suffix: str = "Exception"
+    output_filename: str | None = "exceptions_http"
+    template_name: str = "exceptions_http.jinja"
+    model_class: type[HttpExceptionSpec] = HttpExceptionSpec
 
+    def parse_yaml(self, path: Path) -> list[HttpExceptionSpec]:
+        """Parse YAML file and retrieve only HTTP exceptions.
 
-class ExceptionGenerator:
-    """Service class to handle exception code generation logic."""
+        Args:
+            path (Path): Path to the target YAML configuration file.
 
-    def __init__(self) -> None:
-        """Init exception generator."""
-        self.env = Environment(
-            loader=PackageLoader("pymodeller", "templates"),
-            autoescape=select_autoescape(),
-            trim_blocks=True,
-            lstrip_blocks=True,
-        )
-
-    def generate(self, yaml_path: Path) -> str:
-        """Lee el YAML, lo parsea y genera el contenido del archivo."""
-        path = Path(yaml_path)
-        if not path.exists():
-            raise FileNotFoundError(f"El archivo {yaml_path} no existe.")
-
-        specs = ExceptionParser.parse_yaml(path)
-
-        template = self.env.get_template("exceptions.jinja")
-        return template.render(exceptions=specs)
+        Returns:
+            list[HttpExceptionSpec]: Filtered list of HTTP exception specifications.
+        """
+        all_specs = super().parse_yaml(path)
+        return [spec for spec in all_specs if spec.is_http]

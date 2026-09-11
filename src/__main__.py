@@ -9,8 +9,8 @@ Copyright ©2026 PyModeller. All rights reserved.
 ========================================================================================================================
 """
 
-from pymodeller.cli.commands import check
+from pymodeller.cli.commands import codegen
 
 
 if __name__ == "__main__":
-    check()
+    codegen()

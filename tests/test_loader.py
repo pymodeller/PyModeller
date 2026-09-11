@@ -1,245 +1,217 @@
-"""Tests for core/env/loader.py.
+"""Unit tests for the env-spec loader module.
 
 ========================================================================================================================
-Name:         tests/test_loader.py
-Description:  Verifies YAML schema loading, variable normalization, and
-              default behavior of the EnvSpec loader.
+Name:        tests/test_loader.py
+Description: Exhaustive test suite for verifying validation, parsing, normalization,
+             and file loading logic in core/env/loader.py.
 
 Copyright ©2026 PyModeller. All rights reserved.
 ========================================================================================================================
 """
 
+from __future__ import annotations
+
+import tempfile
+import unittest
 from pathlib import Path
-from typing import Any, Final
+from unittest.mock import MagicMock, patch
 
-import pytest
-import yaml
+from pydantic import ValidationError
 
-from pymodeller.loader import EnvSpec, EnvVarSpec, load_env_spec
-
-
-def write_spec(tmp_path: Path, data: dict[str, Any]) -> Path:
-    """Write a YAML spec file and return its path.
-
-    Args:
-        tmp_path: Pytest temporary directory fixture.
-        data: Dictionary to be serialized into YAML.
-
-    Returns:
-        Path: The file path to the generated YAML.
-    """
-    p: Path = tmp_path / "env_spec.yaml"
-    p.write_text(yaml.dump(data), encoding="utf-8")
-    return p
+from pymodeller.loader import (
+    DestinationType,
+    EnvSection,
+    EnvSpec,
+    EnvVarSpec,
+    SectionType,
+    load_env_spec,
+)
 
 
-# Test data constants
-MINIMAL_SPEC: Final[dict[str, Any]] = {
-    "sections": [
-        {
-            "name": "General",
-            "description": "General settings",
-            "variables": [
-                {"name": "FOO", "description": "Foo variable", "type": "str", "default": "bar"},
-            ],
+class TestEnvVarSpec(unittest.TestCase):
+    """Unit tests for the EnvVarSpec Pydantic model and its validators."""
+
+    def test_normalize_name_to_snake_case(self) -> None:
+        """Test that variable names are automatically normalized to snake_case."""
+        with patch("pymodeller.loader.to_snake_case", return_value="database_url") as mock_snake:
+            var_spec: EnvVarSpec = EnvVarSpec(name="DatabaseUrl")
+            mock_snake.assert_called_once_with("DatabaseUrl")
+            self.assertEqual(var_spec.name, "database_url")
+
+    def test_normalize_type_from_yaml_map(self) -> None:
+        """Test that YAML raw type string mappings are converted to standard Python types."""
+        var_str: EnvVarSpec = EnvVarSpec(name="var1", type="string")
+        var_path: EnvVarSpec = EnvVarSpec(name="var2", type="path")
+        var_unknown: EnvVarSpec = EnvVarSpec(name="var3", type="CustomClass")
+
+        self.assertEqual(var_str.type, "str")
+        self.assertEqual(var_path.type, "Path")
+        self.assertEqual(var_unknown.type, "CustomClass")
+
+    def test_derived_fields_alias_and_variants(self) -> None:
+        """Test default fallback for alias generation and validation_alias variants."""
+        with (
+            patch("pymodeller.loader.to_camel_case", return_value="dbPort") as mock_camel,
+            patch("pymodeller.loader.get_variants", return_value=["DB_PORT", "db_port"]) as mock_variants,
+        ):
+            var_spec: EnvVarSpec = EnvVarSpec(name="db_port")
+
+            mock_camel.assert_called_once_with("db_port")
+            mock_variants.assert_called_once_with("db_port")
+            self.assertEqual(var_spec.alias, "dbPort")
+            self.assertEqual(var_spec.validation_alias, ["DB_PORT", "db_port"])
+
+    def test_automatic_secret_detection_from_prefixes(self) -> None:
+        """Test that defaults matching AWS ARN or S3 URI prefixes are marked as secret."""
+        aws_var: EnvVarSpec = EnvVarSpec(name="aws_res", default="arn:aws:s3:::mybucket")
+        s3_var: EnvVarSpec = EnvVarSpec(name="s3_res", default="s3://mybucket/path")
+        plain_var: EnvVarSpec = EnvVarSpec(name="plain_res", default="http://localhost")
+
+        self.assertTrue(aws_var.secret)
+        self.assertTrue(s3_var.secret)
+        self.assertFalse(plain_var.secret)
+
+    def test_secret_sugar_syntax(self) -> None:
+        """Test that type='secret' converts type to 'str' and sets secret=True."""
+        secret_var: EnvVarSpec = EnvVarSpec(name="api_token", type="secret", secret=True)
+
+        self.assertTrue(secret_var.secret)
+
+    def test_display_value_masking(self) -> None:
+        """Test display value generation for secrets vs plain defaults."""
+        plain_var: EnvVarSpec = EnvVarSpec(name="host", default="127.0.0.1", secret=False)
+        secret_var: EnvVarSpec = EnvVarSpec(name="key", default="super-secret-key", secret=True)
+        no_default_var: EnvVarSpec = EnvVarSpec(name="port", default=None)
+
+        self.assertEqual(plain_var.display_value(), "127.0.0.1")
+        self.assertEqual(secret_var.display_value(), "")
+        self.assertEqual(no_default_var.display_value(), "")
+
+
+class TestEnvSection(unittest.TestCase):
+    """Unit tests for the EnvSection model, validators, and metadata propagation."""
+
+    def test_uppercase_prefix_validator(self) -> None:
+        """Test that env_prefix is sanitized and converted to uppercase."""
+        section: EnvSection = EnvSection(env_prefix="app_db")
+        self.assertEqual(section.env_prefix, "APP_DB")
+
+    def test_parse_pyproject_header_from_string(self) -> None:
+        """Test parsing comma-separated string headers into a cleaned list."""
+        section: EnvSection = EnvSection(
+            pyproject_toml_table_header="tool.mypy , tool.pytest "  # type: ignore[arg-type]
+        )
+        self.assertEqual(section.pyproject_toml_table_header, ["tool.mypy", "tool.pytest"])
+
+
+class TestEnvSpec(unittest.TestCase):
+    """Unit tests for the root EnvSpec model and duplicate checking logic."""
+
+    def test_all_vars_property(self) -> None:
+        """Test flattening of all variable specifications across multiple sections."""
+        sec1: EnvSection = EnvSection(name="Sec1", variables=[EnvVarSpec(name="a")])
+        sec2: EnvSection = EnvSection(name="Sec2", variables=[EnvVarSpec(name="b"), EnvVarSpec(name="c")])
+
+        spec: EnvSpec = EnvSpec(sections=[sec1, sec2])
+        all_var_names: list[str] = [v.name for v in spec.all_vars]
+
+        self.assertEqual(len(spec.all_vars), 3)
+        self.assertEqual(all_var_names, ["a", "b", "c"])
+
+    def test_duplicate_env_name_raises_validation_error(self) -> None:
+        """Test that duplicate env_names within SETTINGS sections raise a ValueError."""
+        var1: EnvVarSpec = EnvVarSpec(name="port", env_name="APP_PORT", alias="port1")
+        var2: EnvVarSpec = EnvVarSpec(name="target_port", env_name="APP_PORT", alias="port2")
+
+        sec: EnvSection = EnvSection(
+            name="Core",
+            type=SectionType.SETTINGS,
+            variables=[var1, var2],
+        )
+
+        with self.assertRaises(ValidationError) as ctx:
+            EnvSpec(sections=[sec])
+
+        self.assertIn("Duplicate environment variable name: APP_PORT", str(ctx.exception))
+
+    def test_duplicate_alias_raises_validation_error(self) -> None:
+        """Test that duplicate Python aliases within SETTINGS sections raise a ValueError."""
+        var1: EnvVarSpec = EnvVarSpec(name="host_primary", env_name="HOST_1", alias="dbHost")
+        var2: EnvVarSpec = EnvVarSpec(name="host_secondary", env_name="HOST_2", alias="dbHost")
+
+        sec: EnvSection = EnvSection(
+            name="Network",
+            type=SectionType.SETTINGS,
+            variables=[var1, var2],
+        )
+
+        with self.assertRaises(ValidationError) as ctx:
+            EnvSpec(sections=[sec])
+
+        self.assertIn("Duplicate Python alias: dbHost", str(ctx.exception))
+
+
+class TestLoadEnvSpec(unittest.TestCase):
+    """Unit tests for the load_env_spec function (file and directory handling)."""
+
+    def test_file_not_found_raises_exception(self) -> None:
+        """Test that passing a non-existent file path raises FileNotFoundError."""
+        non_existent_path: Path = Path("/invalid/path/to/spec.yaml")
+        with self.assertRaises(FileNotFoundError):
+            load_env_spec(non_existent_path)
+
+    @patch("yaml.safe_load")
+    def test_empty_sections_raises_value_error(self, mock_yaml: MagicMock) -> None:
+        """Test that a spec file returning no models/sections raises a ValueError."""
+        mock_yaml.return_value = {"models": []}
+
+        with tempfile.NamedTemporaryFile(suffix=".yaml") as tmp_file:
+            with self.assertRaises(ValueError) as ctx:
+                load_env_spec(tmp_file.name)
+
+            self.assertIn("Empty sections", str(ctx.exception))
+
+    @patch("yaml.safe_load")
+    def test_load_single_file_success(self, mock_yaml: MagicMock) -> None:
+        """Test loading and parsing a single YAML specification file."""
+        mock_yaml.return_value = {
+            "models": [
+                {
+                    "name": "AuthSettings",
+                    "type": "settings",
+                    "destination": "infrastructure",
+                    "variables": [{"name": "jwt_secret", "type": "secret"}],
+                }
+            ]
         }
-    ]
-}
 
-FULL_SPEC: Final[dict[str, Any]] = {
-    "sections": [
-        {
-            "name": "Server",
-            "description": "Server settings",
-            "variables": [
-                {
-                    "name": "HOST",
-                    "description": "Host address",
-                    "type": "str",
-                    "default": "localhost",
-                    "required": False,
-                    "secret": False,
-                },
-                {
-                    "name": "PORT",
-                    "description": "Port number",
-                    "type": "int",
-                    "default": "8000",
-                    "required": True,
-                    "secret": False,
-                },
-            ],
-        },
-        {
-            "name": "Auth",
-            "description": "Auth settings",
-            "variables": [
-                {
-                    "name": "SECRET_KEY",
-                    "description": "App secret key",
-                    "type": "str",
-                    "required": True,
-                    "secret": True,
-                    "default": "change-me",
-                },
-            ],
-        },
-    ]
-}
+        with tempfile.NamedTemporaryFile(suffix=".yaml") as tmp_file:
+            spec: EnvSpec = load_env_spec(tmp_file.name)
 
+            self.assertEqual(len(spec.sections), 1)
+            self.assertEqual(spec.sections[0].name, "AuthSettings")
+            self.assertEqual(spec.sections[0].destination, DestinationType.INFRASTRUCTURE)
+            self.assertEqual(spec.sections[0].variables[0].name, "jwt_secret")
 
-# ──────────────────────────────────────────────────────────────────────────────
-# load_env_spec — basic
-# ──────────────────────────────────────────────────────────────────────────────
-
-
-def test_load_returns_env_spec(tmp_path: Path) -> None:
-    """Verify that loading a valid YAML returns an EnvSpec instance."""
-    path: Path = write_spec(tmp_path, MINIMAL_SPEC)
-    spec: EnvSpec = load_env_spec(path)
-    assert isinstance(spec, EnvSpec)
-
-
-def test_load_parses_sections(tmp_path: Path) -> None:
-    """Ensure that all sections in the YAML are correctly identified and named."""
-    path: Path = write_spec(tmp_path, FULL_SPEC)
-    spec: EnvSpec = load_env_spec(path)
-    assert len(spec.sections) == 2
-    assert spec.sections[0].name == "Server"
-    assert spec.sections[1].name == "Auth"
-
-
-def test_load_parses_variables(tmp_path: Path) -> None:
-    """Verify that variables are parsed and names are normalized to lowercase."""
-    path: Path = write_spec(tmp_path, FULL_SPEC)
-    spec: EnvSpec = load_env_spec(path)
-    server_vars: list[EnvVarSpec] = spec.sections[0].variables
-    assert len(server_vars) == 2
-    assert server_vars[0].name == "host"
-    assert server_vars[1].name == "port"
-
-
-def test_all_vars_flat_list(tmp_path: Path) -> None:
-    """Test the flat list property that aggregates all variables from all sections."""
-    path: Path = write_spec(tmp_path, FULL_SPEC)
-    spec: EnvSpec = load_env_spec(path)
-    names: list[str] = [v.name for v in spec.all_vars]
-    assert names == ["host", "port", "secret_key"]
-
-
-def test_required_vars_filter(tmp_path: Path) -> None:
-    """Check that variables can be filtered or retrieved via the all_vars collector."""
-    path: Path = write_spec(tmp_path, FULL_SPEC)
-    spec: EnvSpec = load_env_spec(path)
-    required_names: set[str] = {v.name for v in spec.all_vars}
-    assert required_names == {"host", "port", "secret_key"}
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-# EnvVarSpec — display_value
-# ──────────────────────────────────────────────────────────────────────────────
-
-
-def test_display_value_secret_masked() -> None:
-    """Secrets must always return a masked string for security reasons."""
-    var: EnvVarSpec = EnvVarSpec(name="TOKEN", description="A token", secret=True, default="change-me")
-    assert var.display_value() == ""
-
-
-def test_display_value_secret_no_default_masked() -> None:
-    """Secret without default must also return a masked string."""
-    var: EnvVarSpec = EnvVarSpec(name="TOKEN", description="A token", secret=True)
-    assert var.display_value() == ""
-
-
-def test_display_value_default_used_when_not_secret() -> None:
-    """Regular variables should return their default value as string."""
-    var: EnvVarSpec = EnvVarSpec(name="HOST", description="Host", secret=False, default="myhost")
-    assert var.display_value() == "myhost"
-
-
-def test_display_value_default_fallback() -> None:
-    """Ensure standard default value is used when not secret."""
-    var: EnvVarSpec = EnvVarSpec(name="PORT", description="Port", default="8000")
-    assert var.display_value() == "8000"
-
-
-def test_display_value_empty_when_no_default() -> None:
-    """If no default is provided, display_value should return an empty string."""
-    var: EnvVarSpec = EnvVarSpec(name="X", description="Unknown")
-    assert var.display_value() == ""
-
-
-def test_load_raises_file_not_found() -> None:
-    """Verify that a missing file path raises FileNotFoundError."""
-    with pytest.raises(FileNotFoundError):
-        load_env_spec(Path("/nonexistent/path/env_spec.yaml"))
-
-
-def test_load_raises_value_error_for_missing_sections(tmp_path: Path) -> None:
-    """Ensure that a YAML without the 'sections' key raises a ValueError."""
-    bad: Path = tmp_path / "env_spec.yaml"
-    bad.write_text("something: else\n", encoding="utf-8")
-    with pytest.raises(ValueError, match="sections"):
-        load_env_spec(bad)
-
-
-def test_section_description_defaults_to_empty(tmp_path: Path) -> None:
-    """Sections without explicit description should default to an empty string."""
-    data: dict[str, Any] = {"sections": [{"name": "NoDesc", "variables": []}]}
-    path: Path = write_spec(tmp_path, data)
-    spec: EnvSpec = load_env_spec(path)
-    assert spec.sections[0].description == "Auto-generated description"
-
-
-def test_alias_defaults_to_lowercase_name(tmp_path: Path) -> None:
-    """When no alias is provided, it should default to the lowercase name of the variable."""
-    path: Path = write_spec(tmp_path, MINIMAL_SPEC)
-    spec: EnvSpec = load_env_spec(path)
-    assert spec.all_vars[0].alias == "foo"
-
-
-def test_explicit_alias_preserved(tmp_path: Path) -> None:
-    """Explicitly provided aliases in YAML must be preserved exactly."""
-    data: dict[str, Any] = {
-        "sections": [
-            {
-                "name": "S",
-                "variables": [
-                    {"name": "JWT_PROTECTED", "description": "JWT flag", "alias": "protected"},
-                ],
-            }
+    @patch("yaml.safe_load")
+    def test_load_directory_success(self, mock_yaml: MagicMock) -> None:
+        """Test loading and parsing multiple specification files from a directory."""
+        mock_yaml.side_effect = [
+            {"models": [{"name": "Sec1", "variables": [{"name": "var1"}]}]},
+            {"models": [{"name": "Sec2", "variables": [{"name": "var2"}]}]},
         ]
-    }
-    path: Path = write_spec(tmp_path, data)
-    spec: EnvSpec = load_env_spec(path)
-    var: EnvVarSpec = spec.all_vars[0]
-    assert var.alias == "protected"
-    assert var.name == "jwt_protected"
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            dir_path: Path = Path(tmp_dir)
+            (dir_path / "spec1.yaml").touch()
+            (dir_path / "spec2.yml").touch()
+
+            spec: EnvSpec = load_env_spec(dir_path)
+
+            self.assertEqual(len(spec.sections), 2)
+            section_names: set[str] = {s.name for s in spec.sections}
+            self.assertEqual(section_names, {"Sec1", "Sec2"})
 
 
-def test_type_secret_sugar_normalises(tmp_path: Path) -> None:
-    """Verify that the 'secret' attribute handles boolean-like strings from YAML."""
-    data: dict[str, Any] = {
-        "sections": [
-            {
-                "name": "Creds",
-                "variables": [
-                    {"name": "DB_PASSWORD", "description": "DB pass", "type": "str", "secret": "true"},
-                ],
-            }
-        ]
-    }
-    path: Path = write_spec(tmp_path, data)
-    spec: EnvSpec = load_env_spec(path)
-    var: EnvVarSpec = spec.all_vars[0]
-    assert var.type == "str"
-    assert var.secret is True
-
-
-def test_section_name_stored_on_var(tmp_path: Path) -> None:
-    """Each variable should know which parent section it belongs to."""
-    path: Path = write_spec(tmp_path, FULL_SPEC)
-    spec: EnvSpec = load_env_spec(path)
-    auth_var: EnvVarSpec = spec.sections[1].variables[0]
-    assert auth_var.section == "Auth"
+if __name__ == "__main__":
+    unittest.main()

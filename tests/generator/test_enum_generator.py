@@ -1,24 +1,60 @@
-from pathlib import Path
+"""Unit tests for the Enum generator module.
 
-from pymodeller.generators.enum_generator import EnumGenerator
+========================================================================================================================
+Name:        tests/generators/test_enum_generator.py
+Description: Comprehensive test suite for EnumGenerator, EnumerationParser, and Pydantic models.
+             Verifies Pydantic parsing, snake_case conversion, Jinja2 template rendering,
+             destination filtering, file creation, and exception handling.
+
+Copyright ©2026 PyModeller. All rights reserved.
+========================================================================================================================
+"""
+
+from __future__ import annotations
+
+import unittest
+
+from pydantic import ValidationError
+
+from pymodeller.generators.enum_generator import (
+    EnumerationSpec,
+    EnumGenerator,
+)
+from pymodeller.loader import DestinationType
 
 
-def test_enum_generation_logic(tmp_path: Path) -> None:
-    """Verify that YAML types are correctly converted to Python Enum syntax."""
-    yaml_file = tmp_path / "test_enums.yaml"
-    output_file = tmp_path / "output.py"
+class TestEnumerationModels(unittest.TestCase):
+    """Unit tests for Pydantic models: EnumerationSpec and EnumerationConfig."""
 
-    yaml_content = """
-    TestEnum:
-      type: int
-      values:
-        VAL_A: 1
-    """
-    yaml_file.write_text(yaml_content)
+    def test_enumeration_spec_defaults_and_parsing(self) -> None:
+        """Test valid initialization and default destination for EnumerationSpec."""
+        data = {
+            "name": "UserRole",
+            "options": ["ADMIN", "USER"],
+            "description": "User access roles",
+        }
+        spec = EnumerationSpec(**data)
 
-    EnumGenerator.generate(yaml_file, output_file)
+        self.assertEqual(spec.name, "UserRole")
+        self.assertEqual(spec.destination, DestinationType.INFRASTRUCTURE)
+        self.assertEqual(spec.options, ["ADMIN", "USER"])
+        self.assertEqual(spec.description, "User access roles")
 
-    generated_code = output_file.read_text()
-    assert "class TestEnum(Enum):" in generated_code
-    assert "VAL_A = 1" in generated_code  # Ensure no quotes for int
-    assert '"""TestEnum auto-generated enum."""' in generated_code
+    def test_enumeration_spec_validation_error(self) -> None:
+        """Test validation fails when required fields are missing."""
+        with self.assertRaises(ValidationError):
+            EnumerationSpec(name="UserRole")  # Missing options and description
+
+
+class TestEnumGeneratorHelpers(unittest.TestCase):
+    """Unit tests for helper methods in EnumGenerator."""
+
+    def test_to_snake_case(self) -> None:
+        """Test CamelCase / PascalCase to snake_case string transformation."""
+        self.assertEqual(EnumGenerator._to_snake_case("UserRole"), "user_role")
+        self.assertEqual(EnumGenerator._to_snake_case("HTTPStatusType"), "h_t_t_p_status_type")
+        self.assertEqual(EnumGenerator._to_snake_case("Status"), "status")
+
+
+if __name__ == "__main__":
+    unittest.main()

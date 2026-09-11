@@ -4,13 +4,13 @@ import os
 from typing import Any
 
 from pydantic import PrivateAttr, model_validator
-from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
+from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
 
-from .source.s3_secrets_source import S3SecretSource
-from .source.yaml_env_source import YamlEnvSource
+from .source.source_s3_secrets import S3SecretSource
+from .source.source_yaml_env import YamlEnvSource
 
 
-def track_origin(data: dict, origin: str, prefix: str = "", registry: dict | None = None) -> dict[str, str]:
+def track_origin(data: dict | list, origin: str, prefix: str = "", registry: dict | None = None) -> dict[str, str]:
     """Recursively traces the origin of each value in a nested dictionary."""
     if registry is None:
         registry = {}
@@ -54,6 +54,10 @@ class BaseTraceableSettings(BaseSettings):
     # Private attribute to store the provenance map
     _metadata_origins: dict[str, str] = PrivateAttr(default_factory=dict)
 
+    model_config = SettingsConfigDict(
+        extra="ignore",
+    )
+
     @model_validator(mode="before")
     @classmethod
     def _prepare_metadata(cls, data: Any) -> Any:
@@ -76,18 +80,32 @@ class BaseTraceableSettings(BaseSettings):
 
         Wrap each source to track where values come from.
         """
+        {% if enabled_sources %}
         env_prefix = settings_cls.model_config.get("env_prefix", "")
+        current_env = os.getenv(env_prefix, "base")
 
-        current_env = os.getenv("APP_ENV", "base")
+        active_sources = []
+
+        {% for source in enabled_sources %}
+        {% if source == 'yaml' %}
         yaml_env_source = YamlEnvSource(settings_cls, current_env, env_prefix, settings_name=cls.__name__)
-        s3_source = S3SecretSource(settings_cls, wrapped_source=yaml_env_source())
+        active_sources.append(track_source(yaml_env_source, f"yaml_{current_env}"))
+
+        {% elif source == 's3' %}
+        s3_source = S3SecretSource(settings_cls,
+            wrapped_source={% if 'yaml' in enabled_sources %}yaml_env_source(){% else %}{}{% endif %})
+        active_sources.append(track_source(s3_source, "s3_source"))
+        {% endif %}
+        {% endfor %}
+        {% endif %}
 
         return (
             track_source(env_settings, "env_var"),
             track_source(dotenv_settings, "dotenv_file"),
             track_source(init_settings, "init"),
-            track_source(s3_source, "s3_source"),
-            track_source(yaml_env_source, f"yaml_{current_env}"),
+            {% if enabled_sources %}
+            *active_sources,
+            {% endif %}
             track_source(file_secret_settings, "file_secret"),
         )
 

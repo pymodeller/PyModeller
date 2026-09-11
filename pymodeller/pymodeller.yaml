@@ -1,0 +1,338 @@
+enumerations:
+  - name: Brokers
+    destination: infrastructure
+    description: Brokers options.
+    options:
+      - RabbitMQ
+      - Local
+      - Kafka
+  - name: Threads
+    destination: infrastructure
+    description: Types of threads.
+    options:
+      - inventory
+      - notification
+      - order
+      - payment
+      - producer
+      - without_assignation
+
+
+models:
+  - name: General
+    description: Top-level application flags
+    type: settings
+    env_prefix: APP_
+    variables:
+      - name: ENV
+        description: Enable local development mode (disables some production guards)
+        type: str
+        default: local
+        required: false
+        secret: false
+      - name: host
+        description: Host
+        type: str
+        default: localhost
+        required: false
+      - name: port
+        description: App port
+        type: int
+        default: 8000
+        required: false
+      - name: minutes_refresh_conf
+        description: Minutes to refresh config
+        type: int
+        default: 5
+        required: false
+      - name: server_url
+        description: Host
+        type: str
+        default: server_url_local
+        required: false
+      - name: server_ws
+        description: Host
+        type: str
+        default: server_ws_local
+        required: false
+      - name: url_event
+        description: Host
+        type: str
+        default: url_event_local
+        required: false
+      - name: waterfall
+        description: Host
+        type: str
+        default: waterfall_name
+        required: false
+
+  # =============================================
+  # Process Configuration
+  # =============================================
+  - name: Process
+    description: Configuration for algorithm processing parameters
+    type: settings
+    include_general: false
+    env_prefix: PROCESSING
+    pyproject_toml_table_header: tool,process
+    variables:
+      - name: frames_energy
+        description: Number of frames used for energy computation.
+        type: int
+        default: 10
+        required: false
+        secret: false
+
+      - name: threads_energy
+        description: Number of threads used for energy processing.
+        type: int
+        default: 10
+        required: false
+        secret: false
+
+      - name: token_value
+        description: just a token value
+        type: str
+        default: arn:aws:s3:my-bucket/Environment
+        required: false
+        secret: false
+
+  - name: Broker Config
+    description: Broker Configuration.
+    type: model
+    include_general: false
+    variables:
+      - name: exchange
+        description: exchange name
+        type: str
+      - name: topic_or_queue
+        description: topic or queue name
+        type: str
+        required: true
+      - name: broker_type
+        description: Broker type 'Local', 'Kafka' or 'RabbitMQ'.
+        type: str
+        from_enum: Brokers
+        default: kafka
+      - name: broker_kwargs
+        type: dict
+        default: {}
+        description: Connection parameters for initializing the IMessageBroker adapter.
+
+  - name: Thread Config
+    description: Thread configuration
+    type: model
+    include_general: false
+    variables:
+      - name: name
+        description: Thread name.
+        from_enum: Threads
+        default: without_assignation
+      - name: consumer
+        description: Configuration for consuming messages. Set to None for producer-only threads.
+        from_model: Broker Config
+      - name: producer
+        description: Configuration for publishing successful output messages.
+        from_model: Broker Config
+      - name: error
+        description: Configuration for Dead Letter Queue (DLQ) or error publishing.
+        from_model: Broker Config
+
+  - name: Threads Configuration
+    description: Threads configuration
+    type: settings
+    include_general: false
+    variables:
+      - name: configuration
+        description: threads configurations
+        type: list
+        from_model: Thread Config
+        default: []
+
+  - name: AWS Configuration
+    description: AWS configuration
+    env_prefix: AWS_
+    type: settings
+    include_general: false
+    variables:
+      - name: S3_endpoint_url
+        description: s3 endpoint url
+        type: str
+      - name: access_key_id
+        description: Access key id
+        type: str
+        secret: true
+      - name: default_region
+        description: default region
+        type: str
+
+  - name: order Created
+    description: Order creation
+    type: model
+    env_prefix: order_created
+    destination: domain
+    include_general: false
+    variables:
+      - name: EVENT_ID
+        description: Event id
+        type: str
+        default: 888xxx
+        required: false
+        secret: false
+
+      - name: ORDER_ID
+        description: Order id
+        type: str
+        default: 9999xxx
+        required: false
+        secret: false
+
+      - name: user_id
+        description: User id
+        type: str
+        required: false
+
+      - name: items
+        description: list of items
+        type: list
+        from_model: CartItem
+        default: []
+        required: false
+
+      - name: timestamp
+        description: Order timestamp
+        type: datetime
+
+
+  - name: CartItem
+    type: model
+    description: Cart item
+    include_general: false
+    destination: domain
+    variables:
+      - name: product_id
+        description: Product id
+        type: str
+        default: xxx111
+        required: false
+
+      - name: name
+        description: Product name
+        type: str
+        required: false
+
+      - name: quantity
+        description: Quantity
+        type: int
+        default: 0
+        required: false
+
+      - name: unit_price
+        description: Item unit price
+        type: float
+        default: 0
+        required: false
+
+  - name: CartItems
+    type: model
+    description: List of car items
+    destination: domain
+    include_general: false
+    variables:
+      - name: id
+        type: str
+        description: Cart identification
+        default: NoIdentified
+        required: false
+      - name: items
+        type: list
+        description: List of item
+        from_model: CartItem
+        default: []
+
+  - name: orderCreated
+    description: Order creation
+    type: peewee
+    env_prefix: order_created
+    include_general: false
+    variables:
+      - name: EVENT_ID
+        description: Event id
+        type: str
+        default: xxx555
+        required: false
+        secret: false
+
+      - name: ORDER_ID
+        description: Order id
+        type: str
+        default: xxx999
+        required: false
+        secret: false
+
+      - name: user_id
+        description: User id
+        type: str
+        required: false
+
+      - name: items
+        description: list of items
+        type: list
+        default: []
+        required: false
+
+      - name: timestamp
+        description: Order timestamp
+        type: timestamp
+        default: timestamp.now
+        required: false
+
+  - name: CartItem
+    type: peewee
+    description: Cart item
+    include_general: false
+    variables:
+      - name: product_id
+        description: Product id
+        type: str
+        default: xxxx7
+        required: false
+
+      - name: name
+        description: Product name
+        type: str
+        required: false
+
+      - name: quantity
+        description: Quantity
+        type: int
+        default: 0
+        required: false
+
+      - name: unit_price
+        description: Item unit price
+        type: float
+        default: 0
+        required: false
+
+  - name: Notification
+    type: model
+    description: Notification item
+    destination: domain
+    include_general: false
+    variables:
+      - name: notification_id
+        description: notification id
+        type: str
+        default: xxxx7
+        required: false
+
+      - name: user_id
+        description: User name
+        type: str
+        required: false
+
+      - name: content
+        description: message content
+        type: str
+        required: false

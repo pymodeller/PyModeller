@@ -2,54 +2,32 @@
 
 ========================================================================================================================
 Name:         pymodeller/generators/enum_generator.py
-Description:  Generator enum.
+Description:  Generator for Enums extending BaseGenerator.
 Project:      PyModeller
 
 Copyright ©2026 PyModeller. All rights reserved.
 ========================================================================================================================
 """
 
-from pathlib import Path
-from typing import Any
+from pydantic import Field
 
-import yaml
+from pymodeller.generators.base_generator import BaseGenerator, NamedModel
+from pymodeller.loader import DestinationType
 
 
-class EnumGenerator:
+class EnumerationSpec(NamedModel):
+    """Specification model for Enumerations."""
+
+    name: str = Field(..., description="Name of Enumeration")
+    destination: DestinationType = DestinationType.INFRASTRUCTURE
+    options: list[str] = Field(..., alias="options")
+    description: str = Field(..., alias="description")
+
+
+class EnumGenerator(BaseGenerator[EnumerationSpec]):
     """Generator to transform YAML definitions into Python Enum classes."""
 
-    @staticmethod
-    def generate(yaml_path: Path, output_path: Path) -> None:
-        """Reads the YAML file and writes a Python module with Enum classes.
-
-        Args:
-            yaml_path: Path to the input YAML configuration.
-            output_path: Path where the .py file will be created.
-        """
-        with open(yaml_path) as f:
-            data: dict[str, Any] = yaml.safe_load(f)
-
-        lines = ['"""Auto-generated Enums from YAML spec."""', "from enum import Enum", "", ""]
-
-        for enum_name, config in data.items():
-            base_type = config.get("type", "str")
-            values = config.get("values", {})
-
-            lines.append(f"class {enum_name}(Enum):")
-            lines.append(f'    """{enum_name} auto-generated enum."""')
-            lines.append("")
-
-            for key, value in values.items():
-                # Format value based on type
-                formatted_value = f'"{value}"' if base_type == "str" else value
-
-                lines.append(f"    {key.upper()} = {formatted_value}")
-
-            lines.append("")  # Space between classes
-
-        output_path.write_text("\n".join(lines), encoding="utf-8")
-
-
-# Quick usage example
-if __name__ == "__main__":
-    EnumGenerator.generate(Path("enums.yaml"), Path("generated_enums.py"))
+    yaml_section: str = "enumerations"
+    template_name: str = "enumerate.jinja"
+    model_class: type[EnumerationSpec] = EnumerationSpec
+    class_suffix: str = "Enum"

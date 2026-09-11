@@ -69,16 +69,37 @@ docs = [
 ]
 
 [tool.pymodeller]
-pydantic_out="./src/das_control/models/init_settings.py"
-pydantic_folder="./src/das_control/models/schemas"
-peewee_folder="./src/das_control/models/entities"
-peewee_out="./src/das_control/models/db_models.py"
-exceptions_file="./pymodeller/exceptions.yaml"
-exceptions_folder="./src/das_control/exceptions"
-environment_file="./environments.yaml"
-generate_init_models=true
-# import_settings_base_class="from config_das.models.base_settings import BaseTraceableSettings"
-pymodeller_models="./pymodeller/models.yaml"
+base_dir = "./src/event_driven"
+test_dir = "./tests"
+
+# Archivos de entrada/configuración global
+models_yaml = "./pymodeller/pymodeller.yaml"
+exceptions_yaml = "./pymodeller/exceptions.yaml"
+environment_file = "./environments.yaml"
+generate_init_models = true
+enabled_sources = "yaml,s3"
+pyproject_toml_table_header = "tool,prueba"
+
+# Destinos según el 'model_type'
+[tool.pymodeller.destinations.infrastructure]
+# import_settings_base_class="from config_das.models.base_settings import BaseTraceableSettings
+pydantic_model_folder = "config/schemas"
+pydantic_settings_folder = "config/settings"
+pydantic_settings_init = "config/init_settings.py"
+peewee_folder = "persistence/models"
+peewee_out = "persistence/connection.py"
+exceptions_folder = "exceptions"
+enumerations_folder = "config/enumerations"
+
+[tool.pymodeller.destinations.domain]
+import_settings_base_class="from event_driven.infrastructure.config.settings.base_settings import BaseTraceableSettings"
+pydantic_model_folder = "schemas"
+pydantic_settings_folder = "settings"
+pydantic_settings_init = "init_settings.py"
+peewee_folder = "persistence/models"
+peewee_out = "persistence/connection.py"
+exceptions_folder = "exceptions"
+enumerations_folder = "enumerations"
 
 
 [tool.ruff]
@@ -121,6 +142,8 @@ select = [
 ]
 ignore = ["ANN401", "D205"]
 
+[tool.ruff.lint.mccabe]
+max-complexity = 15
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

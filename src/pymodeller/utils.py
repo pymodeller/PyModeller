@@ -9,9 +9,12 @@ Copyright ©2026 PyModeller. All rights reserved.
 ========================================================================================================================
 """
 
+import ast
 import hashlib
 import re
 from pathlib import Path
+
+from jinja2 import Environment, PackageLoader, select_autoescape
 
 
 def get_file_hash(path: Path) -> str:
@@ -133,3 +136,100 @@ def deep_merge(base: dict, overrides: dict) -> dict:
         else:
             base[key] = value
     return base
+
+
+def generate_init_file(package_dir: Path | str) -> Path:
+    """Inspects Python files within a directory, extracts classes, and generates an __init__.py file.
+
+    Scans all `.py` files inside the target directory, gathers exported class definitions,
+    and uses a Jinja2 template to generate an alphabetically sorted `__init__.py`.
+
+    Args:
+        package_dir: The directory path containing the Python files to inspect.
+
+    Returns:
+        Path: The file path to the generated `__init__.py`.
+    """
+    env = Environment(loader=PackageLoader("pymodeller", "templates"), autoescape=select_autoescape())
+
+    package_path = Path(package_dir)
+    models_data: list[dict[str, str]] = []
+
+    for file_path in package_path.glob("*.py"):
+        if file_path.name == "__init__.py":
+            continue
+
+        module_name = file_path.stem
+        code = file_path.read_text(encoding="utf-8")
+
+        # 2. Extraer los nombres de las clases definidas en el archivo con AST
+        tree = ast.parse(code)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ClassDef) and node.name not in ["Meta"]:
+                models_data.append({
+                    "module": module_name,
+                    "class_name": node.name,
+                })
+
+    models_data.sort(key=lambda x: x["class_name"])
+
+    template = env.get_template("init.jinja")
+    init_content = template.render(models=models_data)
+
+    init_path = package_path / "__init__.py"
+    init_path.write_text(init_content, encoding="utf-8")
+    return init_path
+
+
+def ensure_init_py_in_subdirectories(root_dir: str | Path) -> list[Path]:
+    """Recursively walks through all directories starting from root_dir
+    and creates an empty __init__.py file if one does not exist.
+
+    Args:
+        root_dir: The target directory path to inspect.
+
+    Returns:
+        List of Path objects representing all __init__.py files created.
+    """
+    base_path = Path(root_dir)
+
+    if not base_path.exists():
+        raise FileNotFoundError(f"The specified path does not exist: {base_path}")
+
+    created_files: list[Path] = []
+
+    # Check the root directory itself first
+    directories = [d for d in base_path.rglob("*") if d.is_dir()]
+    directories.sort(reverse=True)
+    directories.append(base_path)
+
+    # 2. Process each directory and generate its __init__.py file
+    for folder in directories:
+        init_file = folder / "__init__.py"
+        # Check if __init__.py doesn't exist OR if it exists but is completely empty (size == 0)
+        if not init_file.exists() or init_file.stat().st_size == 0:
+            generated_path = generate_init_file(folder)
+            created_files.append(generated_path)
+
+    return created_files
+
+
+def get_import_path(base_dir: str, subfolder: str, file_name: str) -> str:
+    """Converts a file path structure into a valid Python dot-notation import path.
+
+    Example:
+        `'./src/event_driven'`, `'domain/schemas'`, `'user.py'`
+        becomes `'event_driven.domain.schemas.user'`
+
+    Args:
+        base_dir: The base directory path (e.g., './src/event_driven').
+        subfolder: The relative subfolder path (e.g., 'domain/schemas').
+        file_name: The target filename (e.g., 'user.py').
+
+    Returns:
+        str: The dot-separated Python import module path.
+    """
+    path = Path(base_dir) / subfolder / file_name
+    # Strip the .py extension and skip the root code folder (e.g., 'src') if it is not a package
+    parts = [p for p in path.with_suffix("").parts if p not in (".", "src")]
+    return ".".join(parts)

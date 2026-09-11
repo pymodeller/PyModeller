@@ -1,0 +1,14 @@
+import pytest
+from {{ import_path }} import {{ class_name }}
+
+def test_instantiation_{{ class_name | lower }}():
+    """Verifica que el modelo Pydantic se instancie con campos válidos."""
+    # TODO: Inyectar datos dummy basados en el esquema
+    data = {{ dummy_data }}
+    instance = {{ class_name }}(**data)
+    assert instance is not None
+
+def test_validation_error_{{ class_name | lower }}():
+    """Verifica que falle si se le pasan tipos incorrectos."""
+    with pytest.raises(Exception):
+        {{ class_name }}(invalid_field="invalid_value_type")

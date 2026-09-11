@@ -26,11 +26,11 @@ environments:
       threads_energy: 20321
       token_value: arn:aws:s3:my-bucket/Test
 
-    ministack: {}
-        # Ministack cluster profile — overrides go here
+  ministack: {}
+      # Ministack cluster profile — overrides go here
 
-    kubernetes: {}
-        # kubernetes cluster profile — overrides go here
+  kubernetes: {}
+      # kubernetes cluster profile — overrides go here
 
-    aws: {}
-        # aws cluster profile — overrides go here
+  aws: {}
+      # aws cluster profile — overrides go here

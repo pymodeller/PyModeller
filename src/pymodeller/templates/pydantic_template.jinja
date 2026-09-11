@@ -36,6 +36,9 @@ class {{ class_name }}(BaseModel):
         from_attributes={{ from_attributes | default(True) }},
         extra="ignore",
         populate_by_name=True,
+        {% if pyproject_toml_table_header %}
+        pyproject_toml_table_header={{ pyproject_toml_table_header }},
+        {% endif %}
     )
     {% else %}
     model_config = ConfigDict(

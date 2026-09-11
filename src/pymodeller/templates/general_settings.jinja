@@ -35,6 +35,9 @@ class {{ class_name }}(BaseTraceableSettings):
         extra="ignore",
         populate_by_name=True,
         env_prefix_target="all",
+        {% if pyproject_toml_table_header %}
+        pyproject_toml_table_header={{ pyproject_toml_table_header }},
+        {% endif %}
     )
 
     # --- Flat variables (General Section) ---
@@ -47,7 +50,9 @@ class {{ class_name }}(BaseTraceableSettings):
     )
     {% endfor %}
 
+    {% if nested_sections -%}
     # --- Nested Sections (Composition) ---
-    {% for section in nested_sections %}
+    {% for section in nested_sections -%}
     {{ section.attr }}: {{ section.class_name }} = Field(default_factory={{ section.class_name }})
     {% endfor %}
+    {%- endif %}
