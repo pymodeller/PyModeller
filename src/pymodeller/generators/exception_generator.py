@@ -36,7 +36,6 @@ class HttpExceptionSpec(ExceptionSpec):
 
     status_code: int = Field(500, alias="status_code")
     detail: str = Field("Internal Server Error", alias="detail")
-    is_http: bool = Field(True, alias="is_http")
 
 
 class ExceptionGenerator(BaseGenerator[ExceptionSpec]):
@@ -58,7 +57,7 @@ class ExceptionGenerator(BaseGenerator[ExceptionSpec]):
             list[ExceptionSpec]: Filtered list of standard exception specifications.
         """
         all_specs = super().parse_yaml(path)
-        return [spec for spec in all_specs if not getattr(spec, "is_http", False)]
+        return [spec for spec in all_specs if not spec.is_http]
 
 
 class HttpExceptionGenerator(BaseGenerator[HttpExceptionSpec]):
@@ -67,7 +66,7 @@ class HttpExceptionGenerator(BaseGenerator[HttpExceptionSpec]):
     yaml_section: str = "exceptions"
     single_file: bool = True
     class_suffix: str = "Exception"
-    output_filename: str = "http_exceptions"
+    output_filename: str | None = "exceptions_http"
     template_name: str = "exceptions_http.jinja"
     model_class: type[HttpExceptionSpec] = HttpExceptionSpec
 
@@ -81,4 +80,4 @@ class HttpExceptionGenerator(BaseGenerator[HttpExceptionSpec]):
             list[HttpExceptionSpec]: Filtered list of HTTP exception specifications.
         """
         all_specs = super().parse_yaml(path)
-        return [spec for spec in all_specs if getattr(spec, "is_http", False)]
+        return [spec for spec in all_specs if spec.is_http]

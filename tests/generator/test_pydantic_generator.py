@@ -15,7 +15,6 @@ from __future__ import annotations
 import tempfile
 import unittest
 from pathlib import Path
-from typing import Any
 from unittest.mock import MagicMock, patch
 
 from pymodeller.config import DestinationConfig
@@ -23,7 +22,6 @@ from pymodeller.generators.pydantic_generator import PydanticGenerator
 from pymodeller.loader import (
     DestinationType,
     EnvSection,
-    EnvSpec,
     EnvVarSpec,
     SectionType,
 )
@@ -52,9 +50,7 @@ class TestPydanticGeneratorHelpers(unittest.TestCase):
         """Test Python type resolution when referencing nested models or enums."""
         var_model: EnvVarSpec = EnvVarSpec(name="user", from_model="user_detail")
         var_enum: EnvVarSpec = EnvVarSpec(name="role", from_enum="user_role")
-        var_list_model: EnvVarSpec = EnvVarSpec(
-            name="items", type="list", from_model="item_detail", required=True
-        )
+        var_list_model: EnvVarSpec = EnvVarSpec(name="items", type="list", from_model="item_detail", required=True)
 
         self.assertEqual(PydanticGenerator.get_python_type(var_model), "UserDetailModel | None")
         self.assertEqual(PydanticGenerator.get_python_type(var_enum), "UserRoleEnum | None")
@@ -105,14 +101,15 @@ class TestPydanticGeneratorRendering(unittest.TestCase):
         """Set up mock DestinationConfig and initialize PydanticGenerator instance."""
         self.mock_dest_config: MagicMock = MagicMock(spec=DestinationConfig)
         self.mock_dest_config.import_init_base_class = "app.base.BaseSettings"
-        self.mock_dest_config.test_folder = Path("/tmp/tests")
-        self.mock_dest_config.base_dir = Path("/tmp/base")
+        self.mock_dest_config.test_folder = Path("./tmp/tests")
+        self.mock_dest_config.base_dir = Path("./tmp/base")
         self.mock_dest_config.pydantic_model_folder = Path("src/app/models")
         # self.mock_dest_config.enumerations_folder = Path("src/app/enums")
         self.mock_dest_config.pydantic_settings_folder = Path("src/app/settings")
 
-        with patch("pymodeller.generators.pydantic_generator.PackageLoader"), patch(
-            "pymodeller.generators.pydantic_generator.Environment"
+        with (
+            patch("pymodeller.generators.pydantic_generator.PackageLoader"),
+            patch("pymodeller.generators.pydantic_generator.Environment"),
         ):
             self.generator: PydanticGenerator = PydanticGenerator(self.mock_dest_config)
 
@@ -143,9 +140,10 @@ class TestPydanticGeneratorFileGeneration(unittest.TestCase):
         self.mock_dest_config.pydantic_settings_init = self.base_path / "settings" / "master.py"
         self.mock_dest_config.enumerations_folder = self.base_path / "enumerations"
 
-        with patch("pymodeller.generators.pydantic_generator.PackageLoader"), patch(
-            "pymodeller.generators.pydantic_generator.Environment"
-        ) as mock_env_cls:
+        with (
+            patch("pymodeller.generators.pydantic_generator.PackageLoader"),
+            patch("pymodeller.generators.pydantic_generator.Environment") as mock_env_cls,
+        ):
             self.mock_env: MagicMock = MagicMock()
             mock_env_cls.return_value = self.mock_env
             self.mock_template: MagicMock = MagicMock()

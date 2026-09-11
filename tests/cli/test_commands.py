@@ -11,7 +11,7 @@ Copyright ©2026 PyModeller. All rights reserved.
 
 from pathlib import Path
 from typing import Any
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 import typer
@@ -19,7 +19,7 @@ import yaml
 from typer.testing import CliRunner, Result
 
 from pymodeller.cli.cli import app
-from pymodeller.cli.commands import banner_full, check, codegen, print_diff, setup, yaml_file# , drift, sync
+from pymodeller.cli.commands import banner_full, check, print_diff, setup, yaml_file  # , drift, sync
 from pymodeller.generators import EnvGenerator
 from pymodeller.utils import deep_merge, get_file_hash, write_env_file
 
@@ -156,6 +156,7 @@ def test_cli_codegen(mock_hash: MagicMock, mock_load: MagicMock, mock_gen: Magic
 
     assert result.exit_code == 2
 
+
 #
 # def test_cli_drift_detected(tmp_path: Path) -> None:
 #     """Test that 'drift' exits with code 1 when spec and model hashes do not match.
@@ -194,6 +195,7 @@ def test_cli_codegen(mock_hash: MagicMock, mock_load: MagicMock, mock_gen: Magic
 #     assert result.exit_code == 1
 #     assert "Checking differences between YAML" in result.stdout
 #
+
 
 class TestCLICommands:
     """Tests for CLI commands in commands.py to achieve full coverage."""

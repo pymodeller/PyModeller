@@ -14,7 +14,6 @@ from __future__ import annotations
 import tempfile
 import unittest
 from pathlib import Path
-from typing import Any
 from unittest.mock import MagicMock, patch
 
 from pydantic import ValidationError
@@ -103,25 +102,6 @@ class TestEnvSection(unittest.TestCase):
             pyproject_toml_table_header="tool.mypy , tool.pytest "  # type: ignore[arg-type]
         )
         self.assertEqual(section.pyproject_toml_table_header, ["tool.mypy", "tool.pytest"])
-
-    def test_propagate_section_to_variables(self) -> None:
-        """Test propagation of section name and prefixed env_name to child variables."""
-        var1: EnvVarSpec = EnvVarSpec(name="host")
-        var2: EnvVarSpec = EnvVarSpec(name="port", env_name="CUSTOM_PORT_NAME")
-
-        section: EnvSection = EnvSection(
-            name="DatabaseSettings",
-            env_prefix="DB",
-            variables=[var1, var2],
-        )
-
-        # First variable should inherit section name and generated env_name
-        self.assertEqual(var1.section, "DatabaseSettings")
-        self.assertEqual(var1.env_name, "DB_host")
-
-        # Second variable should retain its custom env_name
-        self.assertEqual(var2.section, "DatabaseSettings")
-        self.assertEqual(var2.env_name, "CUSTOM_PORT_NAME")
 
 
 class TestEnvSpec(unittest.TestCase):

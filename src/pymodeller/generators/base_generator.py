@@ -15,7 +15,7 @@ from typing import TypeVar
 
 import yaml
 from jinja2 import Environment, PackageLoader, select_autoescape
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from pymodeller.loader import DestinationType
 
@@ -24,6 +24,7 @@ class NamedModel(BaseModel):
     """Base model ensuring the presence of a 'name' attribute."""
 
     name: str
+    is_http: bool = Field(True, alias="is_http")
 
 
 # Type variable constrained to Pydantic BaseModels
@@ -41,28 +42,25 @@ class BaseGenerator[T: NamedModel]:
     model_class: type[T]
     class_suffix: str = ""
     single_file: bool = False
-    accumulate_imports: bool = False
     output_filename: str | None = None
     package_name: str = "pymodeller"
     templates_folder: str = "templates"
 
-    __saved_imports__: list[dict] = []
-
     def __init__(
         self,
         destination: DestinationType = DestinationType.INFRASTRUCTURE,
-        accumulate_imports: bool = False,
         output_filename: str | None = None,
+        saved_imports: list[dict] | None = None,
     ) -> None:
         """Initialize the base generator with environment settings and destination target.
 
         Args:
             destination (DestinationType): Target architectural layer for code generation.
-            accumulate_imports (bool | None): Override class-level accumulate_imports setting if provided.
             output_filename (str | None): Custom target filename when using single_file mode.
+            saved_imports (list[dict] | None): Optional list of previously generated module import data.
         """
+        self.__saved_imports__ = saved_imports if saved_imports else []
         self.destination: DestinationType = destination
-        self.accumulate_imports = accumulate_imports
         if output_filename is not None:
             self.output_filename = output_filename
 
@@ -119,10 +117,7 @@ class BaseGenerator[T: NamedModel]:
         Returns:
             str: The target file name ending with .py extension.
         """
-        if self.output_filename:
-            target = self.output_filename
-        else:
-            target = self.yaml_section
+        target = self.output_filename or self.yaml_section
 
         target = self._to_snake_case(target)
         return target if target.endswith(".py") else f"{target}.py"
@@ -145,12 +140,8 @@ class BaseGenerator[T: NamedModel]:
             raise FileNotFoundError(f"The file {yaml_path} does not exist.")
 
         specs: list[T] = self.parse_yaml(path)
-        #dest_specs: list[T] = [s for s in specs if getattr(s, "destination", self.destination) == self.destination]
-        dest_specs: list[T] = [
-            s.model_copy(update={"name": f"{self.get_class_name(s)}"})
-            for s in specs
-            if getattr(s, "destination", self.destination) == self.destination
-        ]
+        dest_aux: list[T] = [s for s in specs if getattr(s, "destination", self.destination) == self.destination]
+        dest_specs: list[T] = [s.model_copy(update={"name": f"{self.get_class_name(s)}"}) for s in dest_aux]
 
         if not dest_specs:
             return []
@@ -199,7 +190,9 @@ class BaseGenerator[T: NamedModel]:
         init_file_path.write_text(init_content, encoding="utf-8")
         generated_files.append(init_file_path)
 
-        if self.accumulate_imports:
-            self.__saved_imports__.extend(models_data)
-
+        self.__saved_imports__ = models_data
         return generated_files
+
+    def get_saved_imports(self) -> list[dict]:
+        """Retrieve the accumulated import data for generated modules."""
+        return self.__saved_imports__

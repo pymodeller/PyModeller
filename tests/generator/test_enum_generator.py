@@ -12,16 +12,13 @@ Copyright ©2026 PyModeller. All rights reserved.
 
 from __future__ import annotations
 
-import tempfile
 import unittest
-from pathlib import Path
-from unittest.mock import MagicMock, patch
 
 from pydantic import ValidationError
 
 from pymodeller.generators.enum_generator import (
-    EnumGenerator,
     EnumerationSpec,
+    EnumGenerator,
 )
 from pymodeller.loader import DestinationType
 
@@ -57,7 +54,6 @@ class TestEnumGeneratorHelpers(unittest.TestCase):
         self.assertEqual(EnumGenerator._to_snake_case("UserRole"), "user_role")
         self.assertEqual(EnumGenerator._to_snake_case("HTTPStatusType"), "h_t_t_p_status_type")
         self.assertEqual(EnumGenerator._to_snake_case("Status"), "status")
-
 
 
 if __name__ == "__main__":
