@@ -12,6 +12,7 @@ environments:
     process:
       threads_energy: 20321
       token_value: arn:aws:s3:my-bucket/Project
+      secret_value: arn:aws:secretsmanager:us-east-1:000000000000:secret:test/secret2
 
 
   local:

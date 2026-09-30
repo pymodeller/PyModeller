@@ -77,7 +77,7 @@ models_yaml = "./pymodeller/pymodeller.yaml"
 exceptions_yaml = "./pymodeller/exceptions.yaml"
 environment_file = "./environments.yaml"
 generate_init_models = true
-enabled_sources = "yaml,s3"
+enabled_sources = "yaml,aws"
 pyproject_toml_table_header = "tool,prueba"
 
 # Destinos según el 'model_type'

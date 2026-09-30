@@ -97,6 +97,13 @@ models:
         required: false
         secret: false
 
+      - name: secret_value
+        description: just a token value
+        type: str
+        default: empty
+        required: false
+        secret: true
+
   - name: Broker Config
     description: Broker Configuration.
     type: model

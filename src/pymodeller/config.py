@@ -29,7 +29,7 @@ class SourceType(StrEnum):
     """Source type."""
 
     YAML = "yaml"
-    S3 = "s3"
+    AWS = "aws"
 
 
 class DestinationConfig(BaseModel):
